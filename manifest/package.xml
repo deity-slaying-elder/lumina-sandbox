@@ -45,6 +45,10 @@
     </types>
     <types>
         <members>*</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>*</members>
         <name>CustomMetadata</name>
     </types>
     <types>
@@ -70,6 +74,38 @@
     <types>
         <members>*</members>
         <name>StandardValueSetTranslation</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>RecordType</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>BusinessProcess</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>FieldSet</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>ListView</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>CompactLayout</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>WebLink</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>ValidationRule</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>SharingReason</name>
     </types>
 
     <!-- ==================== APPLICATIONS & UI ==================== -->
@@ -334,6 +370,10 @@
     <types>
         <members>*</members>
         <name>CustomLabels</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>CustomLabel</name>
     </types>
     <types>
         <members>*</members>
@@ -949,5 +989,5 @@
     </types>
 
     <!-- ==================== API VERSION ==================== -->
-    <version>64.0</version>
+    <version>65.0</version>
 </Package>

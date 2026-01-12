@@ -65,6 +65,7 @@
         <lockerServiceCSP>false</lockerServiceCSP>
         <lockerServiceNext>true</lockerServiceNext>
         <lockerServiceNextControl>false</lockerServiceNextControl>
+        <lockerTrustedMode>false</lockerTrustedMode>
         <redirectBlockModeEnabled>false</redirectBlockModeEnabled>
         <redirectionWarning>true</redirectionWarning>
         <referrerPolicy>true</referrerPolicy>

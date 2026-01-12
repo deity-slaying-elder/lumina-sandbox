@@ -10,6 +10,7 @@
     <enableGmailIntegration>true</enableGmailIntegration>
     <enableInboxInternalEmailTracking>false</enableInboxInternalEmailTracking>
     <enableInboxMobileIntune>false</enableInboxMobileIntune>
+    <enableInboxUseGraphApi>false</enableInboxUseGraphApi>
     <enableOutlookIntegration>true</enableOutlookIntegration>
     <enableProductivityFeatures>false</enableProductivityFeatures>
     <enableSupplementalContactInfoInMobile>false</enableSupplementalContactInfoInMobile>

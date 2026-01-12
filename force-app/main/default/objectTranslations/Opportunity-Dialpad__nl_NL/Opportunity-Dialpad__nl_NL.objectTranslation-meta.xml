@@ -1,2 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata"></CustomObjectTranslation>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldSets>
+        <label><!-- Bulk Opportunity Create --></label>
+        <name>Bulk_Opportunity_Create</name>
+    </fieldSets>
+    <fieldSets>
+        <label><!-- Bulk Opportunity Edit --></label>
+        <name>Bulk_Opportunity_Edit</name>
+    </fieldSets>
+</CustomObjectTranslation>
