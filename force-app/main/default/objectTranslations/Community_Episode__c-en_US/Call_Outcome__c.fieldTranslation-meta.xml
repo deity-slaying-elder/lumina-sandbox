@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Call Outcome --></label>
+    <name>Call_Outcome__c</name>
+    <picklistValues>
+        <masterLabel>Agreed to Services</masterLabel>
+        <translation><!-- Agreed to Services --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Expired</masterLabel>
+        <translation><!-- Expired --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Left Voicemail</masterLabel>
+        <translation><!-- Left Voicemail --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Readmitted</masterLabel>
+        <translation><!-- Readmitted --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Refused Services</masterLabel>
+        <translation><!-- Refused Services --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Requested Call Back</masterLabel>
+        <translation><!-- Requested Call Back --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Unable To Reach</masterLabel>
+        <translation><!-- Unable To Reach --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Unable to Leave Voicemail</masterLabel>
+        <translation><!-- Unable to Leave Voicemail --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Unable to Service Patient</masterLabel>
+        <translation><!-- Unable to Service Patient --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Wrong Number</masterLabel>
+        <translation><!-- Wrong Number --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

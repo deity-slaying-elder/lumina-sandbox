@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Facility Status --></label>
+    <name>Facility_Status__c</name>
+    <picklistValues>
+        <masterLabel>Discharged</masterLabel>
+        <translation><!-- Discharged --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>New Patient</masterLabel>
+        <translation><!-- New Patient --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Re-Admitted</masterLabel>
+        <translation><!-- Re-Admitted --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

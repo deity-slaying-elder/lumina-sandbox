@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Code Status --></label>
+    <name>Code_Status__c</name>
+    <picklistValues>
+        <masterLabel>DNR</masterLabel>
+        <translation><!-- DNR --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>DNR- Comfort Care- Arrest</masterLabel>
+        <translation><!-- DNR- Comfort Care- Arrest --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Full Code</masterLabel>
+        <translation><!-- Full Code --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

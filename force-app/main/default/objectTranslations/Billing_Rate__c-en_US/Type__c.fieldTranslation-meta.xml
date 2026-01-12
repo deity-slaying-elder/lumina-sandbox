@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Type --></label>
+    <name>Type__c</name>
+    <picklistValues>
+        <masterLabel>BHI</masterLabel>
+        <translation><!-- BHI --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>CCM</masterLabel>
+        <translation><!-- CCM --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>CHI</masterLabel>
+        <translation><!-- CHI --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>CoCM</masterLabel>
+        <translation><!-- CoCM --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>NH/Consults</masterLabel>
+        <translation><!-- NH/Consults --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Other</masterLabel>
+        <translation><!-- Other --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Psych</masterLabel>
+        <translation><!-- Psych --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>RP</masterLabel>
+        <translation><!-- RP --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>TCM/PCM</masterLabel>
+        <translation><!-- TCM/PCM --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

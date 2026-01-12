@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Latest Discharge Run Date 3 Hours Old --></label>
+    <name>Latest_Discharge_Run_Date_3_Hours_Old__c</name>
+</CustomFieldTranslation>

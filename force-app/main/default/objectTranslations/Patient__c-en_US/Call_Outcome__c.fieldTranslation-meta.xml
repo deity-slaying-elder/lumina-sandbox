@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Call Outcome --></label>
+    <name>Call_Outcome__c</name>
+    <picklistValues>
+        <masterLabel>Agreed to Services</masterLabel>
+        <translation><!-- Agreed to Services --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Deceased</masterLabel>
+        <translation><!-- Deceased --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Inpatient</masterLabel>
+        <translation><!-- Inpatient --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Left Voicemail</masterLabel>
+        <translation><!-- Left Voicemail --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>No Access to Facesheet</masterLabel>
+        <translation><!-- No Access to Facesheet --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Readmitted</masterLabel>
+        <translation><!-- Readmitted --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Refused Services</masterLabel>
+        <translation><!-- Refused Services --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Requested Call Back</masterLabel>
+        <translation><!-- Requested Call Back --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Unable to Leave Voicemail (VM Full)</masterLabel>
+        <translation><!-- Unable to Leave Voicemail (VM Full) --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Unable to Leave Voicemail (VM Not Setup)</masterLabel>
+        <translation><!-- Unable to Leave Voicemail (VM Not Setup) --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Unable to Reach (No Number)</masterLabel>
+        <translation><!-- Unable to Reach (No Number) --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Unable to Reach (Wrong Number)</masterLabel>
+        <translation><!-- Unable to Reach (Wrong Number) --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Unable to Service Patient (Alternate Services In Place)</masterLabel>
+        <translation><!-- Unable to Service Patient (Alternate Services In Place) --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Unable to Service Patient (Hospice)</masterLabel>
+        <translation><!-- Unable to Service Patient (Hospice) --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Unable to Service Patient (Insurance Not Eligible)</masterLabel>
+        <translation><!-- Unable to Service Patient (Insurance Not Eligible) --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Unable to Service Patient (Out of State)</masterLabel>
+        <translation><!-- Unable to Service Patient (Out of State) --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

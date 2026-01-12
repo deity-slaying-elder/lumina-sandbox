@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Feeling Nervous, Anxious, Or On Edge --></label>
+    <name>Feeling_Nervous_Anxious_Or_On_Edge__c</name>
+    <picklistValues>
+        <masterLabel>More than half the days</masterLabel>
+        <translation><!-- More than half the days --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Nearly every day</masterLabel>
+        <translation><!-- Nearly every day --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Not at all</masterLabel>
+        <translation><!-- Not at all --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Several days</masterLabel>
+        <translation><!-- Several days --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

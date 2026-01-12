@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- TCM Appointment Scheduled --></label>
+    <name>TCM_Appointment_Scheduled__c</name>
+</CustomFieldTranslation>

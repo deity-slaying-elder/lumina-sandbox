@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>If_not_non_payer_must_have_insurance</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(Non_Payer__c = false, ISBLANK( Insurance__c ))</errorConditionFormula>
+    <errorMessage>There must be an insurance if the Alias is not a Non-Payer Alias</errorMessage>
+</ValidationRule>

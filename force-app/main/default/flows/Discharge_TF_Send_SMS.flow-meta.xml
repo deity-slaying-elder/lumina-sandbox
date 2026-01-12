@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Send_Message</name>
+        <label>Send Message</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>TwilioSF__TwilioSendSMS</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Set_Last_SMS_Message</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>message</name>
+            <value>
+                <elementReference>smsTemplate</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>toNumber</name>
+            <value>
+                <elementReference>phoneNumber</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>TwilioSF__TwilioSendSMS</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>If_Discharged_Home</name>
+        <label>If Discharged Home</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Discharged_Home</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>dischargedHome</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Patient__r.No_Texts__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>If_Text_Sent_Within_2_Days</targetReference>
+            </connector>
+            <label>Discharged Home</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_GHC</name>
+        <label>If GHC</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>GHC</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Patient__r.Facility__r.Parent_Company__r.Name</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>GHC</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>If_MD_DE_or_NJ</targetReference>
+            </connector>
+            <label>GHC</label>
+        </rules>
+        <rules>
+            <name>Complete_Care</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Patient__r.Facility__r.Parent_Company__r.Name</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>Complete Care</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>If_PA_or_NJ</targetReference>
+            </connector>
+            <label>Complete Care</label>
+        </rules>
+        <rules>
+            <name>Infinity</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Patient__r.Facility__r.Parent_Company__r.Name</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>Infinity</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>IL</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>If_No_Phone_Number</targetReference>
+            </connector>
+            <label>Infinity</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_MD_DE_or_NJ</name>
+        <label>If MD, DE, or NJ</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>MD_DE_NJ</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>MDDENJ</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>If_No_Phone_Number</targetReference>
+            </connector>
+            <label>MD, DE, NJ</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_No_Phone_Number</name>
+        <label>If No Phone Number</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Send_Message</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>No_Phone_Number</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>phoneNumber</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>No Phone Number</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_PA_or_NJ</name>
+        <label>If PA or NJ</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>PA_NJ</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>PANJ</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>If_No_Phone_Number</targetReference>
+            </connector>
+            <label>PA/NJ</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_Text_Sent_Within_2_Days</name>
+        <label>If Text Sent Within 2 Days</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>If_GHC</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Text_Sent_Within_2_Days</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>textLast2Days</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>Text Sent Within 2 Days</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>dischargedHome</name>
+        <dataType>Boolean</dataType>
+        <expression>IF(
+OR(
+CONTAINS(LOWER(TRIM({!$Record.To_From_Type__c})), &quot;home&quot;),
+CONTAINS(LOWER(TRIM({!$Record.To_From_Type__c})), &quot;alf&quot;),
+CONTAINS(LOWER(TRIM({!$Record.To_From_Type__c})), &quot;assisted&quot;),
+NOT(
+OR(
+CONTAINS(LOWER(TRIM({!$Record.To_From_Type__c})), &quot;funeral&quot;),
+CONTAINS(LOWER(TRIM({!$Record.To_From_Type__c})), &quot;nursing&quot;),
+CONTAINS(LOWER(TRIM({!$Record.To_From_Type__c})), &quot;hospice&quot;)
+)
+)
+),
+TRUE,
+FALSE
+)</expression>
+    </formulas>
+    <formulas>
+        <name>IL</name>
+        <dataType>Boolean</dataType>
+        <expression>or(
+{!$Record.Patient__r.Facility_State__c} = &apos;IL&apos;,
+{!$Record.Patient__r.Facility_State__c} = &apos;Illinois&apos;
+)</expression>
+    </formulas>
+    <formulas>
+        <name>MDDENJ</name>
+        <dataType>Boolean</dataType>
+        <expression>or(
+{!$Record.Patient__r.Facility_State__c} = &apos;NJ&apos;,
+{!$Record.Patient__r.Facility_State__c} = &apos;MD&apos;,
+{!$Record.Patient__r.Facility_State__c} = &apos;DE&apos;,
+{!$Record.Patient__r.Facility_State__c} = &apos;New Jersey&apos;,
+{!$Record.Patient__r.Facility_State__c} = &apos;Maryland&apos;,
+{!$Record.Patient__r.Facility_State__c} = &apos;Deleware&apos;
+)</expression>
+    </formulas>
+    <formulas>
+        <name>Now</name>
+        <dataType>DateTime</dataType>
+        <expression>now()</expression>
+    </formulas>
+    <formulas>
+        <name>PANJ</name>
+        <dataType>Boolean</dataType>
+        <expression>or(
+{!$Record.Patient__r.Facility_State__c} = &apos;NJ&apos;,
+{!$Record.Patient__r.Facility_State__c} = &apos;PA&apos;,
+{!$Record.Patient__r.Facility_State__c} = &apos;New Jersey&apos;,
+{!$Record.Patient__r.Facility_State__c} = &apos;Pennsylvania&apos;
+)</expression>
+    </formulas>
+    <formulas>
+        <name>phoneNumber</name>
+        <dataType>String</dataType>
+        <expression>if(
+not(isblank({!$Record.Patient__r.Phone_Number__c})),
+{!$Record.Patient__r.Phone_Number__c},
+if(
+not(isblank({!$Record.Patient__r.Mobile_Number__c})),
+{!$Record.Patient__r.Mobile_Number__c},
+if(
+not(isblank({!$Record.Patient__r.Main_Phone_Number__c})),
+{!$Record.Patient__r.Main_Phone_Number__c},
+if(
+not(isblank({!$Record.Patient__r.Phone_1__c})),
+{!$Record.Patient__r.Phone_1__c},
+if(
+not(isblank({!$Record.Patient__r.Phone_2__c})),
+{!$Record.Patient__r.Phone_2__c},
+if(
+not(isblank({!$Record.Patient__r.Phone_3__c})),
+{!$Record.Patient__r.Phone_3__c},
+null
+))))))</expression>
+    </formulas>
+    <formulas>
+        <name>textLast2Days</name>
+        <dataType>Boolean</dataType>
+        <expression>if(
+today() - datevalue({!$Record.Patient__r.Last_SMS_Sent_Date__c}) &gt; 3,
+true,
+false
+)</expression>
+    </formulas>
+    <interviewLabel>Discharge - TF - Send SMS {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Discharge - TF - Send SMS</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Set_Last_SMS_Message</name>
+        <label>Set Last SMS Message</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>Last_SMS_Sent_Date__c</field>
+            <value>
+                <elementReference>Now</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record.Patient__r</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>If_Discharged_Home</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Type__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Discharge</stringValue>
+            </value>
+        </filters>
+        <object>Admission_Discharge__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <textTemplates>
+        <name>smsTemplate</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>Hi, this is the Lumina Care Team. You were recently discharged. Please expect a call within 24–48 hours to schedule a telehealth follow-up with your provider. If you have any questions, feel free to call us at (929) 650-3990.</text>
+    </textTemplates>
+</Flow>

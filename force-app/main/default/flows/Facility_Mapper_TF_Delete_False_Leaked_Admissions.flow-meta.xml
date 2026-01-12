@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Add_To_Collection_For_Deletion</name>
+        <label>Add To Collection For Deletion</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>LeakedAdmissionCollection</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Loop_Leaked_Admissions</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Leaked_Admissions</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>If_Same_Company</name>
+        <label>If Same Company</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Loop_Leaked_Admissions</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Same_Company</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>IfSameParentCompany</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Add_To_Collection_For_Deletion</targetReference>
+            </connector>
+            <label>Same Company</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_There_Are_Leaked_Admissions_To_Delete</name>
+        <label>If There Are Leaked Admissions To Delete</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Delete_Admissions_Not_Empty</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>LeakedAdmissionCollection</leftValueReference>
+                <operator>IsEmpty</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Delete_Admissions</targetReference>
+            </connector>
+            <label>Delete Admissions Not Empty</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>IfSameParentCompany</name>
+        <dataType>Boolean</dataType>
+        <expression>if(
+{!$Record.Facility__r.Parent_Company__r.Name} = {!Loop_Leaked_Admissions.Patient__r.Facility__r.Parent_Company__r.Name},
+true,
+false)</expression>
+    </formulas>
+    <interviewLabel>Facility Mapper - TF - Delete False Leaked Admissions {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Facility Mapper - TF - Delete False Leaked Admissions</label>
+    <loops>
+        <name>Loop_Leaked_Admissions</name>
+        <label>Loop Leaked Admissions</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Get_All_Leaked_Admissions</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>If_Same_Company</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>If_There_Are_Leaked_Admissions_To_Delete</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordDeletes>
+        <name>Delete_Admissions</name>
+        <label>Delete Admissions</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputReference>LeakedAdmissionCollection</inputReference>
+    </recordDeletes>
+    <recordLookups>
+        <name>Get_All_Leaked_Admissions</name>
+        <label>Get All Leaked Admissions</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Loop_Leaked_Admissions</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Facility_Mapper__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Leaked_Admission__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_All_Leaked_Admissions</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Facility__c</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Facility__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <object>Facility_Mapper__c</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>LeakedAdmissionCollection</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Leaked_Admission__c</objectType>
+    </variables>
+</Flow>

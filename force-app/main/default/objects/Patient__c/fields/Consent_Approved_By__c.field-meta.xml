@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Consent_Approved_By__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>FE User who approved consent</description>
+    <label>Consent Approved By</label>
+    <referenceTo>Front_End_User__c</referenceTo>
+    <relationshipLabel>Patients</relationshipLabel>
+    <relationshipName>Patients</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

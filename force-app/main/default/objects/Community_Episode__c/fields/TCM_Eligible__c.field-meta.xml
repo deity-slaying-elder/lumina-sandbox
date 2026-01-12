@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>TCM_Eligible__c</fullName>
+    <formula>if(
+or(today() &lt;= Latest_Discharge_Date__c + 2,
+Count_of_Calls_Within_48_Hours__c &gt;= 2,
+contains(text(Service_Type__c), &quot;Transitional care management&quot;)),
+true, false)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>TCM Eligible</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

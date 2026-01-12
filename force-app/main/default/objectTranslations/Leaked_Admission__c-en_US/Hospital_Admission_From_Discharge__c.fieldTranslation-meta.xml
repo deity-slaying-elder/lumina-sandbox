@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Hospital Admission From Discharge --></label>
+    <name>Hospital_Admission_From_Discharge__c</name>
+    <relationshipLabel><!-- Leaked Admissions (Hospital Admission From Discharge) --></relationshipLabel>
+</CustomFieldTranslation>

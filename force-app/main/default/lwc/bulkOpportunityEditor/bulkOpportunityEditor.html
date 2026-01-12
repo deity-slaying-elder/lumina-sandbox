@@ -1,0 +1,289 @@
+<template>
+    <lightning-card title="Bulk Opportunity Editor" icon-name="standard:opportunity">
+        <div slot="actions">
+            <lightning-button
+                label="New Opportunities"
+                variant="brand"
+                icon-name="utility:add"
+                onclick={handleNewOpportunities}
+            ></lightning-button>
+        </div>
+        <div class="slds-card__body slds-card__body_inner">
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading..."></lightning-spinner>
+            </template>
+
+            <template if:false={isLoading}>
+                <template if:true={showNoOpportunitiesMessage}>
+                    <div class="slds-text-align_center slds-p-around_large empty-state">
+                        <lightning-icon icon-name="standard:opportunity" size="large" class="slds-m-bottom_small"></lightning-icon>
+                        <h3 class="slds-text-heading_small slds-m-bottom_x-small">No Opportunities Found</h3>
+                        <p class="slds-text-color_weak">There are no opportunities linked to this account yet.</p>
+                    </div>
+                </template>
+
+                <template if:true={showActualError}>
+                    <div class="slds-m-bottom_medium">
+                        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+                            <span class="slds-assistive-text">error</span>
+                            <h2>{errorMessage}</h2>
+                        </div>
+                    </div>
+                </template>
+
+                <template if:true={hasData}>
+                    <!-- Filter Controls Section -->
+                    <div class="slds-m-bottom_medium filter-section">
+                        <div class="slds-grid slds-gutters slds-wrap">
+                            <!-- Select All Facilities -->
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                                <lightning-input
+                                    type="checkbox"
+                                    label="Select All Facilities"
+                                    checked={allFacilitiesSelected}
+                                    onchange={handleSelectAllFacilities}
+                                    class="select-all-checkbox"
+                                ></lightning-input>
+                            </div>
+                            <!-- Search Facilities -->
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
+                                <lightning-input
+                                    type="search"
+                                    label="Search Facilities"
+                                    placeholder="Search by facility name..."
+                                    value={facilitySearchTerm}
+                                    onchange={handleFacilitySearch}
+                                ></lightning-input>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Facility Selection Checkboxes -->
+                    <div class="slds-m-bottom_medium facility-selection">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small">
+                            Filter by Facility
+                        </h3>
+                        <div class="slds-grid slds-wrap slds-gutters_small">
+                            <template for:each={filteredFacilities} for:item="facility">
+                                <div key={facility.Id} class="slds-col slds-size_1-of-1 slds-small-size_1-of-2 slds-medium-size_1-of-3 slds-large-size_1-of-4">
+                                    <lightning-input
+                                        type="checkbox"
+                                        label={facility.Name}
+                                        checked={facility.selected}
+                                        data-facility-id={facility.Id}
+                                        onchange={handleFacilitySelection}
+                                    ></lightning-input>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Opportunity Type Selection -->
+                    <template if:true={hasOpportunityTypes}>
+                        <div class="slds-m-bottom_medium type-selection">
+                            <h3 class="slds-text-heading_small slds-m-bottom_small">
+                                Filter by Opportunity Type
+                            </h3>
+                            <div class="slds-m-bottom_small">
+                                <lightning-input
+                                    type="checkbox"
+                                    label="Select All Types"
+                                    checked={allTypesSelected}
+                                    onchange={handleSelectAllTypes}
+                                    class="select-all-checkbox"
+                                ></lightning-input>
+                            </div>
+                            <div class="slds-grid slds-wrap slds-gutters_small">
+                                <template for:each={opportunityTypesWithSelection} for:item="typeObj">
+                                    <div key={typeObj.value} class="slds-col slds-size_1-of-1 slds-small-size_1-of-2 slds-medium-size_1-of-3 slds-large-size_1-of-4">
+                                        <lightning-input
+                                            type="checkbox"
+                                            label={typeObj.label}
+                                            checked={typeObj.selected}
+                                            data-type={typeObj.value}
+                                            onchange={handleTypeSelection}
+                                        ></lightning-input>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Summary Banner -->
+                    <div class="slds-m-bottom_medium">
+                        <div class="info-banner slds-box slds-theme_info slds-p-around_medium">
+                            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-wrap">
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                                    <p class="slds-text-body_regular">
+                                        <strong>Showing {totalOpportunityCount} opportunities</strong>
+                                    </p>
+                                </div>
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                                    <p class="slds-text-body_regular">
+                                        <strong class="slds-text-color_inverse-weak">{selectedOpportunityCount} selected</strong>
+                                    </p>
+                                </div>
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                                    <template if:true={opportunityCount}>
+                                        <p class="slds-text-body_regular">
+                                            <strong class="slds-text-color_success">{opportunityCount} opportunities</strong> with unsaved changes
+                                        </p>
+                                    </template>
+                                    <template if:false={opportunityCount}>
+                                        <p class="slds-text-body_regular slds-text-color_weak">
+                                            No unsaved changes
+                                        </p>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Table with Inline Editing -->
+                    <div class="slds-m-bottom_medium">
+                        <div class="slds-table_container">
+                            <div class="slds-scrollable_x">
+                                <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_fixed-layout">
+                                    <thead>
+                                        <tr class="slds-line-height_reset">
+                                            <th scope="col" style="width: 3.25rem">
+                                                <lightning-input
+                                                    type="checkbox"
+                                                    variant="label-hidden"
+                                                    checked={allRowsSelected}
+                                                    onchange={handleSelectAllRows}>
+                                                </lightning-input>
+                                            </th>
+                                            <th scope="col" style="width: 3.25rem">
+                                                <div class="slds-truncate slds-th__action">
+                                                    <span class="slds-assistive-text">Row Number</span>
+                                                </div>
+                                            </th>
+                                            <template for:each={columns} for:item="col">
+                                                <th key={col.fieldName} scope="col">
+                                                    <div class="slds-truncate" title={col.label}>{col.label}</div>
+                                                </th>
+                                            </template>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={filteredData} for:item="row">
+                                            <tr key={row.Id} class={row.isSelected}>
+                                                <td>
+                                                    <lightning-input
+                                                        type="checkbox"
+                                                        variant="label-hidden"
+                                                        checked={row.isSelected}
+                                                        data-id={row.Id}
+                                                        onchange={handleRowSelect}>
+                                                    </lightning-input>
+                                                </td>
+                                                <th scope="row">
+                                                    <div class="slds-truncate" title={row.rowNumber}>{row.rowNumber}</div>
+                                                </th>
+                                                <template for:each={row.cells} for:item="cell">
+                                                    <td key={cell.columnKey} data-label={cell.label}>
+                                                        <!-- Editable picklist field -->
+                                                        <template if:true={cell.isPicklist}>
+                                                            <template if:true={cell.editable}>
+                                                                <lightning-combobox
+                                                                    dropdown-alignment="auto"
+                                                                    variant="label-hidden"
+                                                                    value={cell.value}
+                                                                    options={cell.optionsValue}
+                                                                    data-id={row.Id}
+                                                                    data-field={cell.columnKey}
+                                                                    onchange={handleFieldChange}>
+                                                                </lightning-combobox>
+                                                            </template>
+                                                            <template if:false={cell.editable}>
+                                                                <div class="slds-truncate" title={cell.value}>{cell.value}</div>
+                                                            </template>
+                                                        </template>
+                                                        <!-- Editable non-picklist field -->
+                                                        <template if:false={cell.isPicklist}>
+                                                            <template if:true={cell.editable}>
+                                                                <template if:true={cell.isCheckbox}>
+                                                                    <lightning-input
+                                                                        variant="label-hidden"
+                                                                        type="checkbox"
+                                                                        checked={cell.value}
+                                                                        data-id={row.Id}
+                                                                        data-field={cell.columnKey}
+                                                                        onchange={handleFieldChange}>
+                                                                    </lightning-input>
+                                                                </template>
+                                                                <template if:false={cell.isCheckbox}>
+                                                                    <lightning-input
+                                                                        variant="label-hidden"
+                                                                        type={cell.inputType}
+                                                                        value={cell.value}
+                                                                        data-id={row.Id}
+                                                                        data-field={cell.columnKey}
+                                                                        onchange={handleFieldChange}>
+                                                                    </lightning-input>
+                                                                </template>
+                                                            </template>
+                                                            <!-- Read-only field -->
+                                                            <template if:false={cell.editable}>
+                                                                <template if:true={cell.isLink}>
+                                                                    <a href={cell.linkValue} target="_blank" class="slds-truncate" title={cell.displayValue}>{cell.displayValue}</a>
+                                                                </template>
+                                                                <template if:false={cell.isLink}>
+                                                                    <div class="slds-truncate" title={cell.displayValue}>{cell.displayValue}</div>
+                                                                </template>
+                                                            </template>
+                                                        </template>
+                                                    </td>
+                                                </template>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Update and Cancel Buttons -->
+                    <div class="slds-text-align_center">
+                        <template if:true={opportunityCount}>
+                            <lightning-button
+                                variant="neutral"
+                                label="Cancel Changes"
+                                onclick={handleCancelChanges}
+                                icon-name="utility:undo"
+                                class="slds-m-right_small"
+                            ></lightning-button>
+                        </template>
+                        <lightning-button
+                            variant="brand"
+                            label="Update Opportunities"
+                            onclick={handleUpdateOpportunities}
+                            disabled={disableUpdateButton}
+                            icon-name="utility:save"
+                            class="slds-m-right_small"
+                        ></lightning-button>
+                        <template if:true={opportunityCount}>
+                            <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
+                                Click to save {opportunityCount} modified opportunities to Salesforce
+                            </p>
+                        </template>
+                    </div>
+                </template>
+            </template>
+        </div>
+    </lightning-card>
+
+    <!-- Bulk Opportunity Creator Modal -->
+    <template if:true={showModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <c-bulk-opportunity-creator-modal
+                    record-id={recordId}
+                    onclose={handleCloseModal}
+                ></c-bulk-opportunity-creator-modal>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Refusal Reason --></label>
+    <name>Refusal_Reason__c</name>
+    <picklistValues>
+        <masterLabel>Admitted in ALF with service in place</masterLabel>
+        <translation><!-- Admitted in ALF with service in place --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Already receiving similar services</masterLabel>
+        <translation><!-- Already receiving similar services --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Hospice</masterLabel>
+        <translation><!-- Hospice --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Hung up and declined subsequent outbound calls</masterLabel>
+        <translation><!-- Hung up and declined subsequent outbound calls --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>No place of residence</masterLabel>
+        <translation><!-- No place of residence --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Not familiar with referral location</masterLabel>
+        <translation><!-- Not familiar with referral location --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Not interested</masterLabel>
+        <translation><!-- Not interested --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Out of service area</masterLabel>
+        <translation><!-- Out of service area --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

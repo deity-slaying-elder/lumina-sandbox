@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All_Patients_New</fullName>
+    <columns>NAME</columns>
+    <columns>Payer_Eligibility_Status__c</columns>
+    <columns>Latest_Payer_Verification_Scenario__c</columns>
+    <columns>Latest_Visit_DateTime__c</columns>
+    <columns>Medicare__c</columns>
+    <columns>Discharge_Date__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Hospice__c</columns>
+    <columns>Date_Thoroughcare_Comm_Profile_Updated__c</columns>
+    <columns>Consent_Status__c</columns>
+    <columns>CCM__c</columns>
+    <columns>BHI__c</columns>
+    <columns>Consent_Datetime__c</columns>
+    <columns>Thoroughcare_ID__c</columns>
+    <columns>Date_Added_To_Thoroughcare__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Facility__c</field>
+        <operation>contains</operation>
+        <value>beach tree</value>
+    </filters>
+    <label>All Patients New</label>
+    <sharedTo>
+        <group>Data_Analyst</group>
+        <group>Scheduling</group>
+    </sharedTo>
+</ListView>

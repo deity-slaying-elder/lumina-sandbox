@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All_Patients_Unable_To_Service</fullName>
+    <columns>NAME</columns>
+    <columns>Facility__c</columns>
+    <columns>Facility_State__c</columns>
+    <columns>Discharge_Date__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>TCM_Eligible__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Discharged_Home__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <filters>
+        <field>Latest_Discharge_Date__c</field>
+        <operation>greaterThan</operation>
+        <value>10/11/2024</value>
+    </filters>
+    <filters>
+        <field>Community_Status__c</field>
+        <operation>equals</operation>
+        <value>Unable To Service</value>
+    </filters>
+    <label>All Patients Unable To Service</label>
+    <sharedTo>
+        <group>Data_Analyst</group>
+        <group>Scheduling</group>
+    </sharedTo>
+</ListView>

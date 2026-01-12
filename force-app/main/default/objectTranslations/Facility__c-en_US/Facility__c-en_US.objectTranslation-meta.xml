@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Facility</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Facilities</value>
+    </caseValues>
+    <fieldSets>
+        <label><!-- Facility LWC --></label>
+        <name>Facility_LWC</name>
+    </fieldSets>
+    <layouts>
+        <layout>Facility Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <quickActions>
+        <label><!-- Create Opportunity --></label>
+        <name>Create_Opportunity</name>
+    </quickActions>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

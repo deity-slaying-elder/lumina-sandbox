@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- CPT --></label>
+    <name>CPT__c</name>
+    <picklistValues>
+        <masterLabel>99202</masterLabel>
+        <translation><!-- 99202 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>99203</masterLabel>
+        <translation><!-- 99203 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>99204</masterLabel>
+        <translation><!-- 99204 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>99205</masterLabel>
+        <translation><!-- 99205 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>99212</masterLabel>
+        <translation><!-- 99212 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>99213</masterLabel>
+        <translation><!-- 99213 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>99214</masterLabel>
+        <translation><!-- 99214 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>99307</masterLabel>
+        <translation><!-- 99307 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>99308</masterLabel>
+        <translation><!-- 99308 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>99439</masterLabel>
+        <translation><!-- 99439 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>99443</masterLabel>
+        <translation><!-- 99443 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>99453</masterLabel>
+        <translation><!-- 99453 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>99484</masterLabel>
+        <translation><!-- 99484 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>99490</masterLabel>
+        <translation><!-- 99490 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>99495</masterLabel>
+        <translation><!-- 99495 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>99496</masterLabel>
+        <translation><!-- 99496 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>9999999</masterLabel>
+        <translation><!-- 9999999 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>G0506</masterLabel>
+        <translation><!-- G0506 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>G2211</masterLabel>
+        <translation><!-- G2211 --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All</fullName>
+    <columns>NAME</columns>
+    <columns>Thoroughcare_ID__c</columns>
+    <columns>Encounter__c</columns>
+    <columns>CPT__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Modifier_2__c</columns>
+    <columns>Modifier_1__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>CPT__c</field>
+        <operation>equals</operation>
+        <value>99495,99496</value>
+    </filters>
+    <label>All</label>
+</ListView>

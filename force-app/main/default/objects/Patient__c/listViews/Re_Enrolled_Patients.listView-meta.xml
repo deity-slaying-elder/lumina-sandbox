@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Re_Enrolled_Patients</fullName>
+    <columns>NAME</columns>
+    <columns>Facility__c</columns>
+    <columns>Needs_Thoroughcare_Reenrollment_Date__c</columns>
+    <columns>Latest_Multi_Visit_DateTime__c</columns>
+    <columns>Thoroughcare_ID__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Needs_Thoroughcare_Reenrollment_Date__c</field>
+        <operation>notEqual</operation>
+    </filters>
+    <label>Re-Enrolled Patients</label>
+</ListView>

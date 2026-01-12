@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- AR_Class_ADS_Name --></label>
+    <name>AR_Class_ADS_Name__c</name>
+</CustomFieldTranslation>

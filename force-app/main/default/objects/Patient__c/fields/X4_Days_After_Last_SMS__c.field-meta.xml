@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>X4_Days_After_Last_SMS__c</fullName>
+    <formula>if(
+and(
+today() - datevalue(Last_SMS_Sent_Date__c) &gt;= 4,
+not(isblank(Last_SMS_Sent_Date__c))),
+true,
+false
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>4 Days After Last SMS</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

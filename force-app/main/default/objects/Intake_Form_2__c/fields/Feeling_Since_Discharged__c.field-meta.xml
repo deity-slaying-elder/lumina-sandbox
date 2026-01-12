@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Feeling_Since_Discharged__c</fullName>
+    <label>Feeling Since Discharged</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Much better</fullName>
+                <default>false</default>
+                <label>Much better</label>
+            </value>
+            <value>
+                <fullName>Better</fullName>
+                <default>false</default>
+                <label>Better</label>
+            </value>
+            <value>
+                <fullName>About the same</fullName>
+                <default>false</default>
+                <label>About the same</label>
+            </value>
+            <value>
+                <fullName>Worse</fullName>
+                <default>false</default>
+                <label>Worse</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Not Seen Reason --></label>
+    <name>Not_Seen_Reason__c</name>
+    <picklistValues>
+        <masterLabel>Appointment</masterLabel>
+        <translation><!-- Appointment --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Deceased</masterLabel>
+        <translation><!-- Deceased --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Discharged</masterLabel>
+        <translation><!-- Discharged --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Hospital</masterLabel>
+        <translation><!-- Hospital --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Other</masterLabel>
+        <translation><!-- Other --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Unavailable</masterLabel>
+        <translation><!-- Unavailable --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Consent Status --></label>
+    <name>Consent_Status__c</name>
+    <picklistValues>
+        <masterLabel>Approved</masterLabel>
+        <translation><!-- Approved --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Approved - NOK</masterLabel>
+        <translation><!-- Approved - NOK --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Approved - NOK Verbal</masterLabel>
+        <translation><!-- Approved - NOK Verbal --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Approved - Verbal</masterLabel>
+        <translation><!-- Approved - Verbal --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Denied</masterLabel>
+        <translation><!-- Denied --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Denied - NOK</masterLabel>
+        <translation><!-- Denied - NOK --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Pending</masterLabel>
+        <translation><!-- Pending --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

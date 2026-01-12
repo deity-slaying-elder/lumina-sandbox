@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Date Referred To Brightwell --></label>
+    <name>Date_Referred_To_Brightwell__c</name>
+</CustomFieldTranslation>

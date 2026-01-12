@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>My_Patients</fullName>
+    <columns>NAME</columns>
+    <columns>Facility__c</columns>
+    <columns>Facility_State__c</columns>
+    <columns>Discharge_Date__c</columns>
+    <columns>TCM_Eligible__c</columns>
+    <columns>Thoroughcare_ID__c</columns>
+    <columns>Latest_Discharge_Date__c</columns>
+    <columns>CREATED_DATE</columns>
+    <filterScope>Mine</filterScope>
+    <filters>
+        <field>Community_Status__c</field>
+        <operation>equals</operation>
+        <value>Closed Won</value>
+    </filters>
+    <filters>
+        <field>Parent_Company__c</field>
+        <operation>contains</operation>
+        <value>infinity</value>
+    </filters>
+    <label>My Patients</label>
+</ListView>

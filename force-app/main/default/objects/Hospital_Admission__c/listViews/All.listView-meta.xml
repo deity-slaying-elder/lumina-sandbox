@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All</fullName>
+    <columns>NAME</columns>
+    <columns>Patient__c</columns>
+    <columns>Stay_UUID__c</columns>
+    <columns>Discharge_DateTime__c</columns>
+    <columns>Facility__c</columns>
+    <columns>Reset__c</columns>
+    <columns>Admit_DateTime__c</columns>
+    <columns>Was_Discharged_Home_From_SNF__c</columns>
+    <columns>Level_Of_Care__c</columns>
+    <columns>Current_Insurance__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Latest_Discharge__c</columns>
+    <columns>Secondary_Diagnoses__c</columns>
+    <columns>Primary_Diagnoses__c</columns>
+    <filterScope>Everything</filterScope>
+    <label>All</label>
+</ListView>

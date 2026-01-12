@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>61.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>If_Count_Equals_0</name>
+        <label>If Count Equals 0</label>
+        <locationX>176</locationX>
+        <locationY>323</locationY>
+        <defaultConnector>
+            <targetReference>If_Greater_Than_Last_Value</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Count_Is_0</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Count_of_Calls__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <numberValue>0.0</numberValue>
+                </rightValue>
+            </conditions>
+            <label>Count Is 0</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_Greater_Than_Last_Value</name>
+        <label>If Greater Than Last Value</label>
+        <locationX>473</locationX>
+        <locationY>431</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Greater_Than_Last_Value</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Count_of_Calls__c</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <elementReference>$Record__Prior.Count_of_Calls__c</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>If_Within_48_Hours</targetReference>
+            </connector>
+            <label>Greater Than Last Value</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_Within_48_Hours</name>
+        <label>If Within 48 Hours</label>
+        <locationX>275</locationX>
+        <locationY>539</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Within_48_Hours</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>within48Hours</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Add_To_Calls</targetReference>
+            </connector>
+            <label>Within 48 Hours</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>addToCount</name>
+        <dataType>Number</dataType>
+        <expression>if(
+isblank({!$Record.Count_of_Calls_Within_48_Hours__c}),
+1,
+{!$Record.Count_of_Calls_Within_48_Hours__c} + 1)</expression>
+        <scale>0</scale>
+    </formulas>
+    <formulas>
+        <name>within48Hours</name>
+        <dataType>Boolean</dataType>
+        <expression>if(
+today() - {!$Record.Discharge_Date__c} &lt;= 2,
+true,
+false
+)</expression>
+    </formulas>
+    <interviewLabel>Patient - {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Patient - TF - On Update - Update Count Within 48 Hours</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Add_To_Calls</name>
+        <label>Add To Calls</label>
+        <locationX>143</locationX>
+        <locationY>647</locationY>
+        <inputAssignments>
+            <field>Count_of_Calls_Within_48_Hours__c</field>
+            <value>
+                <elementReference>addToCount</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>If_Count_Equals_0</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Count_of_Calls__c</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <object>Patient__c</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

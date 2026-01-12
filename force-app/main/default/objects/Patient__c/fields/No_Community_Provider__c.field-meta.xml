@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>No_Community_Provider__c</fullName>
+    <formula>if(
+or(
+ Facility_State__c = &quot;WI&quot;,
+ Facility_State__c = &quot;IL&quot;,
+ Facility_State__c = &quot;AL&quot;,
+ Facility_State__c = &quot;MO&quot;,
+ Facility_State__c = &quot;TN&quot;,
+ Facility_State__c = &quot;WA&quot;,
+ Facility_State__c = &quot;OH&quot;,
+ Facility_State__c = &quot;MA&quot;,
+ Facility_State__c = &quot;CA&quot;,
+ Facility_State__c = &quot;RI&quot;
+),
+true,
+false
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>No Community Provider</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

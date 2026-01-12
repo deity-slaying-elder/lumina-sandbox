@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Type__c</fullName>
+    <label>Type</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>State Medicaid</fullName>
+                <default>false</default>
+                <label>State Medicaid</label>
+            </value>
+            <value>
+                <fullName>Managed Medicaid</fullName>
+                <default>false</default>
+                <label>Managed Medicaid</label>
+            </value>
+            <value>
+                <fullName>Standard Medicare</fullName>
+                <default>false</default>
+                <label>Standard Medicare</label>
+            </value>
+            <value>
+                <fullName>Managed Medicare</fullName>
+                <default>false</default>
+                <label>Managed Medicare</label>
+            </value>
+            <value>
+                <fullName>Commercial</fullName>
+                <default>false</default>
+                <label>Commercial</label>
+            </value>
+            <value>
+                <fullName>Private</fullName>
+                <default>false</default>
+                <label>Private</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

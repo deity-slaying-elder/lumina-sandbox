@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Medicare_Advantage_Check</fullName>
+    <columns>NAME</columns>
+    <columns>Eligible__c</columns>
+    <columns>Scenario__c</columns>
+    <columns>Patient__c</columns>
+    <columns>CREATED_DATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Scenario__c</field>
+        <operation>equals</operation>
+        <value>Has Medicare Advantage</value>
+    </filters>
+    <filters>
+        <field>Patient_Eligibility_Status__c</field>
+        <operation>equals</operation>
+        <value>Pending</value>
+    </filters>
+    <label>Medicare Advantage Check</label>
+</ListView>

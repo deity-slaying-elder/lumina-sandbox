@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Has Medicare Advantage Plan --></label>
+    <name>Has_Medicare_Advantage_Plan__c</name>
+</CustomFieldTranslation>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RestrictionRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <description>Allows only the owners to view their tasks.</description>
+    <enforcementType>Restrict</enforcementType>
+    <masterLabel>Restriction Tasks You Own</masterLabel>
+    <recordFilter>Owner:User.Id=$User.Id</recordFilter>
+    <targetEntity>Task</targetEntity>
+    <userCriteria>$User.UserRoleId=&apos;00EPY000006pLuz2AE&apos;</userCriteria>
+    <version>1</version>
+</RestrictionRule>

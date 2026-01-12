@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Service Type --></label>
+    <name>Service_Type__c</name>
+    <picklistValues>
+        <masterLabel>AHT</masterLabel>
+        <translation><!-- AHT --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>BHI</masterLabel>
+        <translation><!-- BHI --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>CCM</masterLabel>
+        <translation><!-- CCM --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>RPM</masterLabel>
+        <translation><!-- RPM --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>TCM</masterLabel>
+        <translation><!-- TCM --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GHC</fullName>
+    <columns>Parent_Company__c</columns>
+    <columns>NAME</columns>
+    <columns>Latest_Discharge_Run_Date__c</columns>
+    <columns>Latest_Facility_Check_Date__c</columns>
+    <columns>Credential__c</columns>
+    <columns>PCC_Facility_Code__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>PCC_Facility_Code__c</field>
+        <operation>notEqual</operation>
+    </filters>
+    <filters>
+        <field>Latest_Discharge_Run_Date_3_Hours_Old__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <filters>
+        <field>Credential__c</field>
+        <operation>notEqual</operation>
+    </filters>
+    <filters>
+        <field>TCM__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <label>Latest Discharge Run Check</label>
+</ListView>

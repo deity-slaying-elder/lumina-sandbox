@@ -1,0 +1,451 @@
+/* Modal Styling */
+.slds-modal__container {
+    max-width: 80rem;
+    width: 90%;
+}
+
+.slds-modal__content {
+    overflow-y: auto;
+    max-height: 70vh;
+    background: linear-gradient(to bottom, #fafbfc 0%, #ffffff 100%);
+}
+
+/* Error Message Styling */
+.error-message-container {
+    background: #fef5f5;
+    border: 1px solid #ea001e;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    text-align: left;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.error-message-container lightning-formatted-text {
+    color: #3e3e3c;
+    white-space: pre-line;
+}
+
+.slds-modal__header {
+    background: linear-gradient(135deg, #0070d2 0%, #00a1e0 100%);
+}
+
+.slds-modal__title {
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+/* Section Headers */
+.section-title {
+    color: #032d60;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    border-bottom: 3px solid #0070d2;
+    padding-bottom: 0.75rem;
+    padding-left: 0.5rem;
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    position: relative;
+    margin-bottom: 1.5rem !important;
+}
+
+.section-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #0070d2, #00a1e0);
+    border-radius: 2px;
+}
+
+/* Modal Footer Styling */
+.slds-modal__footer {
+    background: linear-gradient(to top, #fafbfc 0%, #ffffff 100%);
+    border-top: 2px solid #e5e7eb;
+    padding: 1rem 1.5rem;
+}
+
+/* Type Options Grid */
+.type-options-grid {
+    position: relative;
+}
+
+.type-options-grid > div {
+    position: static;
+}
+
+/* Type Option Cards - Modern Card Design */
+.type-option-card {
+    border-radius: 12px;
+    min-height: auto;
+    padding: 1.25rem !important;
+    background: #ffffff;
+    border: 2px solid #e5e7eb;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: visible !important;
+    z-index: 1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.type-option-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 28px rgba(0, 112, 210, 0.18), 0 4px 8px rgba(0, 112, 210, 0.08);
+    border-color: #0070d2;
+    z-index: 1000;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fcff 100%);
+}
+
+.type-option-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0070d2, #00d8ff);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.type-option-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 112, 210, 0.15);
+    border-color: #0070d2;
+}
+
+.type-option-card:hover::before {
+    opacity: 1;
+}
+
+/* Facilities Container - Clean Scrollable Area */
+.facilities-container {
+    max-height: 600px;
+    overflow-y: auto;
+    padding-right: 8px;
+    position: static;
+}
+
+/* Facility Cards - Elevated Design - MATCH TYPE CARDS EXACTLY */
+.facility-card {
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: #ffffff;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: visible;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    z-index: 1;
+}
+
+.facility-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 8px 16px rgba(0, 112, 210, 0.12);
+    border-color: #0070d2;
+    z-index: 1000;
+}
+
+.facility-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: linear-gradient(180deg, #0070d2, #00a1e0);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.facility-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 8px 16px rgba(0, 112, 210, 0.12);
+    border-color: #0070d2;
+}
+
+.facility-card:hover::before {
+    opacity: 1;
+}
+
+.facility-checkbox {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+/* Facility Type List - Nested Content - MATCH TYPE CARDS EXACTLY */
+.facility-details {
+    animation: slideDown 0.3s ease-out;
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.facility-details .slds-box {
+    background: linear-gradient(to right, #f8f9fa 0%, #ffffff 100%);
+    border-left: 3px solid #0070d2;
+    border-radius: 8px;
+    overflow: visible;
+    position: relative;
+    z-index: 1;
+}
+
+.type-config-row {
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+    position: relative;
+    overflow: visible;
+    z-index: 1;
+}
+
+.type-config-row:hover {
+    background: rgba(0, 112, 210, 0.05);
+    z-index: 1000;
+}
+
+/* Toggle Button */
+.toggle-button {
+    transition: transform 0.2s ease;
+}
+
+.toggle-button:hover {
+    transform: scale(1.1);
+}
+
+.slds-text-heading_x-small {
+    color: #014486;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #0070d2;
+}
+
+/* Summary Section - Info Box */
+.slds-theme_info {
+    background: linear-gradient(135deg, #e8f4fd 0%, #d4ebfa 100%) !important;
+    border-left: 5px solid #0070d2;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0, 112, 210, 0.15), 0 2px 6px rgba(0, 112, 210, 0.08);
+    position: static;
+    border: 2px solid #b8dff7;
+}
+
+.slds-theme_info h4 {
+    color: #014486;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.slds-theme_info p {
+    color: #032d60;
+    font-size: 1.125rem;
+}
+
+.slds-theme_info strong {
+    font-size: 1.5rem;
+    color: #0070d2;
+    font-weight: 800;
+}
+
+/* Input Fields - Modern Styling */
+lightning-input {
+    --slds-c-input-radius: 8px;
+    --slds-c-input-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* CRITICAL: Force ALL date pickers to be on top of everything */
+lightning-input[type="date"] {
+    position: relative;
+    z-index: 10000 !important;
+}
+
+/* When date input has focus, reduce z-index of label so it doesn't overlap calendar */
+lightning-input[type="date"]:focus-within {
+    z-index: 2147483647 !important;
+}
+
+lightning-input[type="date"]:focus-within [part="label"],
+lightning-input[type="date"]:focus-within .slds-form-element__label {
+    z-index: 1 !important;
+    position: relative;
+}
+
+/* Target the actual datepicker calendar that appears - NUCLEAR OPTION */
+.slds-datepicker,
+.slds-dropdown,
+.slds-dropdown__list,
+.slds-datepicker__month,
+.slds-datepicker__filter,
+.slds-datepicker thead,
+.slds-datepicker tbody,
+.slds-day,
+[class*="datepicker"],
+[class*="slds-datepicker"],
+[class*="slds-dropdown"],
+lightning-datepicker,
+lightning-calendar {
+    z-index: 2147483647 !important;
+    position: fixed !important;
+    pointer-events: auto !important;
+}
+
+/* Ensure all SLDS overlays and children are on top */
+.slds-dropdown-trigger .slds-dropdown {
+    z-index: 2147483647 !important;
+}
+
+/* Ensure labels and checkboxes don't overlap datepicker */
+.slds-form-element__label,
+[part="label"],
+.slds-checkbox,
+.facility-checkbox,
+lightning-input[type="checkbox"] {
+    z-index: 1 !important;
+    position: relative;
+}
+
+/* When any date picker anywhere has focus, reduce z-index of ALL other elements */
+:has(lightning-input[type="date"]:focus-within) .facility-checkbox,
+:has(lightning-input[type="date"]:focus-within) lightning-input[type="checkbox"],
+:has(lightning-input[type="date"]:focus-within) .slds-form-element__label {
+    z-index: 0 !important;
+}
+
+/* Error Message Styling */
+.slds-notify_alert {
+    border-radius: 10px;
+    border-left: 5px solid #c23934;
+    box-shadow: 0 4px 12px rgba(194, 57, 52, 0.15);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+
+/* Loading Spinner */
+lightning-spinner {
+    --slds-c-spinner-color-background: rgba(0, 112, 210, 0.1);
+    --slds-c-spinner-color-foreground: #0070d2;
+}
+
+/* Custom scrollbar - Sleek Design */
+.facilities-container::-webkit-scrollbar {
+    width: 10px;
+}
+
+.facilities-container::-webkit-scrollbar-track {
+    background: linear-gradient(to right, #f1f3f5, #e9ecef);
+    border-radius: 10px;
+    margin: 4px 0;
+}
+
+.facilities-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #0070d2, #00a1e0);
+    border-radius: 10px;
+    border: 2px solid #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.facilities-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #005fb2, #0088cc);
+    border-color: #e9ecef;
+}
+
+/* Grid Improvements */
+.slds-grid_vertical-align-center {
+    gap: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .slds-size_1-of-2,
+    .slds-size_1-of-3 {
+        width: 100%;
+    }
+
+    .facilities-container {
+        max-height: 400px;
+    }
+
+    .facility-card:hover {
+        transform: none;
+    }
+
+    .type-config-row .slds-col {
+        width: 100% !important;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Animation for checkbox selection */
+lightning-input[type="checkbox"] {
+    transition: all 0.2s ease;
+}
+
+/* Date input styling */
+lightning-input[type="date"] {
+    transition: all 0.2s ease;
+}
+
+lightning-input[type="date"]:focus-within {
+    transform: scale(1.02);
+}
+
+/* Empty State */
+.empty-state {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    border: 2px dashed #adb5bd;
+    padding: 3rem 2rem !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.empty-state h3 {
+    color: #495057;
+    border: none;
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+
+.empty-state p {
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+/* Padding improvements */
+.slds-p-around_small {
+    padding: 1rem !important;
+}
+
+.slds-p-around_medium {
+    padding: 1.25rem !important;
+}

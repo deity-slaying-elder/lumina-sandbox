@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Community_Won_DOB_Gender</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND( TEXT(Community_Status__c ) = &quot;Closed Won&quot;, OR(ISBLANK( Date_of_Birth__c ),ISBLANK( TEXT(Gender__c ))))</errorConditionFormula>
+    <errorMessage>Won Community Patients Must Have a DOB and Gender</errorMessage>
+</ValidationRule>

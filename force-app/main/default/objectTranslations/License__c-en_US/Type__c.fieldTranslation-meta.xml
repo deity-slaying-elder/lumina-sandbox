@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Type --></label>
+    <name>Type__c</name>
+    <picklistValues>
+        <masterLabel>CSR</masterLabel>
+        <translation><!-- CSR --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>DEA</masterLabel>
+        <translation><!-- DEA --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>State License</masterLabel>
+        <translation><!-- State License --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

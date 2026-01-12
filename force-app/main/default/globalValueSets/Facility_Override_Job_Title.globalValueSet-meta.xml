@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Admin</fullName>
+        <default>false</default>
+        <label>Admin</label>
+    </customValue>
+    <customValue>
+        <fullName>ADON</fullName>
+        <default>false</default>
+        <label>ADON</label>
+    </customValue>
+    <customValue>
+        <fullName>DON</fullName>
+        <default>false</default>
+        <label>DON</label>
+    </customValue>
+    <customValue>
+        <fullName>Social Worker</fullName>
+        <default>false</default>
+        <label>Social Worker</label>
+    </customValue>
+    <masterLabel>Facility Override Job Title</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

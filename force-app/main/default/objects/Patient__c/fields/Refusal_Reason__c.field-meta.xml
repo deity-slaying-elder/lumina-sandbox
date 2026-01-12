@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Refusal_Reason__c</fullName>
+    <label>Refusal Reason</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Not interested</fullName>
+                <default>false</default>
+                <label>Not interested</label>
+            </value>
+            <value>
+                <fullName>Already receiving similar services</fullName>
+                <default>false</default>
+                <label>Already receiving similar services</label>
+            </value>
+            <value>
+                <fullName>Not familiar with referral location</fullName>
+                <default>false</default>
+                <label>Not familiar with referral location</label>
+            </value>
+            <value>
+                <fullName>Hospice</fullName>
+                <default>false</default>
+                <label>Hospice</label>
+            </value>
+            <value>
+                <fullName>No place of residence</fullName>
+                <default>false</default>
+                <label>No place of residence</label>
+            </value>
+            <value>
+                <fullName>Admitted in ALF with services in place</fullName>
+                <default>false</default>
+                <label>Admitted in ALF with services in place</label>
+            </value>
+            <value>
+                <fullName>Hung up and declined subsequent outbound calls</fullName>
+                <default>false</default>
+                <label>Hung up and declined subsequent outbound calls</label>
+            </value>
+            <value>
+                <fullName>Out of service area</fullName>
+                <default>false</default>
+                <label>Out of service area</label>
+            </value>
+            <value>
+                <fullName>Unable to hold appointment</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Unable to hold appointment</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,276 @@
+<template>
+    <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleClose}>
+                    <lightning-icon icon-name="utility:close" alternative-text="Close" size="small"></lightning-icon>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">
+                    <lightning-icon icon-name="standard:opportunity" size="small" class="slds-m-right_x-small"></lightning-icon>
+                    Bulk Opportunity Creator
+                </h2>
+            </header>
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                <template if:true={isLoading}>
+                    <lightning-spinner alternative-text="Loading..."></lightning-spinner>
+                </template>
+
+                <template if:false={isLoading}>
+                    <template if:true={errorMessage}>
+                        <div class="slds-p-around_large">
+                            <div class="slds-text-align_center slds-m-bottom_medium">
+                                <lightning-icon icon-name="utility:error" size="large" variant="error"></lightning-icon>
+                            </div>
+                            <div class="error-message-container">
+                                <lightning-formatted-text value={errorMessage}></lightning-formatted-text>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template if:false={errorMessage}>
+                    <template if:true={hasData}>
+                        <!-- Default Field Values Section -->
+                        <div class="slds-m-bottom_large">
+                            <h3 class="slds-text-heading_small slds-m-bottom_medium section-title">
+                                <lightning-icon icon-name="standard:opportunity" size="small" class="slds-m-right_x-small"></lightning-icon>
+                                Select Opportunity Types & Set Default Values
+                            </h3>
+                            <div class="slds-grid slds-wrap slds-gutters type-options-grid">
+                                <template for:each={typeOptions} for:item="type">
+                                    <div key={type.value} class="slds-col slds-size_1-of-2 slds-medium-size_1-of-3 slds-m-bottom_large">
+                                        <div class="type-option-card slds-p-around_small">
+                                            <div class="slds-grid slds-grid_vertical">
+                                                <div class="slds-col">
+                                                    <lightning-input
+                                                        type="checkbox"
+                                                        label={type.label}
+                                                        value={type.value}
+                                                        checked={type.selected}
+                                                        onchange={handleTypeSelection}
+                                                        data-type={type.value}
+                                                    ></lightning-input>
+                                                </div>
+                                                <template if:true={type.selected}>
+                                                    <!-- Dynamic Fields from FieldSet -->
+                                                    <template for:each={type.fields} for:item="field">
+                                                        <div key={field.apiName} class="slds-col slds-m-top_x-small">
+                                                            <template if:true={field.type}>
+                                                                <template if:false={field.picklistValues}>
+                                                                    <lightning-input
+                                                                        type={field.type}
+                                                                        label={field.defaultLabel}
+                                                                        value={field.value}
+                                                                        onchange={handleDefaultFieldChange}
+                                                                        data-type={type.value}
+                                                                        data-field={field.apiName}
+                                                                        required={field.required}
+                                                                    ></lightning-input>
+                                                                </template>
+                                                                <template if:true={field.picklistValues}>
+                                                                    <lightning-combobox
+                                                                        label={field.defaultLabel}
+                                                                        value={field.value}
+                                                                        options={field.picklistValues}
+                                                                        onchange={handleDefaultFieldChange}
+                                                                        data-type={type.value}
+                                                                        data-field={field.apiName}
+                                                                        required={field.required}
+                                                                    ></lightning-combobox>
+                                                                </template>
+                                                            </template>
+                                                        </div>
+                                                    </template>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Facilities Section -->
+                        <div class="slds-m-bottom_medium">
+                            <h3 class="slds-text-heading_small slds-m-bottom_medium section-title">
+                                <lightning-icon icon-name="standard:account" size="small" class="slds-m-right_x-small"></lightning-icon>
+                                Select Facilities
+                            </h3>
+                            <template if:true={hasFacilities}>
+                                <!-- Select All and Search Bar -->
+                                <div class="slds-m-bottom_small">
+                                    <div class="slds-grid slds-gutters slds-wrap">
+                                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                            <lightning-input
+                                                type="checkbox"
+                                                label="Select All Facilities"
+                                                checked={allFacilitiesSelected}
+                                                onchange={handleSelectAllFacilities}
+                                                class="select-all-checkbox"
+                                            ></lightning-input>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                            <lightning-input
+                                                type="search"
+                                                label="Search Facilities"
+                                                placeholder="Search by facility name..."
+                                                value={facilitySearchTerm}
+                                                onchange={handleFacilitySearch}
+                                            ></lightning-input>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="facilities-container slds-grid slds-wrap slds-gutters">
+                                    <template for:each={filteredFacilities} for:item="facility">
+                                        <div key={facility.Id} class="slds-col slds-size_1-of-2 slds-medium-size_1-of-2 facility-card slds-box slds-m-bottom_small">
+                                            <div class="slds-grid slds-grid_vertical-align-center">
+                                                <div class="slds-col slds-grow">
+                                                    <lightning-input
+                                                        type="checkbox"
+                                                        label={facility.Name}
+                                                        value={facility.Id}
+                                                        checked={facility.selected}
+                                                        onchange={handleFacilitySelection}
+                                                        data-facility-id={facility.Id}
+                                                        class="facility-checkbox"
+                                                    ></lightning-input>
+                                                </div>
+                                                <template if:true={facility.selected}>
+                                                    <div class="slds-col slds-no-flex">
+                                                        <lightning-button-icon
+                                                            icon-name={facility.expandIconName}
+                                                            variant="bare"
+                                                            alternative-text="Toggle details"
+                                                            onclick={handleToggleFacilityDetails}
+                                                            data-facility-id={facility.Id}
+                                                            class="toggle-button"
+                                                        ></lightning-button-icon>
+                                                    </div>
+                                                </template>
+                                            </div>
+
+                                            <!-- Opportunity Types for this Facility - Collapsible -->
+                                            <template if:true={facility.selected}>
+                                                <template if:true={facility.expanded}>
+                                                    <div class="facility-details slds-m-top_small">
+                                                        <div class="slds-box slds-theme_shade slds-p-around_small">
+                                                            <h4 class="slds-text-heading_x-small slds-m-bottom_small">Customize Opportunities for {facility.Name}</h4>
+                                                            <template for:each={facility.types} for:item="typeConfig">
+                                                                <div key={typeConfig.value} class="slds-m-bottom_medium type-config-row">
+                                                                    <div class="slds-m-bottom_x-small">
+                                                                        <lightning-input
+                                                                            type="checkbox"
+                                                                            label={typeConfig.label}
+                                                                            checked={typeConfig.selected}
+                                                                            onchange={handleFacilityTypeSelection}
+                                                                            data-facility-id={facility.Id}
+                                                                            data-type={typeConfig.value}
+                                                                        ></lightning-input>
+                                                                    </div>
+                                                                    <template if:true={typeConfig.selected}>
+                                                                        <!-- Dynamic Fields from FieldSet -->
+                                                                        <div class="slds-grid slds-wrap slds-gutters_x-small">
+                                                                            <template for:each={typeConfig.fields} for:item="field">
+                                                                                <div key={field.apiName} class="slds-col slds-size_1-of-2 slds-m-top_x-small">
+                                                                                    <template if:true={field.type}>
+                                                                                        <template if:false={field.picklistValues}>
+                                                                                            <lightning-input
+                                                                                                type={field.type}
+                                                                                                label={field.label}
+                                                                                                value={field.value}
+                                                                                                onchange={handleFacilityFieldChange}
+                                                                                                data-facility-id={facility.Id}
+                                                                                                data-type={typeConfig.value}
+                                                                                                data-field={field.apiName}
+                                                                                                required={field.required}
+                                                                                            ></lightning-input>
+                                                                                        </template>
+                                                                                        <template if:true={field.picklistValues}>
+                                                                                            <lightning-combobox
+                                                                                                label={field.label}
+                                                                                                value={field.value}
+                                                                                                options={field.picklistValues}
+                                                                                                onchange={handleFacilityFieldChange}
+                                                                                                data-facility-id={facility.Id}
+                                                                                                data-type={typeConfig.value}
+                                                                                                data-field={field.apiName}
+                                                                                                required={field.required}
+                                                                                            ></lightning-combobox>
+                                                                                        </template>
+                                                                                    </template>
+                                                                                </div>
+                                                                            </template>
+                                                                        </div>
+                                                                    </template>
+                                                                </div>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                            <template if:false={hasFacilities}>
+                                <div class="empty-state slds-text-align_center slds-p-around_large">
+                                    <h3 class="slds-text-heading_small slds-m-bottom_x-small">No Facilities Found</h3>
+                                    <p class="slds-text-color_weak">There are no facilities linked to this account yet.</p>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Summary Section -->
+                        <template if:true={hasSelections}>
+                            <div class="slds-m-bottom_medium slds-box slds-theme_info slds-p-around_medium">
+                                <h4 class="slds-text-heading_small slds-m-bottom_x-small">Summary</h4>
+                                <p class="slds-text-body_regular">
+                                    <strong class="slds-text-title">{totalOpportunitiesCount}</strong>
+                                    <span> opportunities will be created</span>
+                                </p>
+                            </div>
+                        </template>
+                    </template>
+
+                    <template if:false={hasData}>
+                        <div class="slds-text-align_center slds-p-around_medium">
+                            <p class="slds-text-color_weak">Unable to load data. Please try again.</p>
+                        </div>
+                    </template>
+                    </template>
+                </template>
+            </div>
+
+            <!-- Footer Actions -->
+            <footer class="slds-modal__footer">
+                <template if:true={errorMessage}>
+                    <lightning-button
+                        label="Close"
+                        onclick={handleClose}
+                        class="slds-m-right_x-small"
+                    ></lightning-button>
+                    <lightning-button
+                        variant="brand"
+                        label="Go Back"
+                        onclick={handleGoBack}
+                        icon-name="utility:back"
+                    ></lightning-button>
+                </template>
+                <template if:false={errorMessage}>
+                    <lightning-button
+                        label="Cancel"
+                        onclick={handleClose}
+                        class="slds-m-right_x-small"
+                    ></lightning-button>
+                    <lightning-button
+                        variant="brand"
+                        label="Create Opportunities"
+                        onclick={handleCreateOpportunities}
+                        disabled={disableCreateButton}
+                    ></lightning-button>
+                </template>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

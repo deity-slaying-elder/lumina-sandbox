@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SamlSsoConfig xmlns="http://soap.sforce.com/2006/04/metadata">
+    <identityLocation>SubjectNameId</identityLocation>
+    <identityMapping>FederationId</identityMapping>
+    <issuer>https://app.propela-auth.com</issuer>
+    <name>PAuthSSO</name>
+    <oauthTokenEndpoint>https://data-efficiency-9627--partialsb.sandbox.my.salesforce.com/services/oauth2/token</oauthTokenEndpoint>
+    <redirectBinding>false</redirectBinding>
+    <requestSignatureMethod>1</requestSignatureMethod>
+    <requestSigningCertId>0P1PY0000000GG5</requestSigningCertId>
+    <salesforceLoginUrl>https://data-efficiency-9627--partialsb.sandbox.my.salesforce.com</salesforceLoginUrl>
+    <samlEntityId>https://app.propela-auth.com/sso</samlEntityId>
+    <samlVersion>SAML2_0</samlVersion>
+    <useConfigRequestMethod>true</useConfigRequestMethod>
+    <useSameDigestAlgoForSigning>true</useSameDigestAlgoForSigning>
+    <userProvisioning>false</userProvisioning>
+    <validationCert>MIIDnzCCAoegAwIBAgIUJEfyRYycaDXKAJtwpYGgrxGgnaQwDQYJKoZIhvcNAQELBQAwXzELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAlROMRIwEAYDVQQHDAlOYXNodmlsbGUxDjAMBgNVBAoMBUNsYXJrMQswCQYDVQQLDAJJVDESMBAGA1UEAwwJY2xhcmstc3NvMB4XDTI1MDkwMTEzNTIwN1oXDTI2MDkwMTEzNTIwN1owXzELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAlROMRIwEAYDVQQHDAlOYXNodmlsbGUxDjAMBgNVBAoMBUNsYXJrMQswCQYDVQQLDAJJVDESMBAGA1UEAwwJY2xhcmstc3NvMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7UNWMZt5mQRXD5ltfGrHB/mtIojkdbQ8N2daSu6FtdIsJZrn6fcI3kMzT4y3Pk+xDOnc2EGO+EbiwR1fzLiURZ3RSCNmSL+jtlmK5NZQ57tHdl2yDWuEtV34LcGu5izvhto+vpH0IN8kDwynBL1E8OmKyyorAHlfXenX+msHoOYuxtPU0+pCWBJKvG/RnxDBXusf329M9/EpSeKBZaKIV748DWCTAbYJBmqHGmRDle+ZjVB5+iHK+sN6jT3ctFaiU7C5Ue+wO+CFl6ukE+aIxqPMnG00ddFMWW+5jRwr+et4wk2LsIlpIj1kdgJcHJ5XBYXGxDN/sZyLokmj3jCc5QIDAQABo1MwUTAdBgNVHQ4EFgQUKaavlfJOs35KDgf8b0NrVgn+az8wHwYDVR0jBBgwFoAUKaavlfJOs35KDgf8b0NrVgn+az8wDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEAwzwtGXokNCN8lZI48nkwhuYQH3HgT5pZQQU4ndKlnFVsMjxL/83idbZr5h0hmzWorJjgii3VVmiLSnlSLj9cI3OyhsTG8mZ/eXxJcWWC37GgLzZDOVR3XnITKPCeKpzNBcO6bOW0vGX9rrmZEQNCLtZX0kQ+kgFeyG1Vz7yhxGI7j0tiRdhh+KSnfKQ5G4wQFM3UKlct5iRycUKqWBx8LZCjufAbT+jaxfkyfS27/G9VO7OqhhaKcnQZYoXsXA0KBPgG/IOXwlXIdAVqthn4r6h85QAGD6/Gzyfx72a3Asl0qe3wIMDsNc7rh0ZRh4b/UzzK5byO0up/1nsXemxH4g==</validationCert>
+</SamlSsoConfig>

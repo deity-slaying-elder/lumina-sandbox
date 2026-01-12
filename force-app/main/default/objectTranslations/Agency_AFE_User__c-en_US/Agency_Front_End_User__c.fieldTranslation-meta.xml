@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Agency Front End User --></label>
+    <name>Agency_Front_End_User__c</name>
+    <relationshipLabel><!-- Agency AFE Users --></relationshipLabel>
+</CustomFieldTranslation>

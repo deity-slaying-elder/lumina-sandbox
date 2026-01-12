@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Send_Appointment_Confirmation_Text</name>
+        <label>Send Appointment Confirmation Text</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>TwilioSF__TwilioSendSMS</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Set_Last_SMS_Message</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>message</name>
+            <value>
+                <elementReference>smsTemplate</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>toNumber</name>
+            <value>
+                <elementReference>phoneNumber</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>TwilioSF__TwilioSendSMS</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>If_GHC</name>
+        <label>If GHC</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>GHC</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Facility__r.Parent_Company__r.Name</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>GHC</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>If_MD_DE_or_NJ</targetReference>
+            </connector>
+            <label>GHC</label>
+        </rules>
+        <rules>
+            <name>Complete_Care</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Facility__r.Parent_Company__r.Name</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>Complete Care</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>If_Pa_or_NJ</targetReference>
+            </connector>
+            <label>Complete Care</label>
+        </rules>
+        <rules>
+            <name>Infinity</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Facility__r.Parent_Company__r.Name</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>Infinity</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>IL</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>If_No_Phone_Number</targetReference>
+            </connector>
+            <label>Infinity</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_MD_DE_or_NJ</name>
+        <label>If MD, DE, or NJ</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Is_MD_DE_NJ</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>MDDENJ</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>If_No_Phone_Number</targetReference>
+            </connector>
+            <label>Is MD DE NJ</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_No_Phone_Number</name>
+        <label>If No Phone Number</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Send_Appointment_Confirmation_Text</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>No_Phone_Number</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>phoneNumber</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>No Phone Number</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_Pa_or_NJ</name>
+        <label>If Pa or NJ</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>PA_or_NJ</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>PANJ</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>If_No_Phone_Number</targetReference>
+            </connector>
+            <label>PA or NJ</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>dateValue</name>
+        <dataType>Date</dataType>
+        <expression>Datevalue({!$Record.Appointment_Date_Time__c})</expression>
+    </formulas>
+    <formulas>
+        <name>IL</name>
+        <dataType>Boolean</dataType>
+        <expression>or(
+{!$Record.Facility_State__c} = &apos;IL&apos;,
+{!$Record.Facility_State__c} = &apos;Illinois&apos;
+)</expression>
+    </formulas>
+    <formulas>
+        <name>MDDENJ</name>
+        <dataType>Boolean</dataType>
+        <expression>or(
+{!$Record.Facility_State__c} = &apos;NJ&apos;,
+{!$Record.Facility_State__c} = &apos;MD&apos;,
+{!$Record.Facility_State__c} = &apos;DE&apos;,
+{!$Record.Facility_State__c} = &apos;New Jersey&apos;,
+{!$Record.Facility_State__c} = &apos;Maryland&apos;,
+{!$Record.Facility_State__c} = &apos;Deleware&apos;
+)</expression>
+    </formulas>
+    <formulas>
+        <name>Now</name>
+        <dataType>DateTime</dataType>
+        <expression>now()</expression>
+    </formulas>
+    <formulas>
+        <name>PANJ</name>
+        <dataType>Boolean</dataType>
+        <expression>or(
+{!$Record.Facility_State__c} = &apos;NJ&apos;,
+{!$Record.Facility_State__c} = &apos;PA&apos;,
+{!$Record.Facility_State__c} = &apos;New Jersey&apos;,
+{!$Record.Facility_State__c} = &apos;Pennsylvania&apos;
+)</expression>
+    </formulas>
+    <formulas>
+        <name>phoneNumber</name>
+        <dataType>String</dataType>
+        <expression>if(
+not(isblank({!$Record.Phone_Number__c})),
+{!$Record.Phone_Number__c},
+if(
+not(isblank({!$Record.Mobile_Number__c})),
+{!$Record.Mobile_Number__c},
+if(
+not(isblank({!$Record.Main_Phone_Number__c})),
+{!$Record.Main_Phone_Number__c},
+if(
+not(isblank({!$Record.Phone_1__c})),
+{!$Record.Phone_1__c},
+if(
+not(isblank({!$Record.Phone_2__c})),
+{!$Record.Phone_2__c},
+if(
+not(isblank({!$Record.Phone_3__c})),
+{!$Record.Phone_3__c},
+null
+))))))</expression>
+    </formulas>
+    <formulas>
+        <name>Time</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.Appointment_Time_In_Text__c}</expression>
+    </formulas>
+    <interviewLabel>Patient - TF - Send SMS When Appointment Is Scheduled {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Patient - TF - Send SMS When Appointment Is Scheduled</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Set_Last_SMS_Message</name>
+        <label>Set Last SMS Message</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>Last_SMS_Sent_Date__c</field>
+            <value>
+                <elementReference>Now</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>If_GHC</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Appointment_Date_Time__c</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Appointment_Date_Time__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>No_Texts__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <object>Patient__c</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <textTemplates>
+        <name>smsTemplate</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>Hello {!$Record.First_Name__c},
+This is an automated reminder that your telehealth appointment with {!$Record.Community_Provider__r.Name} at Lumina Care is on {!dateValue} at {!Time}.
+Reply YES to confirm. Feel free to reach us at (929) 650-3990 if you have any questions regarding your appointment.
+Thank you!
+Lumina Care Team</text>
+    </textTemplates>
+</Flow>

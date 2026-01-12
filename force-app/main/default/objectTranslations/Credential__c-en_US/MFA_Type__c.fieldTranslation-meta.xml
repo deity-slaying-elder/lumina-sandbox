@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- MFA Type --></label>
+    <name>MFA_Type__c</name>
+    <picklistValues>
+        <masterLabel>Genesis</masterLabel>
+        <translation><!-- Genesis --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>PCC</masterLabel>
+        <translation><!-- PCC --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

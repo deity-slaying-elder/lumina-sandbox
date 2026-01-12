@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Priority__c</fullName>
+    <externalId>false</externalId>
+    <formula>If(
+and(
+(NOW() - Latest_Discharge__r.Census_Date__c) * 24 &lt; 48,
+or(
+ Count_of_Calls__c &lt; 2,
+Count_of_Calls__c = null)),
+&quot;1&quot;,
+if(
+(NOW() - Latest_Discharge__r.Census_Date__c) * 24 &lt; 48,
+&quot;2&quot;,
+if(
+and(
+today() - Latest_Discharge_Date__c &lt; 15,
+not(isblank(Latest_Discharge_Date__c))
+),
+&quot;3&quot;,
+&quot;4&quot;
+)
+)
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Priority</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Community_Insurance_Verification__c</fullName>
+    <formula>if(
+or(
+Patient__r.Latest_Payer_Verification_Scenario__c = &quot;Straight Medicare B&quot;,
+Patient__r.Latest_Payer_Verification_Scenario__c = &quot;Has Medicare Advantage&quot;
+),
+true,
+false
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Community Insurance Verification</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- 4 Days After Last SMS --></label>
+    <name>X4_Days_After_Last_SMS__c</name>
+</CustomFieldTranslation>

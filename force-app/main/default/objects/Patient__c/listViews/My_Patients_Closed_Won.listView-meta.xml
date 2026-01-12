@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>My_Patients_Closed_Won</fullName>
+    <columns>NAME</columns>
+    <columns>Facility__c</columns>
+    <columns>Facility_State__c</columns>
+    <columns>Discharge_Date__c</columns>
+    <columns>TCM_Eligible__c</columns>
+    <filterScope>Mine</filterScope>
+    <filters>
+        <field>Discharged_Home__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <filters>
+        <field>Latest_Discharge_Date__c</field>
+        <operation>greaterThan</operation>
+        <value>10/11/2024</value>
+    </filters>
+    <filters>
+        <field>Community_Status__c</field>
+        <operation>equals</operation>
+        <value>Closed Won</value>
+    </filters>
+    <filters>
+        <field>No_Community_Provider__c</field>
+        <operation>equals</operation>
+        <value>0</value>
+    </filters>
+    <filters>
+        <field>Status__c</field>
+        <operation>equals</operation>
+        <value>Inactive</value>
+    </filters>
+    <label>My Patients Closed Won</label>
+    <sharedTo>
+        <role>Intake_Coordinator</role>
+    </sharedTo>
+</ListView>

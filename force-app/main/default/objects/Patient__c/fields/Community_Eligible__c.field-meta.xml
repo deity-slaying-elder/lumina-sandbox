@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Community_Eligible__c</fullName>
+    <formula>if(
+and(
+or(
+ Latest_Payer_Verification_Scenario__c = &quot;Has Medicare Advantage&quot;,
+ Latest_Payer_Verification_Scenario__c = &quot;Commercial&quot;,
+ Latest_Payer_Verification_Scenario__c = &quot;Straight Medicare B&quot;),
+ contains(lower(Latest_Discharge__r.To_From_Location__c), &quot;home&quot;)),
+true,
+false
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Community Eligible</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

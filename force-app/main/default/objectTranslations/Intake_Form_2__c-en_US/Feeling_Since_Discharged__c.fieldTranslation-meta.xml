@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Feeling Since Discharged --></label>
+    <name>Feeling_Since_Discharged__c</name>
+    <picklistValues>
+        <masterLabel>About the same</masterLabel>
+        <translation><!-- About the same --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Better</masterLabel>
+        <translation><!-- Better --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Much better</masterLabel>
+        <translation><!-- Much better --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Worse</masterLabel>
+        <translation><!-- Worse --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

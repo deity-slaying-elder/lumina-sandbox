@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Type --></label>
+    <name>Type__c</name>
+    <picklistValues>
+        <masterLabel>Commercial</masterLabel>
+        <translation><!-- Commercial --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Managed Medicaid</masterLabel>
+        <translation><!-- Managed Medicaid --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Managed Medicare</masterLabel>
+        <translation><!-- Managed Medicare --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Private</masterLabel>
+        <translation><!-- Private --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Standard Medicare</masterLabel>
+        <translation><!-- Standard Medicare --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>State Medicaid</masterLabel>
+        <translation><!-- State Medicaid --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

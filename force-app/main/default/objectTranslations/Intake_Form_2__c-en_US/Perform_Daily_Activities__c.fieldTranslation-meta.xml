@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Perform Daily Activities --></label>
+    <name>Perform_Daily_Activities__c</name>
+    <picklistValues>
+        <masterLabel>No, I am unable to perform my daily activities</masterLabel>
+        <translation><!-- No, I am unable to perform my daily activities --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>No, I need assistance</masterLabel>
+        <translation><!-- No, I need assistance --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Yes, but with some difficulty</masterLabel>
+        <translation><!-- Yes, but with some difficulty --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Yes, without any difficulty</masterLabel>
+        <translation><!-- Yes, without any difficulty --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

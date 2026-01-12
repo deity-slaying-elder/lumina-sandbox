@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All</fullName>
+    <columns>NAME</columns>
+    <columns>PCC_Password__c</columns>
+    <columns>PCC_Username__c</columns>
+    <columns>Resident_Report_Type__c</columns>
+    <columns>url_Id__c</columns>
+    <columns>Admit_Discharge_Report_Id__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Clark_Auth_Project_Id__c</field>
+        <operation>notEqual</operation>
+    </filters>
+    <label>All</label>
+</ListView>
