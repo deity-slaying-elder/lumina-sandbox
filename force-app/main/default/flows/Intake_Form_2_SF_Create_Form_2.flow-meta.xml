@@ -3,7 +3,7 @@
     <actionCalls>
         <name>Get_URL</name>
         <label>Get URL</label>
-        <locationX>2316</locationX>
+        <locationX>2448</locationX>
         <locationY>242</locationY>
         <actionName>c:GetURL</actionName>
         <actionType>component</actionType>
@@ -23,7 +23,7 @@
     <assignments>
         <name>Assign_Record_ID</name>
         <label>Assign Record ID</label>
-        <locationX>2316</locationX>
+        <locationX>2448</locationX>
         <locationY>350</locationY>
         <assignmentItems>
             <assignToReference>recordId</assignToReference>
@@ -62,6 +62,13 @@
                 <numberValue>1.0</numberValue>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Get_Patient.OwnerId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$User.Id</elementReference>
+            </value>
+        </assignmentItems>
         <connector>
             <targetReference>Update_Patient_Unable_To_Service</targetReference>
         </connector>
@@ -92,6 +99,13 @@
                 <numberValue>1.0</numberValue>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Get_Patient.OwnerId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$User.Id</elementReference>
+            </value>
+        </assignmentItems>
         <connector>
             <targetReference>If_No_Refusal_Reason</targetReference>
         </connector>
@@ -120,6 +134,13 @@
             <operator>Add</operator>
             <value>
                 <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Get_Patient.OwnerId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$User.Id</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -297,7 +318,7 @@
     <decisions>
         <name>Call_Outcome_Decisions</name>
         <label>Call Outcome Decisions</label>
-        <locationX>2228</locationX>
+        <locationX>2360</locationX>
         <locationY>758</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
@@ -442,6 +463,27 @@
                     <stringValue>Inpatient</stringValue>
                 </rightValue>
             </conditions>
+            <conditions>
+                <leftValueReference>Get_Patient.Call_Outcome__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>No Number</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Get_Patient.Call_Outcome__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Invalid Number</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Get_Patient.Call_Outcome__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Opt Out from Center</stringValue>
+                </rightValue>
+            </conditions>
             <connector>
                 <targetReference>Copy_1_of_Set_Community_Status</targetReference>
             </connector>
@@ -483,6 +525,21 @@
                 <targetReference>Update_Patient_Readmitted</targetReference>
             </connector>
             <label>Readmitted</label>
+        </rules>
+        <rules>
+            <name>Not_TCM_Eligible</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Patient.Call_Outcome__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Not TCM Eligible</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_Patient_Not_TCM_Eligible</targetReference>
+            </connector>
+            <label>Not TCM Eligible</label>
         </rules>
     </decisions>
     <decisions>
@@ -720,7 +777,7 @@
     <decisions>
         <name>If_Screen_Flow</name>
         <label>If Screen Flow</label>
-        <locationX>2228</locationX>
+        <locationX>2360</locationX>
         <locationY>134</locationY>
         <defaultConnector>
             <targetReference>Get_URL</targetReference>
@@ -775,7 +832,10 @@
     <formulas>
         <name>add1ToCountofCalls</name>
         <dataType>Number</dataType>
-        <expression>{!Get_Patient.Count_of_Calls__c} + 1</expression>
+        <expression>if(
+isblank({!Get_Patient.Count_of_Calls__c}),
+1,
+{!Get_Patient.Count_of_Calls__c} + 1)</expression>
         <scale>0</scale>
     </formulas>
     <formulas>
@@ -1005,7 +1065,7 @@ isblank({!Get_Patient.Facility__c}),
     <recordLookups>
         <name>Get_Patient</name>
         <label>Get Patient</label>
-        <locationX>2228</locationX>
+        <locationX>2360</locationX>
         <locationY>542</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -1060,6 +1120,12 @@ isblank({!Get_Patient.Facility__c}),
                 <elementReference>Today</elementReference>
             </value>
         </inputAssignments>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>$User.Id</elementReference>
+            </value>
+        </inputAssignments>
         <object>Patient__c</object>
     </recordUpdates>
     <recordUpdates>
@@ -1097,6 +1163,12 @@ isblank({!Get_Patient.Facility__c}),
             <field>Latest_Call_Outcome__c</field>
             <value>
                 <elementReference>Today</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>$User.Id</elementReference>
             </value>
         </inputAssignments>
         <object>Patient__c</object>
@@ -1143,6 +1215,12 @@ isblank({!Get_Patient.Facility__c}),
             <field>Latest_Call_Outcome__c</field>
             <value>
                 <elementReference>Today</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>$User.Id</elementReference>
             </value>
         </inputAssignments>
         <object>Patient__c</object>
@@ -1193,6 +1271,12 @@ isblank({!Get_Patient.Facility__c}),
                 <elementReference>Today</elementReference>
             </value>
         </inputAssignments>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>$User.Id</elementReference>
+            </value>
+        </inputAssignments>
         <object>Patient__c</object>
     </recordUpdates>
     <recordUpdates>
@@ -1239,6 +1323,12 @@ isblank({!Get_Patient.Facility__c}),
             <field>Latest_Call_Outcome__c</field>
             <value>
                 <elementReference>Today</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>$User.Id</elementReference>
             </value>
         </inputAssignments>
         <object>Patient__c</object>
@@ -1289,6 +1379,45 @@ isblank({!Get_Patient.Facility__c}),
                 <elementReference>Today</elementReference>
             </value>
         </inputAssignments>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>$User.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Patient__c</object>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Patient_Not_TCM_Eligible</name>
+        <label>Update Patient Not TCM Eligible</label>
+        <locationX>4274</locationX>
+        <locationY>866</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Call_Outcome__c</field>
+            <value>
+                <elementReference>Get_Patient.Call_Outcome__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Community_Status__c</field>
+            <value>
+                <stringValue>Not Eligible</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>$User.Id</elementReference>
+            </value>
+        </inputAssignments>
         <object>Patient__c</object>
     </recordUpdates>
     <recordUpdates>
@@ -1326,6 +1455,12 @@ isblank({!Get_Patient.Facility__c}),
             <field>Latest_Call_Outcome__c</field>
             <value>
                 <elementReference>Today</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>$User.Id</elementReference>
             </value>
         </inputAssignments>
         <object>Patient__c</object>
@@ -1367,6 +1502,12 @@ isblank({!Get_Patient.Facility__c}),
                 <elementReference>Today</elementReference>
             </value>
         </inputAssignments>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>$User.Id</elementReference>
+            </value>
+        </inputAssignments>
         <object>Patient__c</object>
     </recordUpdates>
     <recordUpdates>
@@ -1406,12 +1547,18 @@ isblank({!Get_Patient.Facility__c}),
                 <elementReference>Today</elementReference>
             </value>
         </inputAssignments>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>$User.Id</elementReference>
+            </value>
+        </inputAssignments>
         <object>Patient__c</object>
     </recordUpdates>
     <recordUpdates>
         <name>Update_Patient_Unable_To_Service</name>
         <label>Update Patient Unable To Service</label>
-        <locationX>2228</locationX>
+        <locationX>2360</locationX>
         <locationY>2066</locationY>
         <inputReference>Get_Patient</inputReference>
     </recordUpdates>
@@ -1728,7 +1875,7 @@ isblank({!Get_Patient.Facility__c}),
     <screens>
         <name>Call_Outcome_Screen</name>
         <label>Call Outcome Screen</label>
-        <locationX>2228</locationX>
+        <locationX>2360</locationX>
         <locationY>650</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
@@ -2201,7 +2348,7 @@ isblank({!Get_Patient.Facility__c}),
         <showHeader>false</showHeader>
     </screens>
     <start>
-        <locationX>2102</locationX>
+        <locationX>2234</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>If_Screen_Flow</targetReference>

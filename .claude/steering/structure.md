@@ -64,6 +64,32 @@ Single trigger per object → Handler class
 - **Wire:** Use for read-only data that auto-refreshes
 - **Imperative:** Use for DML operations or conditional calls
 
+### Reactivity Pattern
+- Tracked objects/arrays need new references for re-render
+- Use spread operator: `this.data = { ...this.data, key: value }`
+- Never mutate tracked properties directly
+
+### Validation Pattern
+- Always validate against `allData`, not `filteredData`
+- Hidden rows (from search/filter) must still be validated
+- Inline validation + on-save validation for best UX
+
+### Computed Property Pattern
+- Cache expensive getters with dirty flag
+- Set `_isDirty = true` on data mutations
+- Recompute only when dirty, then reset flag
+
+### Modal Pattern
+- Add Escape key handler in `connectedCallback`
+- Remove listener in `disconnectedCallback`
+- Include: `role="dialog"`, `aria-describedby`, backdrop
+
+### Field Set Pattern
+- When LWC hardcodes field API names, ensure backing field set includes ALL referenced fields
+- Controller dynamically queries fields from field set - missing fields return undefined
+- **Example:** `facilityEditor.js` PROGRAM_CONFIG references date fields → `Facility_LWC` field set must include them
+- Check field set whenever LWC shows empty/missing data despite database having values
+
 ## Import/Dependency Rules
 - Controllers call Services/Handlers, never direct SOQL
 - Services are stateless, handle bulkification

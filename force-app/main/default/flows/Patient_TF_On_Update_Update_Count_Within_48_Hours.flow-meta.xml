@@ -6,7 +6,7 @@
         <name>If_Count_Equals_0</name>
         <label>If Count Equals 0</label>
         <locationX>176</locationX>
-        <locationY>323</locationY>
+        <locationY>287</locationY>
         <defaultConnector>
             <targetReference>If_Greater_Than_Last_Value</targetReference>
         </defaultConnector>
@@ -28,7 +28,7 @@
         <name>If_Greater_Than_Last_Value</name>
         <label>If Greater Than Last Value</label>
         <locationX>473</locationX>
-        <locationY>431</locationY>
+        <locationY>395</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>Greater_Than_Last_Value</name>
@@ -50,7 +50,7 @@
         <name>If_Within_48_Hours</name>
         <label>If Within 48 Hours</label>
         <locationX>275</locationX>
-        <locationY>539</locationY>
+        <locationY>503</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>Within_48_Hours</name>
@@ -112,7 +112,7 @@ false
         <name>Add_To_Calls</name>
         <label>Add To Calls</label>
         <locationX>143</locationX>
-        <locationY>647</locationY>
+        <locationY>611</locationY>
         <inputAssignments>
             <field>Count_of_Calls_Within_48_Hours__c</field>
             <value>
@@ -137,7 +137,7 @@ false
         </filters>
         <object>Patient__c</object>
         <recordTriggerType>Update</recordTriggerType>
-        <triggerType>RecordAfterSave</triggerType>
+        <triggerType>RecordBeforeSave</triggerType>
     </start>
     <status>Active</status>
 </Flow>

@@ -1,208 +1,560 @@
+/* ============================================
+   Facility Editor - Inline Expandable Rows
+   ============================================ */
+
 /* Card Styling */
-lightning-card {
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e5e7eb;
-}
-
-.slds-card__body {
-    padding: 1.5rem;
-}
-
-/* Filter Section */
-.filter-section {
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    padding: 1rem;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-}
-
-.select-all-checkbox {
+.card-title {
+    font-size: 1rem;
     font-weight: 600;
 }
 
-/* Info Banner */
-.info-banner {
-    background: linear-gradient(135deg, #e8f4fd 0%, #d4ebfa 100%) !important;
-    border-left: 5px solid #0070d2;
-    border: 2px solid #b8dff7;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 112, 210, 0.12);
+.card-body {
+    padding: 0.75rem;
 }
 
-.info-banner p {
-    color: #032d60;
-    font-size: 1rem;
-    margin: 0;
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.info-banner strong {
-    color: #014486;
-    font-weight: 700;
+/* Loading Container */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
 }
 
-/* Data Table Container */
-.datatable-container {
-    background: #ffffff;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    overflow: visible;
+/* Empty State */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: #706e6b; /* slds-allow-hex */
 }
 
-/* Override datatable styles for better appearance */
-lightning-datatable {
-    --slds-c-table-radius: 8px;
+/* Error Banner */
+.error-banner {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background-color: #c23934; /* slds-allow-hex */
+    color: #fff; /* slds-allow-hex */
+    border-radius: 0.25rem;
+    font-size: 0.8125rem;
+    margin-bottom: 0.75rem;
 }
 
-/* Make datatable scrollable for large datasets */
-.datatable-container lightning-datatable {
-    max-height: 600px;
+/* ============================================
+   Toolbar
+   ============================================ */
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: #f3f3f3; /* slds-allow-hex */
+    border: 1px solid #dddbda; /* slds-allow-hex */
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.toolbar-right {
+    flex-shrink: 0;
+}
+
+.select-all {
+    --slds-c-checkbox-sizing-width: 1rem;
+    font-size: 0.75rem;
+}
+
+.set-dates-btn {
+    --slds-c-button-sizing-height: 1.75rem;
+    font-size: 0.75rem;
+}
+
+.count-badge {
+    font-size: 0.6875rem;
+    padding: 0.125rem 0.5rem;
+}
+
+.search-input {
+    width: 180px;
+}
+
+/* ============================================
+   Table
+   ============================================ */
+.table-wrapper {
+    max-height: 500px;
     overflow-y: auto;
+    overflow-x: auto;
+    border: 1px solid #dddbda; /* slds-allow-hex */
+    border-radius: 0.25rem;
+    background: #fff; /* slds-allow-hex */
+    /* Firefox scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: #b0adab #f3f3f3; /* slds-allow-hex */
 }
 
-/* Fix overflow to allow dropdown visibility and prevent scrolling container */
-.slds-table_container > .slds-scrollable_x {
-    overflow: visible;
+.table-wrapper::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
 }
 
-/* Remove all table cell positioning that creates stacking contexts */
-.slds-table_container td {
-    z-index: auto;
+.table-wrapper::-webkit-scrollbar-track {
+    background: #f3f3f3; /* slds-allow-hex */
 }
 
-/* Combobox gets extremely high z-index */
-.slds-table_container lightning-combobox {
-    position: static !important;
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: #b0adab; /* slds-allow-hex */
+    border-radius: 4px;
 }
 
-/* Table layout - remove fixed-layout to allow adaptive columns */
-.slds-table {
-    table-layout: auto !important;
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #706e6b; /* slds-allow-hex */
+}
+
+.facility-table {
     width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
 }
 
-/* Select checkbox column - minimal width */
-.slds-table th:nth-child(1),
-.slds-table td:nth-child(1) {
-    width: 1%;
+.facility-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #fafaf9; /* slds-allow-hex */
+}
+
+.facility-table th {
+    padding: 0.5rem 0.5rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: #514f4d; /* slds-allow-hex */
+    border-bottom: 2px solid #dddbda; /* slds-allow-hex */
     white-space: nowrap;
 }
 
-/* Row number column - minimal width */
-.slds-table th:nth-child(2),
-.slds-table td:nth-child(2) {
-    width: 1%;
-    white-space: nowrap;
+.facility-table td {
+    padding: 0.5rem 0.5rem;
+    border-bottom: 1px solid #e5e5e5; /* slds-allow-hex */
+    vertical-align: middle;
 }
 
-/* Facility Name column - flexible but with truncation */
-.slds-table th:nth-child(3),
-.slds-table td:nth-child(3) {
-    max-width: 0;
-    width: 30%;
+.facility-table tbody tr {
+    transition: background-color 0.15s ease;
 }
 
-.slds-table td:nth-child(3) .slds-truncate,
-.slds-table td:nth-child(3) a {
-    display: block;
+.facility-table tbody tr:hover:not(.expanded-row) {
+    background-color: #f7f9fb; /* slds-allow-hex */
+}
+
+/* Row States */
+.facility-table tbody tr.row-modified {
+    background-color: #fef8e7; /* slds-allow-hex */
+}
+
+/* Column Styles */
+.col-checkbox {
+    width: 40px;
+    text-align: center;
+}
+
+.col-expand {
+    width: 32px;
+    text-align: center;
+}
+
+.col-number {
+    width: 36px;
+    text-align: center;
+    font-size: 0.6875rem;
+    color: #706e6b; /* slds-allow-hex */
+}
+
+.col-name {
+    text-align: left;
+    min-width: 180px;
+}
+
+.col-program {
+    width: 48px;
+    text-align: center;
+}
+
+.col-checkbox-right {
+    width: 80px;
+    text-align: center;
+}
+
+/* Expand Button */
+.expand-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #706e6b; /* slds-allow-hex */
+    transition: all 0.15s ease;
+}
+
+.expand-btn:hover {
+    background: #e5e5e5; /* slds-allow-hex */
+    color: #0070d2; /* slds-allow-hex */
+}
+
+.expand-btn:focus {
+    outline: 2px solid #0070d2; /* slds-allow-hex */
+    outline-offset: 1px;
+}
+
+/* Facility Link */
+.facility-link {
+    color: #0070d2; /* slds-allow-hex */
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-block;
+    max-width: 220px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-/* Checkbox/field columns - equal distribution of remaining space */
-.slds-table th:nth-child(n+4),
-.slds-table td:nth-child(n+4) {
-    text-align: center;
-    white-space: nowrap;
+.facility-link:hover {
+    text-decoration: underline;
+    color: #005fb2; /* slds-allow-hex */
 }
 
-.slds-table td:nth-child(n+4) lightning-input {
+/* Program Checkbox */
+.program-checkbox {
+    --slds-c-checkbox-sizing-width: 1rem;
+}
+
+/* ============================================
+   Expanded Row - Date Editor
+   ============================================ */
+.expanded-row {
+    background: #f7f9fb !important; /* slds-allow-hex */
+}
+
+.expanded-row td {
+    padding: 0;
+    border-bottom: 2px solid #0070d2; /* slds-allow-hex */
+}
+
+.date-editor {
+    padding: 0.75rem 1rem;
+}
+
+.date-editor-header {
+    margin-bottom: 0.625rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e5e5; /* slds-allow-hex */
+}
+
+.date-editor-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #514f4d; /* slds-allow-hex */
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* Date Editor Grid */
+.date-editor-grid {
     display: flex;
-    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
 }
 
-/* Mobile responsive adjustments */
-@media (max-width: 600px) {
-    .slds-table th:nth-child(3),
-    .slds-table td:nth-child(3) {
-        width: 20%;
-    }
-
-    .slds-table th,
-    .slds-table td {
-        padding: 0.25rem !important;
-    }
+/* Program Date Card */
+.program-date-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    background: #fff; /* slds-allow-hex */
+    border: 1px solid #dddbda; /* slds-allow-hex */
+    border-radius: 0.375rem;
+    min-width: 160px;
 }
 
-/* Force all combobox states to maximum z-index */
-.slds-table_container lightning-combobox[aria-expanded="true"],
-.slds-table_container lightning-combobox:focus,
-.slds-table_container lightning-combobox:focus-within,
-.slds-table_container lightning-combobox:active {
-    position: relative !important;
-    z-index: 999999 !important;
+.program-date-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-/* Error Message Styling */
-.slds-notify_alert {
-    border-radius: 8px;
-    border-left: 5px solid #c23934;
-    box-shadow: 0 2px 8px rgba(194, 57, 52, 0.15);
+.program-badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: #fff; /* slds-allow-hex */
+    background: linear-gradient(135deg, #0070d2 0%, #1589ee 100%); /* slds-allow-hex */
+    border-radius: 0.25rem;
 }
 
-/* Empty State */
-.empty-state {
-    color: #6c757d;
+/* Date Fields */
+.program-date-fields {
+    display: flex;
+    gap: 0.75rem;
 }
 
-.empty-state p {
-    font-size: 1.125rem;
+.date-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    flex: 1;
 }
 
-/* Loading Spinner */
-lightning-spinner {
-    --slds-c-spinner-color-background: rgba(0, 112, 210, 0.1);
-    --slds-c-spinner-color-foreground: #0070d2;
+.date-label {
+    font-size: 0.625rem;
+    font-weight: 600;
+    color: #706e6b; /* slds-allow-hex */
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
 }
 
-/* Button Styling */
-lightning-button {
-    --slds-c-button-radius: 8px;
+.date-input {
+    --slds-c-input-sizing-height: 1.75rem;
+    --slds-c-input-text-font-size: 0.75rem;
 }
 
-/* Responsive Design */
+/* ============================================
+   Validation Styles
+   ============================================ */
+.date-input-error {
+    --slds-c-input-sizing-height: 1.75rem;
+    --slds-c-input-text-font-size: 0.75rem;
+    --slds-c-input-color-border: #c23934; /* slds-allow-hex */
+}
+
+.validation-error-text {
+    color: #c23934; /* slds-allow-hex */
+    font-size: 0.6875rem;
+    margin-top: 0.25rem;
+}
+
+.validation-warning-icon {
+    margin-left: 0.25rem;
+}
+
+/* ============================================
+   Configure Programs Modal
+   ============================================ */
+.modal-content {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+/* Modal Step 1: Facility Selection */
+.modal-facility-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 0.75rem;
+    background: #f3f3f3; /* slds-allow-hex */
+    border: 1px solid #dddbda; /* slds-allow-hex */
+    border-radius: 0.25rem;
+}
+
+.modal-facility-header {
+    display: flex;
+    align-items: center;
+}
+
+.modal-search-input {
+    width: 200px;
+}
+
+.modal-facility-count {
+    padding-left: 0.25rem;
+}
+
+.select-all-facilities {
+    --slds-c-checkbox-sizing-width: 1rem;
+    font-weight: 600;
+}
+
+.modal-facility-list {
+    max-height: 350px;
+    overflow-y: auto;
+    border: 1px solid #dddbda; /* slds-allow-hex */
+    border-radius: 0.25rem;
+    background: #fff; /* slds-allow-hex */
+}
+
+.modal-facility-item {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid #e5e5e5; /* slds-allow-hex */
+    transition: background-color 0.15s ease;
+}
+
+.modal-facility-item:last-child {
+    border-bottom: none;
+}
+
+.modal-facility-item:hover {
+    background-color: #f7f9fb; /* slds-allow-hex */
+}
+
+.facility-checkbox {
+    --slds-c-checkbox-sizing-width: 1rem;
+}
+
+/* Modal Step 2: Program Grid */
+
+.modal-program-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.modal-program-card {
+    padding: 0.75rem;
+    background: #f3f3f3; /* slds-allow-hex */
+    border: 1px solid #dddbda; /* slds-allow-hex */
+    border-radius: 0.375rem;
+}
+
+.modal-program-header {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #dddbda; /* slds-allow-hex */
+}
+
+.modal-program-checkbox {
+    --slds-c-checkbox-sizing-width: 1rem;
+    font-weight: 600;
+}
+
+.modal-program-dates {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.modal-date-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.modal-date-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #706e6b; /* slds-allow-hex */
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.modal-date-input {
+    --slds-c-input-sizing-height: 2rem;
+    --slds-c-input-text-font-size: 0.8125rem;
+}
+
+.modal-date-input-error {
+    --slds-c-input-sizing-height: 2rem;
+    --slds-c-input-text-font-size: 0.8125rem;
+    --slds-c-input-color-border: #c23934; /* slds-allow-hex */
+}
+
+.modal-validation-error {
+    color: #c23934; /* slds-allow-hex */
+    font-size: 0.6875rem;
+    margin-top: 0.25rem;
+}
+
+/* ============================================
+   Help Text
+   ============================================ */
+.help-text {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: #706e6b; /* slds-allow-hex */
+    background: #f7f9fb; /* slds-allow-hex */
+    border-radius: 0.25rem;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
 @media (max-width: 768px) {
-    .slds-card__body {
-        padding: 1rem;
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    .datatable-container lightning-datatable {
+    .toolbar-left {
+        justify-content: flex-start;
+    }
+
+    .toolbar-right {
+        width: 100%;
+    }
+
+    .search-input {
+        width: 100%;
+    }
+
+    .table-wrapper {
         max-height: 400px;
     }
 
-    .filter-section {
-        padding: 0.75rem;
+    .col-name {
+        min-width: 140px;
+    }
+
+    .facility-link {
+        max-width: 130px;
+    }
+
+    .program-date-fields {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .modal-program-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-program-dates {
+        flex-direction: column;
+        gap: 0.5rem;
     }
 }
 
-/* Custom Scrollbar for Datatable */
-.datatable-container::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
+@media (max-width: 480px) {
+    .date-editor-grid {
+        flex-direction: column;
+    }
 
-.datatable-container::-webkit-scrollbar-track {
-    background: #f1f3f5;
-    border-radius: 4px;
-}
-
-.datatable-container::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #0070d2, #00a1e0);
-    border-radius: 4px;
-}
-
-.datatable-container::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #005fb2, #0088cc);
+    .program-date-card {
+        width: 100%;
+    }
 }

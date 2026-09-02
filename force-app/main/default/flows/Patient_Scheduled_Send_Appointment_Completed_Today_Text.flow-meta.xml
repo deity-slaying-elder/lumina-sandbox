@@ -242,7 +242,9 @@ null
         </filters>
         <object>Patient__c</object>
         <schedule>
+            <dayOfMonthToRun>0</dayOfMonthToRun>
             <frequency>Daily</frequency>
+            <frequencyNumber>0</frequencyNumber>
             <startDate>2025-07-14</startDate>
             <startTime>15:30:00.000Z</startTime>
         </schedule>
@@ -253,7 +255,7 @@ null
         <name>smsToday</name>
         <isViewedAsPlainText>true</isViewedAsPlainText>
         <text>Hi {!$Record.First_Name__c},
-thank you for completing your follow up appointment with Lumina Care. We appreciate you taking the time to prioritize your health.
+Thank you for completing your follow up appointment with Lumina Care. We appreciate you taking the time to prioritize your health.
 If you have any follow-up questions or need additional support, feel free to call us at (929) 650-3990.
 Take care,
 Lumina Care Team</text>

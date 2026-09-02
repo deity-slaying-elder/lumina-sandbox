@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>:root{color-scheme:light dark}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Lumina Flow Debt Audit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+  :root {
+    --paper:      #f2f5f6;
+    --card:       #ffffff;
+    --ink:        #171d22;
+    --ink-soft:   #4c5a63;
+    --ink-faint:  #75858e;
+    --rule:       #d3dde1;
+    --rule-soft:  #e4ebee;
+    --accent:     #14586e;
+    --accent-lo:  #e2eef2;
+    --crit:       #9c3427;
+    --crit-lo:    #f7e6e3;
+    --warn:       #7d5a0d;
+    --warn-lo:    #f8eeda;
+    --ok:         #2b6344;
+    --ok-lo:      #e3efe8;
+    --shadow:     0 1px 2px rgba(23,29,34,.05), 0 6px 18px -10px rgba(23,29,34,.18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:     #12181c;
+      --card:      #192126;
+      --ink:       #e6edf0;
+      --ink-soft:  #a2b2bb;
+      --ink-faint: #74858f;
+      --rule:      #2c3941;
+      --rule-soft: #232e35;
+      --accent:    #6cc0d9;
+      --accent-lo: #16323d;
+      --crit:      #e88a7c;
+      --crit-lo:   #3a201c;
+      --warn:      #d9ac52;
+      --warn-lo:   #342a14;
+      --ok:        #77c095;
+      --ok-lo:     #1a2f23;
+      --shadow:    0 1px 2px rgba(0,0,0,.4), 0 6px 20px -12px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:     #12181c;
+    --card:      #192126;
+    --ink:       #e6edf0;
+    --ink-soft:  #a2b2bb;
+    --ink-faint: #74858f;
+    --rule:      #2c3941;
+    --rule-soft: #232e35;
+    --accent:    #6cc0d9;
+    --accent-lo: #16323d;
+    --crit:      #e88a7c;
+    --crit-lo:   #3a201c;
+    --warn:      #d9ac52;
+    --warn-lo:   #342a14;
+    --ok:        #77c095;
+    --ok-lo:     #1a2f23;
+    --shadow:    0 1px 2px rgba(0,0,0,.4), 0 6px 20px -12px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 60rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+  .col  { max-width: 40rem; }
+
+  h1, h2, h3, .ui { font-family: Archivo, "Helvetica Neue", Arial, sans-serif; }
+  code, .mono { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace; }
+
+  h1 { font-size: 2.6rem; line-height: 1.08; font-weight: 700; letter-spacing: -.022em; margin: 0 0 .6rem; text-wrap: balance; }
+  h2 { font-size: 1.35rem; font-weight: 600; letter-spacing: -.012em; margin: 0 0 1rem; text-wrap: balance; }
+  h3 { font-size: 1rem; font-weight: 600; letter-spacing: -.005em; margin: 0 0 .45rem; }
+  p  { margin: 0 0 1rem; }
+  a  { color: var(--accent); text-underline-offset: 2px; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  .eyebrow {
+    font-family: Archivo, sans-serif; font-size: .7rem; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint);
+    margin: 0 0 .9rem;
+  }
+  .lede { font-size: 1.2rem; line-height: 1.55; color: var(--ink-soft); margin: 0 0 1.5rem; }
+
+  header.masthead { border-bottom: 2px solid var(--ink); padding-bottom: 1.6rem; margin-bottom: 2.5rem; }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: .4rem 1.4rem;
+    font-family: Archivo, sans-serif; font-size: .78rem; color: var(--ink-faint);
+  }
+  .meta b { color: var(--ink-soft); font-weight: 600; }
+
+  section { margin: 0 0 3.25rem; }
+  .sechead { display: flex; align-items: baseline; gap: .75rem; border-bottom: 1px solid var(--rule); padding-bottom: .5rem; margin-bottom: 1.4rem; }
+  .sechead h2 { margin: 0; }
+  .sechead .tag { font-family: Archivo, sans-serif; font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); margin-left: auto; }
+
+  /* stat strip */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; margin: 0 0 2rem; }
+  .stat { background: var(--card); padding: .95rem 1.05rem; }
+  .stat .n { font-family: Archivo, sans-serif; font-size: 1.9rem; font-weight: 700; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; display: block; }
+  .stat .l { font-family: Archivo, sans-serif; font-size: .73rem; color: var(--ink-faint); line-height: 1.3; display: block; margin-top: .4rem; }
+  .stat.is-crit .n { color: var(--crit); }
+  .stat.is-warn .n { color: var(--warn); }
+
+  /* finding cards with severity stripe */
+  .find { background: var(--card); border: 1px solid var(--rule); border-left: 3px solid var(--ink-faint); border-radius: 3px; padding: 1.05rem 1.2rem; margin: 0 0 .9rem; box-shadow: var(--shadow); }
+  .find.crit { border-left-color: var(--crit); }
+  .find.warn { border-left-color: var(--warn); }
+  .find.ok   { border-left-color: var(--ok); }
+  .find p:last-child { margin-bottom: 0; }
+  .find h3 { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; }
+
+  .pill { font-family: Archivo, sans-serif; font-size: .66rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; padding: .16rem .45rem; border-radius: 3px; white-space: nowrap; }
+  .pill.crit { background: var(--crit-lo); color: var(--crit); }
+  .pill.warn { background: var(--warn-lo); color: var(--warn); }
+  .pill.ok   { background: var(--ok-lo);   color: var(--ok); }
+  .pill.info { background: var(--accent-lo); color: var(--accent); }
+
+  code { font-size: .855em; background: var(--rule-soft); padding: .1em .34em; border-radius: 3px; word-break: break-word; }
+
+  /* tables */
+  .scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 4px; background: var(--card); }
+  table { border-collapse: collapse; width: 100%; font-family: Archivo, sans-serif; font-size: .81rem; }
+  th, td { text-align: left; padding: .5rem .75rem; border-bottom: 1px solid var(--rule-soft); vertical-align: top; white-space: nowrap; }
+  th { font-weight: 600; font-size: .7rem; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-faint); background: var(--rule-soft); position: sticky; top: 0; }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.mono { font-family: "JetBrains Mono", monospace; font-size: .76rem; white-space: nowrap; }
+  .bar { display: inline-block; height: .55rem; background: var(--accent); border-radius: 1px; vertical-align: middle; margin-right: .45rem; }
+
+  /* phases */
+  .phase { display: grid; grid-template-columns: 2.2rem 1fr; gap: 0 1rem; padding: 1.1rem 0; border-bottom: 1px solid var(--rule); }
+  .phase:last-child { border-bottom: 0; }
+  .phase .ord { font-family: Archivo, sans-serif; font-weight: 700; font-size: 1.05rem; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1.5; }
+  .phase h3 { margin-bottom: .3rem; }
+  .phase p { margin-bottom: .55rem; font-size: .96rem; }
+  .phase ul { margin: 0 0 .55rem; padding-left: 1.1rem; font-size: .96rem; }
+  .phase li { margin-bottom: .28rem; }
+  .out { font-family: Archivo, sans-serif; font-size: .78rem; color: var(--ink-faint); }
+  .out b { color: var(--ink-soft); font-weight: 600; }
+
+  figure { margin: 0 0 1.5rem; }
+  figcaption { font-family: Archivo, sans-serif; font-size: .78rem; color: var(--ink-faint); margin-top: .6rem; line-height: 1.45; }
+  .diagram { background: var(--card); border: 1px solid var(--rule); border-radius: 4px; padding: 1.25rem; overflow-x: auto; }
+  .diagram svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+
+  .callout { background: var(--accent-lo); border: 1px solid var(--accent); border-radius: 4px; padding: 1rem 1.2rem; margin: 0 0 1.5rem; }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .eyebrow { color: var(--accent); margin-bottom: .4rem; }
+
+  ul.plain { padding-left: 1.15rem; }
+  ul.plain li { margin-bottom: .45rem; }
+
+  footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; font-family: Archivo, sans-serif; font-size: .8rem; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">LMNA-580 &middot; Inventory &amp; conversion plan</p>
+  <h1>Lumina Flow Debt Audit</h1>
+  <p class="lede">The ticket asks to move record-triggered Flows into Apex, starting with TCM. The inventory says the limit failures are not caused by any single Flow — they are caused by eleven after-save Flows on <code>Patient__c</code> that each re-save the same record.</p>
+  <div class="meta">
+    <span><b>Org</b> lumDev (partial sandbox)</span>
+    <span><b>Reporter</b> Chana</span>
+    <span><b>Assignee</b> James</span>
+    <span><b>Audited</b> 1 Sep 2026</span>
+    <span><b>Scope</b> read-only, no deploys</span>
+  </div>
+</header>
+
+<section>
+  <div class="sechead"><h2>What is actually in the org</h2><span class="tag">Inventory</span></div>
+  <div class="stats">
+    <div class="stat"><span class="n">110</span><span class="l">Active flows, all types</span></div>
+    <div class="stat"><span class="n">50</span><span class="l">Record-triggered or scheduled</span></div>
+    <div class="stat is-crit"><span class="n">24</span><span class="l">Active, but no source in repo</span></div>
+    <div class="stat is-warn"><span class="n">12</span><span class="l">After-save flows on Patient</span></div>
+    <div class="stat is-crit"><span class="n">11</span><span class="l">Of those re-save Patient</span></div>
+  </div>
+  <div class="col">
+    <p>Of the 50 triggered flows: 41 after-save, 7 before-save, 2 scheduled. Record-triggered flows cluster hard on four objects.</p>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Trigger object</th><th class="num">Flows</th><th>Share</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td>Patient__c</td><td class="num">12</td><td><span class="bar" style="width:96px"></span></td><td>Hub object. 11 write back to themselves.</td></tr>
+        <tr><td>Facility__c</td><td class="num">6</td><td><span class="bar" style="width:48px"></span></td><td>2 before-save, 4 after-save.</td></tr>
+        <tr><td>Community_Episode__c</td><td class="num">4</td><td><span class="bar" style="width:32px"></span></td><td>Writes to Patient. Half of the cycle.</td></tr>
+        <tr><td>Admission_Discharge__c</td><td class="num">3</td><td><span class="bar" style="width:24px"></span></td><td>TCM entry point. 6 Patient updates.</td></tr>
+        <tr><td>Payer_Verification__c</td><td class="num">2</td><td><span class="bar" style="width:16px"></span></td><td>Two overlapping flows, no entry criteria.</td></tr>
+        <tr><td>Document_Template_Facility__c</td><td class="num">2</td><td><span class="bar" style="width:16px"></span></td><td>BAA signature capture.</td></tr>
+        <tr><td>Community_Provider__c</td><td class="num">2</td><td><span class="bar" style="width:16px"></span></td><td>Name formatting only.</td></tr>
+        <tr><td>Opt_In__c / Opt_In_Keyword__c</td><td class="num">3</td><td><span class="bar" style="width:24px"></span></td><td>Messaging opt-in state.</td></tr>
+        <tr><td>Hospital_Admission__c</td><td class="num">1</td><td><span class="bar" style="width:8px"></span></td><td>TCM. Prior NH discharge lookup.</td></tr>
+        <tr><td>Visit__c</td><td class="num">1</td><td><span class="bar" style="width:8px"></span></td><td>4 Patient updates in one flow.</td></tr>
+        <tr><td>Opportunity</td><td class="num">1</td><td><span class="bar" style="width:8px"></span></td><td>9 record updates. Heaviest single flow.</td></tr>
+        <tr><td>13 other objects</td><td class="num">13</td><td><span class="bar" style="width:104px; opacity:.35"></span></td><td>One flow each, mostly name formatting.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><h2>Why they hit limits</h2><span class="tag">Root cause</span></div>
+  <div class="col">
+    <p>Eleven of the twelve after-save Flows on <code>Patient__c</code> update <code>$Record</code> — the record that just triggered them. Each of those is a separate DML statement that starts a fresh save order, which re-evaluates all twelve Flows again.</p>
+    <p>Nothing upstream needs to be pathological for this to blow up. One Admission/Discharge insert issues six Patient updates before any Patient Flow has run.</p>
+  </div>
+
+  <figure>
+    <div class="diagram">
+      <svg viewBox="0 0 660 260" role="img" aria-labelledby="cascade-title cascade-desc">
+        <title id="cascade-title">TCM write cascade</title>
+        <desc id="cascade-desc">Admission/Discharge insert issues six updates to Patient. Patient's eleven self-updating after-save flows re-enter the save order. Patient also writes to Community Episode, which writes back to Patient, forming a cycle.</desc>
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+        <g font-family="Archivo, sans-serif" color="var(--ink-faint)">
+
+          <!-- Admission/Discharge -->
+          <rect x="12" y="96" width="132" height="52" rx="3" fill="var(--accent-lo)" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="78" y="118" text-anchor="middle" font-size="12.5" font-weight="600" fill="var(--ink)">Admission_</text>
+          <text x="78" y="133" text-anchor="middle" font-size="12.5" font-weight="600" fill="var(--ink)">Discharge__c</text>
+
+          <!-- arrow AD -> Patient -->
+          <g color="var(--ink-faint)">
+            <path d="M148,122 L232,122" stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar)"/>
+          </g>
+          <text x="190" y="113" text-anchor="middle" font-size="10.5" fill="var(--ink-faint)">6 updates</text>
+
+          <!-- Patient -->
+          <rect x="238" y="90" width="150" height="64" rx="3" fill="var(--crit-lo)" stroke="var(--crit)" stroke-width="1.5"/>
+          <text x="313" y="115" text-anchor="middle" font-size="13.5" font-weight="700" fill="var(--ink)">Patient__c</text>
+          <text x="313" y="133" text-anchor="middle" font-size="10.5" fill="var(--ink-soft)">12 after-save flows</text>
+
+          <!-- self loop -->
+          <g color="var(--crit)">
+            <path d="M283,90 C275,42 351,42 343,90" stroke="currentColor" stroke-width="1.75" fill="none" marker-end="url(#ar)"/>
+          </g>
+          <text x="313" y="48" text-anchor="middle" font-size="11" font-weight="600" fill="var(--crit)">11 re-save $Record</text>
+          <text x="313" y="34" text-anchor="middle" font-size="10.5" fill="var(--ink-faint)">each restarts the save order</text>
+
+          <!-- Patient <-> Community Episode -->
+          <g color="var(--warn)">
+            <path d="M388,108 L474,108" stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar)"/>
+            <path d="M474,138 L388,138" stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar)"/>
+          </g>
+          <text x="431" y="101" text-anchor="middle" font-size="10" fill="var(--ink-faint)">Last_SMS</text>
+          <text x="431" y="153" text-anchor="middle" font-size="10" fill="var(--ink-faint)">Call_Outcome</text>
+
+          <rect x="480" y="96" width="150" height="52" rx="3" fill="var(--warn-lo)" stroke="var(--warn)" stroke-width="1.5"/>
+          <text x="555" y="118" text-anchor="middle" font-size="12.5" font-weight="600" fill="var(--ink)">Community_</text>
+          <text x="555" y="133" text-anchor="middle" font-size="12.5" font-weight="600" fill="var(--ink)">Episode__c</text>
+
+          <!-- feeders -->
+          <g color="var(--ink-faint)" opacity="0.8">
+            <path d="M110,196 L280,164" stroke="currentColor" stroke-width="1.25" fill="none" marker-end="url(#ar)" stroke-dasharray="3 3"/>
+            <path d="M300,214 L308,160" stroke="currentColor" stroke-width="1.25" fill="none" marker-end="url(#ar)" stroke-dasharray="3 3"/>
+          </g>
+          <rect x="20" y="182" width="94" height="30" rx="3" fill="none" stroke="var(--rule)" stroke-width="1.25"/>
+          <text x="67" y="201" text-anchor="middle" font-size="11" fill="var(--ink-soft)">Visit__c &times;4</text>
+          <rect x="222" y="212" width="160" height="30" rx="3" fill="none" stroke="var(--rule)" stroke-width="1.25"/>
+          <text x="302" y="231" text-anchor="middle" font-size="11" fill="var(--ink-soft)">Payer_Verification__c &times;3</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>Every arrow is a DML statement. The red loop is the multiplier: eleven flows each re-saving <code>Patient__c</code>, and every re-save re-evaluates all twelve. The amber pair is a genuine two-way cycle between Patient and Community Episode.</figcaption>
+  </figure>
+
+  <div class="find crit">
+    <h3>Same-record after-save updates <span class="pill crit">Primary cause</span></h3>
+    <p>All eleven are plain field assignments on the triggering record — name concatenation, consent timestamps, status derivation, a 48-hour counter. This is before-save work being done after-save. Before-save costs zero DML; after-save costs one DML plus a full re-entry, each time.</p>
+  </div>
+  <div class="find warn">
+    <h3>Patient &harr; Community Episode write cycle <span class="pill warn">Cycle</span></h3>
+    <p><code>Patient_TF_On_Update_Last_SMS_Update_Latest_Episode</code> writes <code>Last_SMS_Sent_Date__c</code> onto Community Episode. <code>Community_TF_On_Update_Status_Call_Outcome_Update_Patient</code> queries the Patient and writes back. Each pass consumes save-order depth against the 16-deep recursion cap.</p>
+  </div>
+  <div class="find warn">
+    <h3>Heavy multi-update flows <span class="pill warn">Amplifier</span></h3>
+    <p><code>Opportunity_TF_On_Closed_Won_Update_Facility_Program</code> holds 9 record updates, <code>Facility_TF_On_Update_Rollout_Status_Capture_User</code> holds 6, and <code>Admission_Discharge_TF_On_Create_Set_Latest_A_D_on_Patient</code> holds 5 — all separate DML statements that a single Apex update would collapse into one.</p>
+  </div>
+  <div class="find ok">
+    <h3>Loops are clean <span class="pill ok">Not a problem</span></h3>
+    <p>Worth stating because it is the usual suspect: no flow in the org performs DML or a query inside a loop. <code>Facility_Mapper_TF_Delete_False_Leaked_Admissions</code> collects into a variable and deletes once after the loop. The loops are correctly bulkified — leave them alone.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><h2>Delete before you convert</h2><span class="tag">Quick wins</span></div>
+  <div class="col">
+    <p>Three redundancies found. The first is free — two flows are functionally identical, so one is pure overhead and one fewer conversion.</p>
+  </div>
+  <div class="find crit">
+    <h3>Exact duplicate <span class="pill crit">Deactivate one</span></h3>
+    <p><code>Patient_TF_On_Update_Update_Name</code> and <code>Patient_TF_On_Update_of_First_or_Last_Name_Update_Name</code> have identical entry criteria (<code>First_Name__c</code> or <code>Last_Name__c</code> IsChanged) and identical bodies (set <code>$Record.Name</code>). One is dead weight.</p>
+  </div>
+  <div class="find warn">
+    <h3>Contending consent writers <span class="pill warn">Consolidate</span></h3>
+    <p><code>Patient_TF_On_Update_Of_Consent_Set_DateTime</code> and <code>Patient_TF_On_update_of_consent_status_update_consent_datetime</code> both write <code>Consent_Datetime__c</code> on <code>$Record</code> under different, overlapping conditions. Which one wins depends on flow order — which is not guaranteed. Needs a decision on the intended rule before either is ported.</p>
+  </div>
+  <div class="find warn">
+    <h3>Unfiltered pair on Payer Verification <span class="pill warn">Consolidate</span></h3>
+    <p><code>Patient_Verification_TF_On_Create_Update_Patient</code> and <code>Payer_Verification_TF_On_Create_Update_Patient</code> both fire on every Payer Verification insert with <em>no entry criteria at all</em>, and both update the related Patient. Three Patient DMLs per insert where one would do.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><h2>Blockers to clear first</h2><span class="tag">Gating</span></div>
+  <div class="find crit">
+    <h3>The repo is missing 24 active flows <span class="pill crit">Blocks all work</span></h3>
+    <p><code>force-app</code> holds 40 flows; the org runs 50 active record-triggered ones, and 24 of those have no source in the repo — including core TCM logic like <code>Admission_Discharge_TF_On_Create_Create_Community_Episode</code>, <code>Community_Episode_TF_On_Create_Set_Latest_On_Patient</code> and <code>Visit_TF_On_Create_Visit_Fill_Visit_Date_Fields_on_Patient</code>. Fourteen repo flows are also inactive or non-triggered in the org and may be stale.</p>
+    <p>I retrieved all 50 into a scratch directory to run this audit, so the repo is untouched. Committing them is a separate call — say the word and I will land them in one <code>chore(flows): sync active flow metadata</code> commit so every later conversion has a reviewable before-state.</p>
+  </div>
+  <div class="find crit">
+    <h3><code>lumDev</code> is a partial sandbox, not a dev sandbox <span class="pill crit">No deploys</span></h3>
+    <p>The alias resolves to <code>stevenlum@clarktn.com.partialsb</code>. Under your standing rule I will not deploy there — I will prepare the metadata plus the exact <code>sf project deploy start</code> command and hand it over. If there is a true dev sandbox for Lumina I do not have authed, point me at it and I can run the full cycle myself.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><h2>Conversion sequence</h2><span class="tag">Plan</span></div>
+  <div class="col">
+    <p>Ordered by risk-adjusted payoff, not by object. Phases 1–3 remove most of the limit pressure without writing much Apex; the bulk conversion only makes sense once the cascade is flattened.</p>
+  </div>
+
+  <div class="phase">
+    <span class="ord">1</span>
+    <div>
+      <h3>Sync and baseline</h3>
+      <p>Land the 24 missing flows in source control and reconcile the 14 stale repo flows. Nothing else is reviewable until the repo matches the org.</p>
+      <p class="out"><b>Exit:</b> <code>sf project retrieve start</code> produces an empty diff for Flow metadata.</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <span class="ord">2</span>
+    <div>
+      <h3>Delete the duplicate, decide the two overlaps</h3>
+      <p>Deactivate the redundant name flow outright. For the consent pair and the Payer Verification pair, get the intended business rule from Chana before porting — encoding an ambiguity into Apex just makes it harder to see.</p>
+      <p class="out"><b>Exit:</b> 3 flows deactivated, 2 rules written down. <b>Needs:</b> Chana.</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <span class="ord">3</span>
+    <div>
+      <h3>Collapse the Patient self-updates into one before-save handler</h3>
+      <p>The single highest-value change. Extend the existing <code>PatientTrigger</code> to <code>before insert, before update</code> coverage and fold the eight remaining <code>$Record</code>-only flows into <code>PatientTriggerHandler</code> alongside <code>setLocalAppointmentTimes</code>. Field assignment in a before-trigger costs no DML and no re-entry.</p>
+      <ul>
+        <li>Name concatenation, consent datetime, community status datetime</li>
+        <li>Discharge community status, program eligibility, 48-hour call count</li>
+        <li>Closed-won state check, discharge-home IC assignment</li>
+      </ul>
+      <p class="out"><b>Exit:</b> Patient after-save flow count 12 &rarr; 2. Est. DML per Patient save drops by an order of magnitude.</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <span class="ord">4</span>
+    <div>
+      <h3>Break the Community Episode cycle</h3>
+      <p>Both directions are one-field writes. Move them into a single Apex service invoked from whichever side actually owns the data, so the round trip becomes one pass instead of a ping-pong. This is the piece that most needs a decision rather than code — which object is the source of truth for episode SMS state.</p>
+      <p class="out"><b>Exit:</b> no bidirectional writes between the two objects. <b>Needs:</b> a data-ownership call.</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <span class="ord">5</span>
+    <div>
+      <h3>Port the TCM cross-object flows</h3>
+      <p>Now the actual ticket text. With Patient flattened, these become straightforward handler classes following the existing <code>PatientTriggerHandler</code> / <code>OpportunityTriggerHandler</code> pattern — one trigger per object, logic in the handler, tests alongside.</p>
+      <ul>
+        <li><code>Admission_Discharge__c</code> — 3 flows, incl. the 5-update Patient setter and the SMS send</li>
+        <li><code>Hospital_Admission__c</code> — prior NH discharge lookup</li>
+        <li><code>Visit__c</code> — 4 Patient updates collapse to 1</li>
+        <li><code>Community_Episode__c</code> — 4 flows, 2 already before-save</li>
+      </ul>
+      <p class="out"><b>Exit:</b> TCM path is Apex end to end, flows deactivated not deleted, 75%+ coverage.</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <span class="ord">6</span>
+    <div>
+      <h3>Everything else, by weight</h3>
+      <p>Remaining 20-odd flows. Take <code>Opportunity_TF_On_Closed_Won_Update_Facility_Program</code> (9 updates) and <code>Facility_TF_On_Update_Rollout_Status_Capture_User</code> (6) first; the single-update name formatters last, and only if there is a reason beyond consistency.</p>
+      <p class="out"><b>Open question:</b> is the goal zero flows, or zero <em>fragile</em> flows? A one-element name formatter is not costing anything.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><h2>Decisions I need</h2><span class="tag">Open</span></div>
+  <ul class="plain">
+    <li><b>Commit the 24 retrieved flows?</b> My recommendation is yes, as a standalone commit before any conversion.</li>
+    <li><b>Consent datetime rule.</b> Two flows, two different conditions, same target field. Which is correct?</li>
+    <li><b>Community Episode SMS ownership.</b> Which object owns <code>Last_SMS_Sent_Date__c</code>?</li>
+    <li><b>Is there a true Lumina dev sandbox?</b> Without one I can write and test locally but cannot deploy or run Apex tests against an org.</li>
+    <li><b>Target end state.</b> All 50 flows in Apex, or just the TCM path plus the heavy hitters?</li>
+  </ul>
+  <div class="callout">
+    <p class="eyebrow">Recommendation</p>
+    <p>Do not start at phase 5. The ticket frames this as a conversion job, but roughly the entire limits problem lives in phases 2 and 3 — deleting one duplicate and moving eight field assignments from after-save to before-save. That is a few days of work with a large, measurable effect, and it makes every later conversion smaller.</p>
+  </div>
+</section>
+
+<footer>
+  Audit run read-only against <code>lumDev</code> on 1 Sep 2026 &middot; 50 flow definitions parsed from retrieved metadata &middot; no org changes made
+</footer>
+
+</div>
+</body>
+</html>

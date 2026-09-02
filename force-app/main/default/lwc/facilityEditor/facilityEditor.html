@@ -1,217 +1,334 @@
 <template>
-    <lightning-card title="Facility Editor" icon-name="standard:account">
-        <div class="slds-card__body slds-card__body_inner">
-            <template if:true={isLoading}>
-                <lightning-spinner alternative-text="Loading..."></lightning-spinner>
+    <lightning-card icon-name="standard:account">
+        <span slot="title" class="card-title">Facility Editor</span>
+
+        <!-- Action buttons in card header -->
+        <div slot="actions" class="header-actions">
+            <template lwc:if={hasData}>
+                <template lwc:if={facilityCount}>
+                    <lightning-button
+                        variant="neutral"
+                        label="Cancel"
+                        onclick={handleCancelChanges}
+                        class="slds-m-right_x-small">
+                    </lightning-button>
+                </template>
+                <lightning-button
+                    variant="brand"
+                    label={updateButtonLabel}
+                    onclick={handleUpdateFacilities}
+                    disabled={disableUpdateButton}>
+                </lightning-button>
+            </template>
+        </div>
+
+        <div class="slds-card__body_inner card-body">
+            <!-- Loading State -->
+            <template lwc:if={isLoading}>
+                <div class="loading-container">
+                    <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+                </div>
             </template>
 
-            <template if:false={isLoading}>
-                <template if:true={showNoFacilitiesMessage}>
-                    <div class="slds-text-align_center slds-p-around_large empty-state">
-                        <lightning-icon icon-name="standard:account" size="large" class="slds-m-bottom_small"></lightning-icon>
-                        <h3 class="slds-text-heading_small slds-m-bottom_x-small">No Facilities Found</h3>
-                        <p class="slds-text-color_weak">There are no facilities linked to this account yet.</p>
+            <template lwc:else>
+                <!-- Empty State -->
+                <template lwc:if={showNoFacilitiesMessage}>
+                    <div class="empty-state">
+                        <lightning-icon icon-name="standard:account" size="medium" class="slds-m-bottom_small"></lightning-icon>
+                        <p class="slds-text-heading_small">No Facilities Found</p>
+                        <p class="slds-text-body_small slds-text-color_weak">There are no facilities linked to this account.</p>
                     </div>
                 </template>
 
-                <template if:true={showActualError}>
-                    <div class="slds-m-bottom_medium">
-                        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
-                            <span class="slds-assistive-text">error</span>
-                            <h2>{errorMessage}</h2>
-                        </div>
+                <!-- Error State -->
+                <template lwc:if={showActualError}>
+                    <div class="error-banner" role="alert">
+                        <lightning-icon icon-name="utility:error" size="x-small" variant="inverse" class="slds-m-right_x-small"></lightning-icon>
+                        <span>{errorMessage}</span>
                     </div>
                 </template>
 
-                <template if:true={hasData}>
-                    <!-- Search Section -->
-                    <div class="slds-m-bottom_medium filter-section">
-                        <div class="slds-grid slds-gutters slds-wrap">
-                            <!-- Select All Facilities -->
-                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
-                                <lightning-input
-                                    type="checkbox"
-                                    label="Select All Facilities"
-                                    checked={allRowsSelected}
-                                    onchange={handleSelectAllRows}
-                                    class="select-all-checkbox"
-                                ></lightning-input>
-                            </div>
-                            <!-- Search Facilities -->
-                            <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
-                                <lightning-input
-                                    type="search"
-                                    label="Search Facilities"
-                                    placeholder="Search by facility name..."
-                                    value={searchTerm}
-                                    onchange={handleSearch}
-                                ></lightning-input>
-                            </div>
+                <!-- Main Content -->
+                <template lwc:if={hasData}>
+                    <!-- Toolbar -->
+                    <div class="toolbar">
+                        <div class="toolbar-left">
+                            <lightning-button
+                                variant="neutral"
+                                label="Configure Programs"
+                                onclick={handleOpenDateModal}
+                                class="set-dates-btn">
+                            </lightning-button>
+                            <span class="slds-badge slds-badge_lightest count-badge">{totalFacilityCount} facilities</span>
+                            <template lwc:if={rowsWithProgramsCount}>
+                                <span class="slds-badge count-badge">{rowsWithProgramsCount} with programs</span>
+                            </template>
+                            <template lwc:if={facilityCount}>
+                                <span class="slds-badge slds-badge_success count-badge">{facilityCount} modified</span>
+                            </template>
+                        </div>
+                        <div class="toolbar-right">
+                            <lightning-input
+                                type="search"
+                                variant="label-hidden"
+                                placeholder="Search facilities..."
+                                value={searchTerm}
+                                onchange={handleSearch}
+                                class="search-input">
+                            </lightning-input>
                         </div>
                     </div>
 
-                    <!-- Summary Banner -->
-                    <div class="slds-m-bottom_medium">
-                        <div class="info-banner slds-box slds-theme_info slds-p-around_medium">
-                            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-wrap">
-                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
-                                    <p class="slds-text-body_regular">
-                                        <strong>Showing {totalFacilityCount} facilities</strong>
-                                    </p>
-                                </div>
-                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
-                                    <p class="slds-text-body_regular">
-                                        <strong class="slds-text-color_inverse-weak">{selectedFacilityCount} selected</strong>
-                                    </p>
-                                </div>
-                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
-                                    <template if:true={facilityCount}>
-                                        <p class="slds-text-body_regular">
-                                            <strong class="slds-text-color_success">{facilityCount} facilities</strong> with unsaved changes
-                                        </p>
+                    <!-- Table -->
+                    <div class="table-wrapper">
+                        <table class="facility-table" aria-label="Facilities list">
+                            <thead>
+                                <tr>
+                                    <th class="col-expand"></th>
+                                    <th class="col-number">#</th>
+                                    <th class="col-name">Facility Name</th>
+                                    <template for:each={programColumns} for:item="prog">
+                                        <th key={prog.name} class="col-program">{prog.name}</th>
                                     </template>
-                                    <template if:false={facilityCount}>
-                                        <p class="slds-text-body_regular slds-text-color_weak">
-                                            No unsaved changes
-                                        </p>
-                                    </template>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Custom Table with Inline Editing -->
-                    <div class="slds-m-bottom_medium">
-                        <div class="slds-table_container">
-                            <div class="slds-scrollable_x">
-                                <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_fixed-layout">
-                                    <thead>
-                                        <tr class="slds-line-height_reset">
-                                            <th scope="col" style="width: 3.25rem">
+                                    <th class="col-checkbox-right" title="Select all programs for this row">All Programs</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={filteredData} for:item="row">
+                                    <!-- Main Row -->
+                                    <tr key={row.Id} class={row.rowClass}>
+                                        <td class="col-expand">
+                                            <template lwc:if={row.hasAnyEnabledProgram}>
+                                                <button
+                                                    class="expand-btn"
+                                                    data-id={row.Id}
+                                                    onclick={handleToggleExpand}
+                                                    title={row.expandTooltip}>
+                                                    <lightning-icon
+                                                        icon-name={row.expandIcon}
+                                                        size="xx-small"
+                                                        alternative-text="Expand">
+                                                    </lightning-icon>
+                                                </button>
+                                            </template>
+                                        </td>
+                                        <td class="col-number">{row.rowNumber}</td>
+                                        <td class="col-name">
+                                            <a href="javascript:void(0);" data-id={row.Id} onclick={handleNavigateToFacility} class="facility-link" title={row.Name}>{row.Name}</a>
+                                        </td>
+                                        <template for:each={row.programStatuses} for:item="prog">
+                                            <td key={prog.name} class="col-program">
                                                 <lightning-input
                                                     type="checkbox"
                                                     variant="label-hidden"
-                                                    checked={allRowsSelected}
-                                                    onchange={handleSelectAllRows}>
+                                                    checked={prog.isEnabled}
+                                                    data-id={row.Id}
+                                                    data-field={prog.checkbox}
+                                                    onchange={handleProgramToggle}
+                                                    class="program-checkbox">
                                                 </lightning-input>
-                                            </th>
-                                            <th scope="col" style="width: 3.25rem">
-                                                <div class="slds-truncate slds-th__action">
-                                                    <span class="slds-assistive-text">Row Number</span>
-                                                </div>
-                                            </th>
-                                            <template for:each={columns} for:item="col">
-                                                <th key={col.fieldName} scope="col">
-                                                    <div class="slds-truncate" title={col.label}>{col.label}</div>
-                                                </th>
-                                            </template>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <template for:each={filteredData} for:item="row">
-                                            <tr key={row.Id} class={row.isSelected}>
-                                                <td>
-                                                    <lightning-input
-                                                        type="checkbox"
-                                                        variant="label-hidden"
-                                                        checked={row.isSelected}
-                                                        data-id={row.Id}
-                                                        onchange={handleRowSelect}>
-                                                    </lightning-input>
-                                                </td>
-                                                <th scope="row">
-                                                    <div class="slds-truncate" title={row.rowNumber}>{row.rowNumber}</div>
-                                                </th>
-                                                <template for:each={row.cells} for:item="cell">
-                                                    <td key={cell.columnKey} data-label={cell.label}>
-                                                        <!-- Editable picklist field -->
-                                                        <template if:true={cell.isPicklist}>
-                                                            <template if:true={cell.editable}>
-                                                                <lightning-combobox
-                                                                    dropdown-alignment="auto"
-                                                                    variant="label-hidden"
-                                                                    value={cell.value}
-                                                                    options={cell.optionsValue}
-                                                                    data-id={row.Id}
-                                                                    data-field={cell.columnKey}
-                                                                    onchange={handleFieldChange}>
-                                                                </lightning-combobox>
-                                                            </template>
-                                                            <template if:false={cell.editable}>
-                                                                <div class="slds-truncate" title={cell.value}>{cell.value}</div>
-                                                            </template>
-                                                        </template>
-                                                        <!-- Editable non-picklist field -->
-                                                        <template if:false={cell.isPicklist}>
-                                                            <template if:true={cell.editable}>
-                                                                <template if:true={cell.isCheckbox}>
-                                                                    <lightning-input
-                                                                        variant="label-hidden"
-                                                                        type="checkbox"
-                                                                        checked={cell.value}
-                                                                        data-id={row.Id}
-                                                                        data-field={cell.columnKey}
-                                                                        onchange={handleFieldChange}>
-                                                                    </lightning-input>
-                                                                </template>
-                                                                <template if:false={cell.isCheckbox}>
-                                                                    <lightning-input
-                                                                        variant="label-hidden"
-                                                                        type={cell.inputType}
-                                                                        value={cell.value}
-                                                                        data-id={row.Id}
-                                                                        data-field={cell.columnKey}
-                                                                        onchange={handleFieldChange}>
-                                                                    </lightning-input>
-                                                                </template>
-                                                            </template>
-                                                            <!-- Read-only field -->
-                                                            <template if:false={cell.editable}>
-                                                                <template if:true={cell.isLink}>
-                                                                    <a href={cell.linkValue} target="_blank" class="slds-truncate" title={cell.displayValue}>{cell.displayValue}</a>
-                                                                </template>
-                                                                <template if:false={cell.isLink}>
-                                                                    <div class="slds-truncate" title={cell.displayValue}>{cell.displayValue}</div>
-                                                                </template>
-                                                            </template>
-                                                        </template>
-                                                    </td>
-                                                </template>
-                                            </tr>
+                                            </td>
                                         </template>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                                        <td class="col-checkbox-right">
+                                            <lightning-input
+                                                type="checkbox"
+                                                variant="label-hidden"
+                                                checked={row.allProgramsSelected}
+                                                data-id={row.Id}
+                                                onchange={handleToggleAllPrograms}
+                                                title="Select all programs for this row">
+                                            </lightning-input>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Expanded Row (Date Editor) -->
+                                    <template lwc:if={row.isExpanded}>
+                                        <tr key={row.expandedKey} class="expanded-row">
+                                            <td colspan={columnCount}>
+                                                <div class="date-editor">
+                                                    <div class="date-editor-header">
+                                                        <span class="date-editor-title">Program Dates</span>
+                                                    </div>
+                                                    <div class="date-editor-grid">
+                                                        <template for:each={row.enabledPrograms} for:item="program">
+                                                            <div key={program.name} class="program-date-card">
+                                                                <div class="program-date-card-header">
+                                                                    <span class="program-badge">{program.name}</span>
+                                                                </div>
+                                                                <div class="program-date-fields">
+                                                                    <div class="date-field">
+                                                                        <label class="date-label">Launch Date</label>
+                                                                        <lightning-input
+                                                                            type="date"
+                                                                            variant="label-hidden"
+                                                                            value={program.launchDateValue}
+                                                                            data-id={row.Id}
+                                                                            data-field={program.launchDate}
+                                                                            onchange={handleDateChange}
+                                                                            class="date-input">
+                                                                        </lightning-input>
+                                                                    </div>
+                                                                    <div class="date-field">
+                                                                        <label class="date-label">On Hold</label>
+                                                                        <lightning-input
+                                                                            type="date"
+                                                                            variant="label-hidden"
+                                                                            value={program.onHoldDateValue}
+                                                                            data-id={row.Id}
+                                                                            data-field={program.onHoldDate}
+                                                                            onchange={handleDateChange}
+                                                                            class="date-input">
+                                                                        </lightning-input>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </template>
+                            </tbody>
+                        </table>
                     </div>
 
-                    <!-- Update and Cancel Buttons -->
-                    <div class="slds-text-align_center">
-                        <template if:true={facilityCount}>
-                            <lightning-button
-                                variant="neutral"
-                                label="Cancel Changes"
-                                onclick={handleCancelChanges}
-                                icon-name="utility:undo"
-                                class="slds-m-right_small"
-                            ></lightning-button>
-                        </template>
-                        <lightning-button
-                            variant="brand"
-                            label="Update Facilities"
-                            onclick={handleUpdateFacilities}
-                            disabled={disableUpdateButton}
-                            icon-name="utility:save"
-                            class="slds-m-right_small"
-                        ></lightning-button>
-                        <template if:true={facilityCount}>
-                            <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
-                                Click to save {facilityCount} modified facilities to Salesforce
-                            </p>
-                        </template>
+                    <!-- Help Text -->
+                    <div class="help-text">
+                        <lightning-icon icon-name="utility:info" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
+                        <span>Click the arrow to expand and edit dates. Use "All Programs" to toggle all programs for a row. Use "Configure Programs" to bulk-configure selected facilities.</span>
                     </div>
                 </template>
             </template>
         </div>
     </lightning-card>
+
+    <!-- Configure Programs Modal (2-Step) -->
+    <template lwc:if={showDateModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large" aria-modal="true" aria-labelledby="modal-heading" aria-describedby="modal-description">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseDateModal}>
+                        <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading" class="slds-modal__title slds-hyphenate">Configure Programs</h2>
+                    <p class="slds-text-body_small slds-text-color_weak">{modalSubtitle}</p>
+                </header>
+
+                <!-- Step 1: Facility Selection -->
+                <template lwc:if={isModalStep1}>
+                    <div class="slds-modal__content slds-p-around_medium modal-content">
+                        <p id="modal-description" class="slds-text-body_small slds-m-bottom_medium">Select the facilities you want to configure programs for.</p>
+
+                        <div class="modal-facility-toolbar slds-m-bottom_small">
+                            <div class="modal-facility-header">
+                                <lightning-input
+                                    type="checkbox"
+                                    label="Select All"
+                                    checked={allModalFacilitiesSelected}
+                                    onchange={handleModalSelectAllFacilities}
+                                    class="select-all-facilities">
+                                </lightning-input>
+                                <span class="slds-badge slds-m-left_small">{selectedFacilityCount} selected</span>
+                            </div>
+                            <lightning-input
+                                type="search"
+                                variant="label-hidden"
+                                placeholder="Search facilities..."
+                                value={modalSearchTerm}
+                                onchange={handleModalSearch}
+                                class="modal-search-input">
+                            </lightning-input>
+                        </div>
+
+                        <div class="modal-facility-count slds-m-bottom_x-small">
+                            <span class="slds-text-body_small slds-text-color_weak">Showing {modalFacilityListCount} of {totalFacilityCount} facilities</span>
+                        </div>
+
+                        <div class="modal-facility-list">
+                            <template for:each={modalFacilityList} for:item="facility">
+                                <div key={facility.Id} class="modal-facility-item">
+                                    <lightning-input
+                                        type="checkbox"
+                                        label={facility.Name}
+                                        checked={facility.isSelected}
+                                        data-id={facility.Id}
+                                        onchange={handleModalFacilityToggle}
+                                        class="facility-checkbox">
+                                    </lightning-input>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Cancel" onclick={handleCloseDateModal}></lightning-button>
+                        <lightning-button
+                            variant="brand"
+                            label="Next"
+                            onclick={handleModalNext}
+                            disabled={disableModalNext}
+                            class="slds-m-left_x-small">
+                        </lightning-button>
+                    </footer>
+                </template>
+
+                <!-- Step 2: Program Configuration -->
+                <template lwc:if={isModalStep2}>
+                    <div class="slds-modal__content slds-p-around_medium modal-content">
+                        <p class="slds-text-body_small slds-m-bottom_medium">Select programs to enable and set their dates. Leave dates empty to clear existing values.</p>
+                        <div class="modal-program-grid">
+                            <template for:each={modalProgramList} for:item="program">
+                                <div key={program.name} class="modal-program-card">
+                                    <div class="modal-program-header">
+                                        <lightning-input
+                                            type="checkbox"
+                                            label={program.name}
+                                            checked={program.isIncluded}
+                                            data-program={program.name}
+                                            onchange={handleModalProgramToggle}
+                                            class="modal-program-checkbox">
+                                        </lightning-input>
+                                    </div>
+                                    <div class="modal-program-dates">
+                                        <div class="modal-date-field">
+                                            <label class="modal-date-label">Launch Date</label>
+                                            <lightning-input
+                                                type="date"
+                                                variant="label-hidden"
+                                                value={program.launchDateValue}
+                                                data-program={program.name}
+                                                data-fieldtype="launch"
+                                                onchange={handleModalDateChange}
+                                                class="modal-date-input"
+                                                disabled={program.isDisabled}>
+                                            </lightning-input>
+                                        </div>
+                                        <div class="modal-date-field">
+                                            <label class="modal-date-label">On Hold Date</label>
+                                            <lightning-input
+                                                type="date"
+                                                variant="label-hidden"
+                                                value={program.onHoldDateValue}
+                                                data-program={program.name}
+                                                data-fieldtype="onhold"
+                                                onchange={handleModalDateChange}
+                                                class="modal-date-input"
+                                                disabled={program.isDisabled}>
+                                            </lightning-input>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Back" onclick={handleModalBack}></lightning-button>
+                        <lightning-button variant="brand" label="Apply" onclick={handleApplyDates} class="slds-m-left_x-small"></lightning-button>
+                    </footer>
+                </template>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
 </template>

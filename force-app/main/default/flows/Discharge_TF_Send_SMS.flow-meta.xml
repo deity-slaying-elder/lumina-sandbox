@@ -209,10 +209,12 @@
         <name>dischargedHome</name>
         <dataType>Boolean</dataType>
         <expression>IF(
+AND(
+TEXT({!$Record.Type__c}) = &quot;Discharge&quot;,
 OR(
 CONTAINS(LOWER(TRIM({!$Record.To_From_Type__c})), &quot;home&quot;),
 CONTAINS(LOWER(TRIM({!$Record.To_From_Type__c})), &quot;alf&quot;),
-CONTAINS(LOWER(TRIM({!$Record.To_From_Type__c})), &quot;assisted&quot;),
+CONTAINS(LOWER(TRIM({!$Record.To_From_Type__c})), &quot;assisted&quot;)),
 NOT(
 OR(
 CONTAINS(LOWER(TRIM({!$Record.To_From_Type__c})), &quot;funeral&quot;),

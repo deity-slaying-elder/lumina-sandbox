@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FlowDefinition xmlns="http://soap.sforce.com/2006/04/metadata">
-    <activeVersionNumber>2</activeVersionNumber>
+    <!-- Deactivated: logic ported to Apex under LMNA-580. The flow version is kept,
+         not deleted, so rollback is setting activeVersionNumber back to the prior value. -->
+    <activeVersionNumber>0</activeVersionNumber>
 </FlowDefinition>

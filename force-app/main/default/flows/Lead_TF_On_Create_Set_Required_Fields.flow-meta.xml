@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <environments>Default</environments>
+    <interviewLabel>Lead - TF - On Create Set Required Fields {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Lead - TF - On Create Set Required Fields</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Set_Name_Status_and_Company</name>
+        <label>Set Name, Status, and Company</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>Company</field>
+            <value>
+                <elementReference>$Record.Company_Name__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>LastName</field>
+            <value>
+                <elementReference>$Record.Company_Name__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>New</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Set_Name_Status_and_Company</targetReference>
+        </connector>
+        <object>Lead</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

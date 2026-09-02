@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>63.0</apiVersion>
+    <apiVersion>61.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>Assign_Patient_Updates</name>
         <label>Assign Patient Updates</label>
         <locationX>176</locationX>
-        <locationY>431</locationY>
+        <locationY>539</locationY>
         <assignmentItems>
             <assignToReference>Get_Patient.Community_Status__c</assignToReference>
             <operator>Assign</operator>
@@ -21,10 +21,60 @@
                 <elementReference>$Record.Call_Outcome__c</elementReference>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Get_Patient.Latest_Call_Outcome__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Latest_Call_Outcome__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Get_Patient.Count_of_Calls__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Count_of_Calls__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Get_Patient.Follow_Up_Date__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Follow_Up_Date__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Get_Patient.Won_Date_Time__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Won_Date_Time__c</elementReference>
+            </value>
+        </assignmentItems>
         <connector>
             <targetReference>Update_Patient</targetReference>
         </connector>
     </assignments>
+    <decisions>
+        <name>Is_Latest_Episode</name>
+        <label>Is Latest Episode</label>
+        <locationX>176</locationX>
+        <locationY>431</locationY>
+        <defaultConnectorLabel>Not Latest</defaultConnectorLabel>
+        <rules>
+            <name>Latest</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Patient.Latest_Community_Episode__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record.Id</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Patient_Updates</targetReference>
+            </connector>
+            <label>Latest</label>
+        </rules>
+    </decisions>
     <environments>Default</environments>
     <interviewLabel>Community - TF - On Update Status Call Outcome Update Patient {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Community - TF - On Update Status Call Outcome Update Patient</label>
@@ -54,7 +104,7 @@
         <locationY>323</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Assign_Patient_Updates</targetReference>
+            <targetReference>Is_Latest_Episode</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -72,7 +122,7 @@
         <name>Update_Patient</name>
         <label>Update Patient</label>
         <locationX>176</locationX>
-        <locationY>539</locationY>
+        <locationY>647</locationY>
         <inputReference>Get_Patient</inputReference>
     </recordUpdates>
     <start>
@@ -81,9 +131,44 @@
         <connector>
             <targetReference>Get_Patient</targetReference>
         </connector>
-        <filterLogic>and</filterLogic>
+        <filterLogic>or</filterLogic>
+        <filters>
+            <field>Community_Status__c</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
         <filters>
             <field>Call_Outcome__c</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Latest_Call_Outcome__c</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Count_of_Calls__c</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Follow_Up_Date__c</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Won_Date_Time__c</field>
             <operator>IsChanged</operator>
             <value>
                 <booleanValue>true</booleanValue>
@@ -93,5 +178,5 @@
         <recordTriggerType>Update</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Draft</status>
+    <status>Active</status>
 </Flow>

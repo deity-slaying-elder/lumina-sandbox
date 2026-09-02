@@ -7,11 +7,14 @@
         <locationY>0</locationY>
         <actionName>emailSimple</actionName>
         <actionType>emailSimple</actionType>
+        <connector>
+            <targetReference>Set_Patient_Latest_Inbound_Text_Date_Time</targetReference>
+        </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
             <name>emailAddresses</name>
             <value>
-                <stringValue>pbaskaralingam@luminacare.com</stringValue>
+                <elementReference>Get_Patient.Owner:User.Email</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -77,7 +80,7 @@
         <inputParameters>
             <name>emailAddresses</name>
             <value>
-                <stringValue>pbaskaralingam@luminacare.com</stringValue>
+                <stringValue>acollins@luminacare.com</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -134,6 +137,22 @@
     </actionCalls>
     <apiVersion>64.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Set_Patient_Latest_Inbound_Text_Date_Time</name>
+        <label>Set Patient Latest Inbound Text Date Time</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>Get_Patient.Latest_Inbound_Text_Date_Time__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.TwilioSF__Date_Sent__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Patient</targetReference>
+        </connector>
+    </assignments>
     <decisions>
         <name>If_Got_Patient</name>
         <label>If Got Patient</label>
@@ -269,6 +288,13 @@
         <object>Patient__c</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
+    <recordUpdates>
+        <name>Update_Patient</name>
+        <label>Update Patient</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputReference>Get_Patient</inputReference>
+    </recordUpdates>
     <start>
         <locationX>0</locationX>
         <locationY>0</locationY>

@@ -924,7 +924,27 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Facility__c.AHTH_Launch_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Facility__c.AHTH_On_Hold_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Facility__c.AHTH__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Facility__c.APCM_Launch_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Facility__c.APCM_On_Hold_Date__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -944,6 +964,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Facility__c.BHI_Launch_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Facility__c.BHI_On_Hold_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Facility__c.BHI__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -959,7 +989,27 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Facility__c.CCM_Launch_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Facility__c.CCM_On_Hold_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Facility__c.CCM__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Facility__c.COCM_Launch_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Facility__c.COCM_On_Hold_Date__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1054,6 +1104,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Facility__c.RPM_Launch_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Facility__c.RPM_On_Hold_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Facility__c.RPM__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1085,6 +1145,16 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Facility__c.TCM_Opt_Out_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Facility__c.TCM_Launch_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Facility__c.TCM_On_Hold_Date__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

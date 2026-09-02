@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Assign_BAA_Sent</name>
+        <label>Assign BAA Sent</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>newFacility.Rollout_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Pending</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Rollout_Status</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_BAA_Signed</name>
+        <label>Assign BAA Signed</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>newFacility.Rollout_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>BAA Sent</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>If_BAA_Not_Sent</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Call_with_Admins_DONs</name>
+        <label>Assign Call with Admins/DONs</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>newFacility.Rollout_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Integrations Completed</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>If_Integrations_Not_Completed</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_EMR_Access</name>
+        <label>Assign EMR Access</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>newFacility.Rollout_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>BAA Signed</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>If_BAA_Not_Signed</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Integrations_Completed</name>
+        <label>Assign Integrations Completed</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>newFacility.Rollout_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Integrations Requested</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>If_Integrations_Not_Requested</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Integrations_Requested</name>
+        <label>Assign Integrations Requested</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>newFacility.Rollout_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>EMR Access</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>If_EMR_Access_Not_Granted</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Rollout_Date_Scheduled</name>
+        <label>Assign Rollout Date Scheduled</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>newFacility.Rollout_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Call with Admins/DONs</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>If_No_Call_with_Admins_DONs</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Rollout_Status_Pending</name>
+        <label>Assign Rollout Status Pending</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>newFacility.Rollout_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Rollout Date Scheduled</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>If_No_Rollout_Date_Scheduled</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>If_BAA_Not_Sent</name>
+        <label>If BAA Not Sent</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Update_Rollout_Status</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>BAA_Not_Sent</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.BAA_Sent_Date__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_BAA_Sent</targetReference>
+            </connector>
+            <label>BAA Not Sent</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_BAA_Not_Signed</name>
+        <label>If BAA Not Signed</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>If_BAA_Not_Sent</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>BAA_Not_Signed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.BAA_Signed_Date__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_BAA_Signed</targetReference>
+            </connector>
+            <label>BAA Not Signed</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_EMR_Access_Not_Granted</name>
+        <label>If EMR Access Not Granted</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>If_BAA_Not_Signed</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>EMR_Access_Not_Granted</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.EMR_Access_Granted_Date__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_EMR_Access</targetReference>
+            </connector>
+            <label>EMR Access Not Granted</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_Integrations_Not_Completed</name>
+        <label>If Integrations Not Completed</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>If_Integrations_Not_Requested</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Integrations_Not_Completed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Integrations_Completed_Date__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Integrations_Completed</targetReference>
+            </connector>
+            <label>Integrations Not Completed</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_Integrations_Not_Requested</name>
+        <label>If Integrations Not Requested</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>If_EMR_Access_Not_Granted</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Integrations_Not_Requested</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Integrations_Requested_Date__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Integrations_Requested</targetReference>
+            </connector>
+            <label>Integrations Not Requested</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_No_Call_with_Admins_DONs</name>
+        <label>If No Call with Admins/DONs</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>If_Integrations_Not_Completed</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>No_Call_with_Admins_DONs</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Call_With_Admins_DONs_Date__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Call_with_Admins_DONs</targetReference>
+            </connector>
+            <label>No Call with Admins/DONs</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>If_No_Rollout_Date_Scheduled</name>
+        <label>If No Rollout Date Scheduled</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>If_No_Call_with_Admins_DONs</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>No_Rollout_Date_Scheduled</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Scheduled_Rollout_Date__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Rollout_Date_Scheduled</targetReference>
+            </connector>
+            <label>No Rollout Date Scheduled</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <interviewLabel>Facility - TF - On Update Set Rollout status {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Facility - TF - On Update Set Rollout Status</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Update_Rollout_Status</name>
+        <label>Update Rollout Status</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>Rollout_Status__c</field>
+            <value>
+                <elementReference>newFacility.Rollout_Status__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Assign_Rollout_Status_Pending</targetReference>
+        </connector>
+        <object>Facility__c</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>newFacility</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Facility__c</objectType>
+    </variables>
+    <variables>
+        <name>rolloutStatus</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

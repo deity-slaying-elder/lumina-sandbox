@@ -9,20 +9,21 @@ private class FacilityEditorControllerTest {
         );
         insert parentAccount;
 
-        // Create facilities linked to the parent account with various field values
+        // Create 250+ facilities for bulk testing (per steering docs requirement)
         List<Facility__c> facilities = new List<Facility__c>();
-        for (Integer i = 1; i <= 3; i++) {
-            facilities.add(new Facility__c(
+        for (Integer i = 1; i <= 250; i++) {
+            Facility__c fac = new Facility__c(
                 Name = 'Test Facility ' + i,
                 Parent_Company__c = parentAccount.Id,
-                CCM__c = false,
-                TCM__c = false,
-                BHI__c = false,
-                RPM__c = false,
-                AHTH__c = false,
-                APCM__c = false,
-                COCM__c = false
-            ));
+                CCM__c = Math.mod(i, 2) == 0,  // Even numbered facilities have CCM
+                TCM__c = Math.mod(i, 3) == 0,  // Every 3rd facility has TCM
+                BHI__c = Math.mod(i, 5) == 0,  // Every 5th facility has BHI
+                RPM__c = Math.mod(i, 7) == 0,  // Every 7th facility has RPM
+                AHTH__c = Math.mod(i, 11) == 0, // Every 11th facility has AHTH
+                APCM__c = Math.mod(i, 13) == 0, // Every 13th facility has APCM
+                COCM__c = Math.mod(i, 17) == 0  // Every 17th facility has COCM
+            );
+            facilities.add(fac);
         }
         insert facilities;
 
@@ -50,11 +51,11 @@ private class FacilityEditorControllerTest {
 
         // Verify facilities
         List<Object> facilities = (List<Object>) result.get('facilities');
-        System.assertEquals(3, facilities.size(), 'Should have 3 facilities');
+        System.assertEquals(250, facilities.size(), 'Should have 250 facilities');
 
         // Verify total facility count
         Integer totalCount = (Integer) result.get('totalFacilityCount');
-        System.assertEquals(3, totalCount, 'Should have 3 facilities');
+        System.assertEquals(250, totalCount, 'Should have 250 facilities');
 
         // Verify field set fields
         List<Object> fields = (List<Object>) result.get('fields');
@@ -629,5 +630,374 @@ private class FacilityEditorControllerTest {
             System.assertNotEquals(null, e.getMessage(), 'Exception should have a message');
         }
         Test.stopTest();
+    }
+
+    @isTest
+    static void testUpdateFacilities_DateFieldAsString() {
+        // Test Date field conversion from string format (YYYY-MM-DD)
+        // Skip if date fields not yet available in schema (sandbox sync issue)
+        Map<String, Schema.SObjectField> fieldMap = Schema.SObjectType.Facility__c.fields.getMap();
+        if (!fieldMap.containsKey('ccm_launch_date__c')) {
+            System.debug('Skipping test - CCM_Launch_Date__c not in schema yet');
+            return;
+        }
+
+        Facility__c facility = [
+            SELECT Id, Name, CCM__c
+            FROM Facility__c
+            WHERE CCM__c = true
+            LIMIT 1
+        ];
+
+        List<Map<String, Object>> updateData = new List<Map<String, Object>>();
+        Map<String, Object> facData = new Map<String, Object>();
+        facData.put('Id', facility.Id);
+
+        Map<String, Object> fields = new Map<String, Object>();
+        fields.put('CCM_Launch_Date__c', '2025-06-15'); // Date as string from LWC
+
+        facData.put('fields', fields);
+        updateData.add(facData);
+
+        String updateJson = JSON.serialize(updateData);
+
+        Test.startTest();
+        Map<String, Object> result = FacilityEditorController.updateFacilities(updateJson);
+        Test.stopTest();
+
+        System.assertEquals(true, result.get('success'), 'Update should be successful');
+
+        // Query using dynamic SOQL to avoid compile-time field reference
+        String query = 'SELECT CCM_Launch_Date__c FROM Facility__c WHERE Id = :facilityId';
+        Id facilityId = facility.Id;
+        List<Facility__c> results = Database.query(query);
+        System.assertEquals(Date.valueOf('2025-06-15'), results[0].get('CCM_Launch_Date__c'), 'CCM_Launch_Date__c should be set correctly');
+    }
+
+    @isTest
+    static void testUpdateFacilities_DateFieldToNull() {
+        // Test clearing a Date field by setting it to null
+        // Skip if date fields not yet available in schema
+        Map<String, Schema.SObjectField> fieldMap = Schema.SObjectType.Facility__c.fields.getMap();
+        if (!fieldMap.containsKey('ccm_launch_date__c')) {
+            System.debug('Skipping test - CCM_Launch_Date__c not in schema yet');
+            return;
+        }
+
+        Facility__c facility = [
+            SELECT Id, CCM__c
+            FROM Facility__c
+            WHERE CCM__c = true
+            LIMIT 1
+        ];
+
+        // First set a date value using dynamic field assignment
+        facility.put('CCM_Launch_Date__c', Date.today());
+        update facility;
+
+        List<Map<String, Object>> updateData = new List<Map<String, Object>>();
+        Map<String, Object> facData = new Map<String, Object>();
+        facData.put('Id', facility.Id);
+
+        Map<String, Object> fields = new Map<String, Object>();
+        fields.put('CCM_Launch_Date__c', null); // Clear the date
+
+        facData.put('fields', fields);
+        updateData.add(facData);
+
+        String updateJson = JSON.serialize(updateData);
+
+        Test.startTest();
+        Map<String, Object> result = FacilityEditorController.updateFacilities(updateJson);
+        Test.stopTest();
+
+        System.assertEquals(true, result.get('success'), 'Update should be successful');
+
+        Id facilityId = facility.Id;
+        List<Facility__c> results = Database.query('SELECT CCM_Launch_Date__c FROM Facility__c WHERE Id = :facilityId');
+        System.assertEquals(null, results[0].get('CCM_Launch_Date__c'), 'CCM_Launch_Date__c should be null');
+    }
+
+    @isTest
+    static void testUpdateFacilities_DateFieldEmptyString() {
+        // Test clearing a Date field by setting it to empty string
+        // Skip if date fields not yet available in schema
+        Map<String, Schema.SObjectField> fieldMap = Schema.SObjectType.Facility__c.fields.getMap();
+        if (!fieldMap.containsKey('ccm_launch_date__c')) {
+            System.debug('Skipping test - CCM_Launch_Date__c not in schema yet');
+            return;
+        }
+
+        Facility__c facility = [
+            SELECT Id, CCM__c
+            FROM Facility__c
+            WHERE CCM__c = true
+            LIMIT 1
+        ];
+
+        // First set a date value using dynamic field assignment
+        facility.put('CCM_Launch_Date__c', Date.today());
+        update facility;
+
+        List<Map<String, Object>> updateData = new List<Map<String, Object>>();
+        Map<String, Object> facData = new Map<String, Object>();
+        facData.put('Id', facility.Id);
+
+        Map<String, Object> fields = new Map<String, Object>();
+        fields.put('CCM_Launch_Date__c', ''); // Empty string should clear the date
+
+        facData.put('fields', fields);
+        updateData.add(facData);
+
+        String updateJson = JSON.serialize(updateData);
+
+        Test.startTest();
+        Map<String, Object> result = FacilityEditorController.updateFacilities(updateJson);
+        Test.stopTest();
+
+        System.assertEquals(true, result.get('success'), 'Update should be successful');
+
+        Id facilityId = facility.Id;
+        List<Facility__c> results = Database.query('SELECT CCM_Launch_Date__c FROM Facility__c WHERE Id = :facilityId');
+        System.assertEquals(null, results[0].get('CCM_Launch_Date__c'), 'CCM_Launch_Date__c should be null when empty string provided');
+    }
+
+    @isTest
+    static void testUpdateFacilities_MultipleDateFields() {
+        // Test updating multiple date fields at once
+        // Skip if date fields not yet available in schema
+        Map<String, Schema.SObjectField> fieldMap = Schema.SObjectType.Facility__c.fields.getMap();
+        if (!fieldMap.containsKey('ccm_launch_date__c')) {
+            System.debug('Skipping test - CCM_Launch_Date__c not in schema yet');
+            return;
+        }
+
+        Facility__c facility = [
+            SELECT Id, CCM__c
+            FROM Facility__c
+            WHERE CCM__c = true
+            LIMIT 1
+        ];
+
+        List<Map<String, Object>> updateData = new List<Map<String, Object>>();
+        Map<String, Object> facData = new Map<String, Object>();
+        facData.put('Id', facility.Id);
+
+        Map<String, Object> fields = new Map<String, Object>();
+        fields.put('CCM_Launch_Date__c', '2025-01-01');
+        fields.put('CCM_On_Hold_Date__c', '2025-06-15');
+
+        facData.put('fields', fields);
+        updateData.add(facData);
+
+        String updateJson = JSON.serialize(updateData);
+
+        Test.startTest();
+        Map<String, Object> result = FacilityEditorController.updateFacilities(updateJson);
+        Test.stopTest();
+
+        System.assertEquals(true, result.get('success'), 'Update should be successful');
+
+        Id facilityId = facility.Id;
+        List<Facility__c> results = Database.query('SELECT CCM_Launch_Date__c, CCM_On_Hold_Date__c FROM Facility__c WHERE Id = :facilityId');
+        System.assertEquals(Date.valueOf('2025-01-01'), results[0].get('CCM_Launch_Date__c'), 'Launch date should be set');
+        System.assertEquals(Date.valueOf('2025-06-15'), results[0].get('CCM_On_Hold_Date__c'), 'On Hold date should be set');
+    }
+
+    @isTest
+    static void testUpdateFacilities_BulkDateUpdates() {
+        // Test bulk updating date fields across 200+ facilities (governor limits test)
+        // Skip if date fields not yet available in schema
+        Map<String, Schema.SObjectField> fieldMap = Schema.SObjectType.Facility__c.fields.getMap();
+        if (!fieldMap.containsKey('ccm_launch_date__c')) {
+            System.debug('Skipping test - CCM_Launch_Date__c not in schema yet');
+            return;
+        }
+
+        List<Facility__c> facilities = [
+            SELECT Id, CCM__c
+            FROM Facility__c
+            WHERE CCM__c = true
+            LIMIT 200
+        ];
+
+        System.assert(facilities.size() >= 100, 'Should have at least 100 facilities with CCM enabled for bulk test');
+
+        List<Map<String, Object>> updateData = new List<Map<String, Object>>();
+        for (Facility__c fac : facilities) {
+            Map<String, Object> facData = new Map<String, Object>();
+            facData.put('Id', fac.Id);
+
+            Map<String, Object> fields = new Map<String, Object>();
+            fields.put('CCM_Launch_Date__c', '2025-03-15');
+
+            facData.put('fields', fields);
+            updateData.add(facData);
+        }
+
+        String updateJson = JSON.serialize(updateData);
+
+        Test.startTest();
+        Integer soqlBefore = Limits.getQueries();
+        Integer dmlBefore = Limits.getDmlStatements();
+
+        Map<String, Object> result = FacilityEditorController.updateFacilities(updateJson);
+
+        Integer soqlUsed = Limits.getQueries() - soqlBefore;
+        Integer dmlUsed = Limits.getDmlStatements() - dmlBefore;
+        Test.stopTest();
+
+        System.assertEquals(true, result.get('success'), 'Bulk update should be successful');
+        System.assertEquals(facilities.size(), result.get('count'), 'Should update all facilities');
+
+        // Verify O(1) operations - not O(n)
+        System.assert(soqlUsed <= 5, 'SOQL should be O(1), not O(n). Used: ' + soqlUsed);
+        System.assert(dmlUsed <= 3, 'DML should be O(1), not O(n). Used: ' + dmlUsed);
+
+        // Verify dates were actually set using dynamic SOQL
+        Set<Id> facilityIds = new Set<Id>();
+        for (Facility__c fac : facilities) {
+            facilityIds.add(fac.Id);
+        }
+        List<Facility__c> updatedFacilities = Database.query('SELECT CCM_Launch_Date__c FROM Facility__c WHERE Id IN :facilityIds');
+
+        for (Facility__c fac : updatedFacilities) {
+            System.assertEquals(Date.valueOf('2025-03-15'), fac.get('CCM_Launch_Date__c'), 'All facilities should have date set');
+        }
+    }
+
+    @isTest
+    static void testUpdateFacilities_AllProgramDates() {
+        // Test updating dates for all 7 programs
+        // Skip if date fields not yet available in schema
+        Map<String, Schema.SObjectField> fieldMap = Schema.SObjectType.Facility__c.fields.getMap();
+        if (!fieldMap.containsKey('ccm_launch_date__c')) {
+            System.debug('Skipping test - CCM_Launch_Date__c not in schema yet');
+            return;
+        }
+
+        Facility__c facility = [
+            SELECT Id
+            FROM Facility__c
+            LIMIT 1
+        ];
+
+        // Enable all programs first
+        facility.CCM__c = true;
+        facility.RPM__c = true;
+        facility.TCM__c = true;
+        facility.COCM__c = true;
+        facility.AHTH__c = true;
+        facility.APCM__c = true;
+        facility.BHI__c = true;
+        update facility;
+
+        List<Map<String, Object>> updateData = new List<Map<String, Object>>();
+        Map<String, Object> facData = new Map<String, Object>();
+        facData.put('Id', facility.Id);
+
+        Map<String, Object> fields = new Map<String, Object>();
+        // Set launch dates for all programs
+        fields.put('CCM_Launch_Date__c', '2025-01-01');
+        fields.put('CCM_On_Hold_Date__c', '2025-02-01');
+        fields.put('RPM_Launch_Date__c', '2025-01-02');
+        fields.put('RPM_On_Hold_Date__c', '2025-02-02');
+        fields.put('TCM_Launch_Date__c', '2025-01-03');
+        fields.put('TCM_On_Hold_Date__c', '2025-02-03');
+        fields.put('COCM_Launch_Date__c', '2025-01-04');
+        fields.put('COCM_On_Hold_Date__c', '2025-02-04');
+        fields.put('AHTH_Launch_Date__c', '2025-01-05');
+        fields.put('AHTH_On_Hold_Date__c', '2025-02-05');
+        fields.put('APCM_Launch_Date__c', '2025-01-06');
+        fields.put('APCM_On_Hold_Date__c', '2025-02-06');
+        fields.put('BHI_Launch_Date__c', '2025-01-07');
+        fields.put('BHI_On_Hold_Date__c', '2025-02-07');
+
+        facData.put('fields', fields);
+        updateData.add(facData);
+
+        String updateJson = JSON.serialize(updateData);
+
+        Test.startTest();
+        Map<String, Object> result = FacilityEditorController.updateFacilities(updateJson);
+        Test.stopTest();
+
+        System.assertEquals(true, result.get('success'), 'Update should be successful');
+
+        // Use dynamic SOQL to query all date fields
+        Id facilityId = facility.Id;
+        String query = 'SELECT CCM_Launch_Date__c, CCM_On_Hold_Date__c, ' +
+                      'RPM_Launch_Date__c, RPM_On_Hold_Date__c, ' +
+                      'TCM_Launch_Date__c, TCM_On_Hold_Date__c, ' +
+                      'COCM_Launch_Date__c, COCM_On_Hold_Date__c, ' +
+                      'AHTH_Launch_Date__c, AHTH_On_Hold_Date__c, ' +
+                      'APCM_Launch_Date__c, APCM_On_Hold_Date__c, ' +
+                      'BHI_Launch_Date__c, BHI_On_Hold_Date__c ' +
+                      'FROM Facility__c WHERE Id = :facilityId';
+        List<Facility__c> results = Database.query(query);
+        Facility__c updatedFacility = results[0];
+
+        // Verify all 14 dates were set correctly
+        System.assertEquals(Date.valueOf('2025-01-01'), updatedFacility.get('CCM_Launch_Date__c'), 'CCM Launch Date mismatch');
+        System.assertEquals(Date.valueOf('2025-02-01'), updatedFacility.get('CCM_On_Hold_Date__c'), 'CCM On Hold Date mismatch');
+        System.assertEquals(Date.valueOf('2025-01-02'), updatedFacility.get('RPM_Launch_Date__c'), 'RPM Launch Date mismatch');
+        System.assertEquals(Date.valueOf('2025-02-02'), updatedFacility.get('RPM_On_Hold_Date__c'), 'RPM On Hold Date mismatch');
+        System.assertEquals(Date.valueOf('2025-01-03'), updatedFacility.get('TCM_Launch_Date__c'), 'TCM Launch Date mismatch');
+        System.assertEquals(Date.valueOf('2025-02-03'), updatedFacility.get('TCM_On_Hold_Date__c'), 'TCM On Hold Date mismatch');
+        System.assertEquals(Date.valueOf('2025-01-04'), updatedFacility.get('COCM_Launch_Date__c'), 'COCM Launch Date mismatch');
+        System.assertEquals(Date.valueOf('2025-02-04'), updatedFacility.get('COCM_On_Hold_Date__c'), 'COCM On Hold Date mismatch');
+        System.assertEquals(Date.valueOf('2025-01-05'), updatedFacility.get('AHTH_Launch_Date__c'), 'AHTH Launch Date mismatch');
+        System.assertEquals(Date.valueOf('2025-02-05'), updatedFacility.get('AHTH_On_Hold_Date__c'), 'AHTH On Hold Date mismatch');
+        System.assertEquals(Date.valueOf('2025-01-06'), updatedFacility.get('APCM_Launch_Date__c'), 'APCM Launch Date mismatch');
+        System.assertEquals(Date.valueOf('2025-02-06'), updatedFacility.get('APCM_On_Hold_Date__c'), 'APCM On Hold Date mismatch');
+        System.assertEquals(Date.valueOf('2025-01-07'), updatedFacility.get('BHI_Launch_Date__c'), 'BHI Launch Date mismatch');
+        System.assertEquals(Date.valueOf('2025-02-07'), updatedFacility.get('BHI_On_Hold_Date__c'), 'BHI On Hold Date mismatch');
+    }
+
+    @isTest
+    static void testUpdateFacilities_DateAndBooleanMixed() {
+        // Test updating both date and boolean fields in single update
+        // Skip if date fields not yet available in schema
+        Map<String, Schema.SObjectField> fieldMap = Schema.SObjectType.Facility__c.fields.getMap();
+        if (!fieldMap.containsKey('ccm_launch_date__c')) {
+            System.debug('Skipping test - CCM_Launch_Date__c not in schema yet');
+            return;
+        }
+
+        Facility__c facility = [
+            SELECT Id, CCM__c
+            FROM Facility__c
+            LIMIT 1
+        ];
+
+        List<Map<String, Object>> updateData = new List<Map<String, Object>>();
+        Map<String, Object> facData = new Map<String, Object>();
+        facData.put('Id', facility.Id);
+
+        Map<String, Object> fields = new Map<String, Object>();
+        fields.put('CCM__c', true);
+        fields.put('CCM_Launch_Date__c', '2025-04-01');
+        fields.put('RPM__c', true);
+        fields.put('RPM_Launch_Date__c', '2025-04-15');
+
+        facData.put('fields', fields);
+        updateData.add(facData);
+
+        String updateJson = JSON.serialize(updateData);
+
+        Test.startTest();
+        Map<String, Object> result = FacilityEditorController.updateFacilities(updateJson);
+        Test.stopTest();
+
+        System.assertEquals(true, result.get('success'), 'Update should be successful');
+
+        Id facilityId = facility.Id;
+        List<Facility__c> results = Database.query('SELECT CCM__c, CCM_Launch_Date__c, RPM__c, RPM_Launch_Date__c FROM Facility__c WHERE Id = :facilityId');
+        Facility__c updatedFacility = results[0];
+
+        System.assertEquals(true, updatedFacility.CCM__c, 'CCM should be enabled');
+        System.assertEquals(Date.valueOf('2025-04-01'), updatedFacility.get('CCM_Launch_Date__c'), 'CCM Launch Date should be set');
+        System.assertEquals(true, updatedFacility.RPM__c, 'RPM should be enabled');
+        System.assertEquals(Date.valueOf('2025-04-15'), updatedFacility.get('RPM_Launch_Date__c'), 'RPM Launch Date should be set');
     }
 }

@@ -1,0 +1,213 @@
+<title>Plan Mode Review</title>
+<style>
+  :root{
+    --bg:#faf9f7; --panel:#fff; --ink:#1b1a18; --muted:#6b6660; --line:#e3dfd9;
+    --accent:#8a5a2b; --good:#2f6b45; --bad:#9b3232; --warn:#8a6d1f;
+    --chip:#f1ede7; --code:#f4f1ec;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#141312; --panel:#1c1b19; --ink:#eae6e0; --muted:#a09a92; --line:#2f2d2a;
+      --accent:#d09a5e; --good:#6fbf8e; --bad:#e08585; --warn:#d8b558;
+      --chip:#26241f; --code:#232120;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#141312; --panel:#1c1b19; --ink:#eae6e0; --muted:#a09a92; --line:#2f2d2a;
+    --accent:#d09a5e; --good:#6fbf8e; --bad:#e08585; --warn:#d8b558;
+    --chip:#26241f; --code:#232120;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);
+    font:15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    margin:0;padding:40px 22px 80px}
+  .wrap{max-width:940px;margin:0 auto}
+  h1{font-size:30px;line-height:1.2;margin:0 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--muted);margin:0 0 28px;font-size:14px}
+  h2{font-size:19px;margin:38px 0 12px;padding-bottom:7px;border-bottom:2px solid var(--line);
+    letter-spacing:-.01em}
+  h3{font-size:15px;margin:24px 0 8px;color:var(--accent);text-transform:uppercase;
+    letter-spacing:.07em;font-weight:650}
+  p{margin:0 0 12px}
+  .verdict{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);
+    border-radius:8px;padding:18px 20px;margin:0 0 26px}
+  .verdict p:last-child{margin-bottom:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px;margin:16px 0 22px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+  .card .n{font-size:25px;font-weight:680;letter-spacing:-.02em;display:block;line-height:1.15}
+  .card .l{font-size:12px;color:var(--muted);margin-top:5px;display:block;line-height:1.35}
+  .tw{overflow-x:auto;margin:14px 0 20px;border:1px solid var(--line);border-radius:8px;
+    background:var(--panel)}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+  th,td{text-align:left;padding:9px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--chip);font-weight:640;font-size:12px;text-transform:uppercase;
+    letter-spacing:.05em;color:var(--muted)}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  code{background:var(--code);padding:1.5px 5px;border-radius:4px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .good{color:var(--good);font-weight:640}
+  .bad{color:var(--bad);font-weight:640}
+  .warn{color:var(--warn);font-weight:640}
+  .note{background:var(--chip);border-radius:7px;padding:13px 16px;font-size:13.5px;
+    color:var(--muted);margin:14px 0}
+  .note strong{color:var(--ink)}
+  ul{margin:0 0 14px;padding-left:20px} li{margin-bottom:6px}
+  blockquote{margin:12px 0;padding:10px 16px;border-left:3px solid var(--line);
+    color:var(--muted);font-style:italic}
+  .foot{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);
+    font-size:12.5px;color:var(--muted)}
+</style>
+
+<div class="wrap">
+
+<h1>Plan mode, measured</h1>
+<p class="sub">Harness review · window 2026-06-01 → 2026-09-01 · 2,111 sessions across 51 project folders · all clients</p>
+
+<div class="verdict">
+<p><strong>The honest answer to "is plan mode better than what I've been doing": the corpus cannot tell you yet, and anyone who says otherwise is guessing.</strong></p>
+<p>Plan mode adoption over three months is <strong>zero</strong>. Not low — zero. There is exactly one genuine <code>ExitPlanMode</code> call in the entire 3,747-file archive, and it is today's trial. There is no plan-mode bucket to compare against, so no before/after claim is available.</p>
+<p>What the data <em>does</em> show is that the thing actually costing you is not planning discipline. It is <strong>session length</strong> and <strong>inline exploration</strong>. Twenty sessions carry 53% of all turns, and 194 of 217 heavy-exploration sessions dispatched nothing to a subagent.</p>
+</div>
+
+<h2>1. Plan mode adoption</h2>
+
+<div class="grid">
+  <div class="card"><span class="n">0</span><span class="l">plan-mode sessions, in-window (of 2,111)</span></div>
+  <div class="card"><span class="n">1</span><span class="l">genuine <code>ExitPlanMode</code>, all-time archive</span></div>
+  <div class="card"><span class="n">623</span><span class="l">files if you raw-grep — all contamination</span></div>
+  <div class="card"><span class="n">2026-09-01</span><span class="l">first real use (today)</span></div>
+</div>
+
+<div class="note">
+<strong>The trap I nearly fell into.</strong> Grepping transcripts for <code>ExitPlanMode</code> returns 623 files, which looks like heavy adoption. It is not. Both tool names appear in the deferred-tool list of <em>every</em> system prompt, so every session mentions them. Only <code>tool_use</code> blocks with <code>.name == "ExitPlanMode"</code> count as real use. That filter returns <strong>1</strong>.
+</div>
+
+<h3>Adoption by month</h3>
+<div class="tw"><table>
+<tr><th>Month</th><th class="num">Sessions</th><th class="num">Used plan mode</th><th class="num">Rate</th></tr>
+<tr><td>2026-06</td><td class="num">45</td><td class="num">0</td><td class="num">0.0%</td></tr>
+<tr><td>2026-07</td><td class="num">1,060</td><td class="num">0</td><td class="num">0.0%</td></tr>
+<tr><td>2026-08</td><td class="num">946</td><td class="num">0</td><td class="num">0.0%</td></tr>
+<tr><td>2026-09</td><td class="num">60</td><td class="num">1</td><td class="num">1.7%</td></tr>
+</table></div>
+
+<h3>The two sessions where you tried it</h3>
+<div class="tw"><table>
+<tr><th>Session</th><th>Project</th><th class="num">Turns</th><th class="num">Edits</th><th>Rework</th></tr>
+<tr><td><code>00cf129d</code></td><td>LUMINA lumDev</td><td class="num">67</td><td class="num">4</td><td class="good">1 file × 3</td></tr>
+<tr><td><code>ad7ff818</code></td><td>M&amp;D Capital Local</td><td class="num">614</td><td class="num">11</td><td class="good">1 file × 4</td></tr>
+</table></div>
+<p>Both are low-edit sessions — spec and Jira work, not builds. Even they cannot support a conclusion: <strong>n = 2</strong>, and neither is a like-for-like against a build session.</p>
+
+<h2>2. Why the obvious comparison does not work</h2>
+
+<p>The natural fallback is to compare sessions that ran a plan-first skill (<code>brainstorming</code>, <code>writing-plans</code>, <code>executing-plans</code>) against sessions that went straight to editing. I ran it. It looks damning for planning — and it is <strong>confounded</strong>.</p>
+
+<div class="tw"><table>
+<tr><th>Metric (sessions ≥20 turns)</th><th class="num">Plan-first</th><th class="num">Straight-in</th></tr>
+<tr><td>Sessions</td><td class="num">48</td><td class="num">107</td></tr>
+<tr><td>Median turns</td><td class="num">241.5</td><td class="num">68</td></tr>
+<tr><td>Median edits</td><td class="num">35</td><td class="num">4</td></tr>
+<tr><td>Rework rate</td><td class="num bad">88%</td><td class="num">37%</td></tr>
+<tr><td>Rework edits / 100 turns</td><td class="num bad">9.01</td><td class="num">5.20</td></tr>
+<tr><td>Corrections / 100 turns</td><td class="num">0.17</td><td class="num">0.18</td></tr>
+</table></div>
+
+<div class="note">
+<strong>Read this as selection, not causation.</strong> Plan-first sessions run a 242-turn median against 68, and 35 edits against 4. The plan skills are being invoked on the <em>hard</em> tasks — that is them working as designed, not them causing rework. The one metric that is genuinely length-normalised and difficulty-neutral, corrections per 100 turns, is <strong>identical</strong> (0.17 vs 0.18). Any claim that planning makes things worse is an artefact of which tasks get planned.
+</div>
+
+<h2>3. What is actually costing you</h2>
+
+<p>This is the part worth acting on, and it has nothing to do with plan mode.</p>
+
+<div class="grid">
+  <div class="card"><span class="n">52.8%</span><span class="l">of all turns sit in the top 20 sessions</span></div>
+  <div class="card"><span class="n">36</span><span class="l">sessions over 500 turns (target: 0)</span></div>
+  <div class="card"><span class="n">194/217</span><span class="l">heavy-bash sessions that dispatched nothing</span></div>
+  <div class="card"><span class="n">34.4K</span><span class="l">median session start context — prompt size is <em>not</em> the problem</span></div>
+</div>
+
+<h3>The single worst session</h3>
+<div class="tw"><table>
+<tr><th>Date</th><th>Project</th><th class="num">Turns</th><th class="num">Bash</th><th class="num">Edits</th><th class="num">Bash per edit</th></tr>
+<tr><td>2026-08-19</td><td>M&amp;D Capital Local</td><td class="num">4,499</td><td class="num">6,283</td><td class="num">56</td><td class="num bad">112 : 1</td></tr>
+<tr><td>2026-08-06</td><td>M&amp;D Capital Local</td><td class="num">1,385</td><td class="num">1,431</td><td class="num">217</td><td class="num">6.6 : 1</td></tr>
+<tr><td>2026-08-12</td><td>CON conDev</td><td class="num">1,270</td><td class="num">953</td><td class="num">237</td><td class="num">4.0 : 1</td></tr>
+</table></div>
+
+<p>That top row is not development. 6,283 shell calls producing 56 edits is a loop that never terminated. Because cost is <code>turns × context</code> and context grows with session age, that one session alone is <strong>13.3% of three months of turns</strong> and 16.8% of all cache reads.</p>
+
+<div class="note">
+<strong>The negative control matters here.</strong> Median session-start context is 34.4K (p90 50.6K). That is small. Trimming CLAUDE.md, skills or plugin descriptions <strong>cannot</strong> move your bill. The lever is session length, not prompt size. Do not let anyone sell you a prompt-trimming fix.
+</div>
+
+<h3>Delegation</h3>
+<p>Bash is 51,603 of 77,627 tool calls and <strong>67.5% of all context re-read</strong>, against 472 total Agent dispatches — a 109:1 ratio. A tool call's real cost is not its output, it is the full-context round trip it forces.</p>
+<p>One genuine improvement since the 2026-08-27 review: model tiering was resurrected and is working. <span class="good">68% of dispatches now go to Haiku or Sonnet</span>, with 42 <code>Explore</code> and 31 Haiku dispatches, against the previous run's "0 Haiku, 0 Explore".</p>
+
+<h2>4. Skill fire rates</h2>
+
+<p>A skill firing at 2% of the sessions that needed it is absent, whatever its body says.</p>
+
+<div class="tw"><table>
+<tr><th>Skill</th><th class="num">Trigger pop.</th><th class="num">Fires</th><th class="num">Rate</th><th>Read</th></tr>
+<tr><td><code>verifying-sf-schema</code></td><td class="num">375</td><td class="num">7</td><td class="num bad">2%</td><td>Effectively absent</td></tr>
+<tr><td><code>lwc-jest-scaffolder</code></td><td class="num">93</td><td class="num">2</td><td class="num bad">2%</td><td>Effectively absent</td></tr>
+<tr><td><code>using-git-worktrees</code></td><td class="num">148</td><td class="num">4</td><td class="num bad">3%</td><td>Effectively absent</td></tr>
+<tr><td><code>verifying-ui-state-transitions</code></td><td class="num">31</td><td class="num">1</td><td class="num bad">3%</td><td>Effectively absent</td></tr>
+<tr><td><code>superpowers:writing-plans</code></td><td class="num">314</td><td class="num">28</td><td class="num warn">9%</td><td>Weak</td></tr>
+<tr><td><code>sf-cli-json-hygiene</code></td><td class="num">481</td><td class="num">56</td><td class="num warn">12%</td><td>Weak</td></tr>
+<tr><td><code>slds-ui-quality</code></td><td class="num">137</td><td class="num">35</td><td class="num">26%</td><td>Working</td></tr>
+<tr><td><code>superpowers:brainstorming</code></td><td class="num">61</td><td class="num">30</td><td class="num good">49%</td><td>Working</td></tr>
+<tr><td><code>drafting-stakeholder-messages</code></td><td class="num">83</td><td class="num">44</td><td class="num good">53%</td><td>Working</td></tr>
+</table></div>
+
+<p><strong>Coverage gap:</strong> 44 of 57 installed skills have no reachability predicate at all. They are <em>never measured</em>, not <em>measured and cleared</em>.</p>
+
+<h2>5. Findings</h2>
+
+<div class="tw"><table>
+<tr><th>#</th><th>Finding</th><th class="num">Distinct sessions</th><th>Whose failure</th><th>Layer</th><th>Proposed</th></tr>
+<tr><td>F1</td><td>Runaway sessions: 36 over 500 turns; top 20 = 53% of all turns; one at 112 bash-per-edit</td><td class="num">36</td><td>Shared — user keeps the session open, model does not stop</td><td>Session hygiene</td><td>Behavioural, not harness. See below.</td></tr>
+<tr><td>F2</td><td>Inline exploration: 194 of 217 heavy-bash sessions dispatched nothing (was 129 sessions on 2026-08-27)</td><td class="num">194</td><td>Model</td><td>Already installed</td><td>Partially fixed — tiering works, dispatch rate still low. Recheck next run.</td></tr>
+<tr><td>F3</td><td><code>verifying-sf-schema</code> at 2% of a 375-session trigger population</td><td class="num">375</td><td>Model</td><td>Reachability fix</td><td>Trigger is not firing. Needs a mechanical hook, not a longer body.</td></tr>
+<tr><td>F4</td><td>Plan mode adoption zero</td><td class="num">1</td><td>User habit</td><td class="good">Memory (written)</td><td>Below the 3-session bar as a finding. Recorded so the next review can measure a trend.</td></tr>
+<tr><td>F5</td><td>Commit-without-approval friction in MDCAP folders</td><td class="num">10</td><td>Model</td><td>Already covered</td><td>None — <code>no-unapproved-commits.md</code> already exists in MDCAP-Client memory.</td></tr>
+</table></div>
+
+<h3>Clusters that did NOT survive verification</h3>
+<p>Reported so you can see what was thrown out rather than quietly dropped:</p>
+<ul>
+<li><strong>"Token / cost complaints" — 302 distinct lines, discarded.</strong> Eyeballing them showed <code>max_tokens=16000</code>, <code>GITHUB_TOKEN</code>, <code>output_tokens</code> — code and API params, not a person complaining. Roughly 95% contamination.</li>
+<li><strong>"Premature action" — 5 distinct lines.</strong> Below the 3-session bar as a real pattern; noted, not credited.</li>
+</ul>
+
+<h2>6. So: should you use plan mode?</h2>
+
+<p>Not provable from your data. But the reasoning that survives the absence of data:</p>
+
+<ul>
+<li><strong>Where it plausibly helps you:</strong> the M&amp;D Capital build sessions where rework runs 88% and deploy-retry 80%. A read-only recon pass before the first edit is cheap to throw away; a wrong 200-turn diff is not.</li>
+<li><strong>Where it will not help:</strong> the 4,499-turn / 6,283-bash session. That is a termination problem. A plan at the top does not stop a loop in the middle.</li>
+<li><strong>What it costs:</strong> close to nothing. Questions inside plan mode are free — it is read-only by construction, so there is no partial state to corrupt and nothing to unwind.</li>
+</ul>
+
+<p>Your own instinct on 2026-09-01 was right, and it matches where the rework actually is. The measurable claim to test is narrow: <em>does entering plan mode before a Salesforce build session reduce rework edits per 100 turns below the 8.98 baseline?</em> Ten plan-mode build sessions makes that answerable. Right now it is not.</p>
+
+<div class="note">
+<strong>The bigger lever, stated plainly.</strong> If you change one habit this month, make it ending sessions rather than adopting plan mode. Twenty sessions carrying 53% of your turns is a far larger effect than anything plan mode could plausibly buy, and it is entirely within your control — <code>/clear</code> at a natural boundary, or a fresh session per ticket.
+</div>
+
+<h2>7. To apply — your hand needed</h2>
+<p>Nothing is auto-applied below. F3 is the only harness change worth proposing, and it needs a mechanical trigger rather than a rewritten skill body — consistent with the finding that instructions requiring mid-work noticing do not survive context saturation. I have not drafted the hook, because the prior review's lesson was that <code>enforce-sf-target-org.sh</code> fired wrong 77% of the time; a new schema hook deserves its own measurement pass first.</p>
+
+<p><strong>Written this run (already applied, veto if wrong):</strong> <code>memory/plan-mode-trial-started.md</code> — records the zero baseline and the contamination trap, so the next review measures the trend instead of rediscovering it.</p>
+
+<div class="foot">
+Method: <code>~/.claude/scripts/harness-metrics.py all --since 2026-06-01</code>, plus a plan-mode split reusing the same frozen <code>_bucket_stats</code> predicates so figures stay comparable to the published pre/post panel. Windowed on each event's own timestamp, deduped by session id, <code>harness-ablation</code> and <code>harness-runs</code> excluded. Complaint clusters counted as distinct sessions, never raw grep hits, and eyeballed before crediting. Rework and correction figures are proxies — read them as "coincided with", never "caused".
+</div>
+
+</div>

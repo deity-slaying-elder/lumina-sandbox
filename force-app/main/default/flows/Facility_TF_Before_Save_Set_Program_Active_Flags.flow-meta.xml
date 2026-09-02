@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Set_Program_Active_Flags</name>
+        <label>Set Program Active Flags</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.AHTH__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>AHTH_Active_Value</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.APCM__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>APCM_Active_Value</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.BHI__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>BHI_Active_Value</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.CCM__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>CCM_Active_Value</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.COCM__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>COCM_Active_Value</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Dashboard__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Dashboard_Active_Value</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.PCM__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>PCM_Active_Value</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.RPM__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>RPM_Active_Value</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.TCM__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>TCM_Active_Value</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Telepsych__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Telepsych_Active_Value</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <environments>Default</environments>
+    <formulas>
+        <name>AHTH_Active_Value</name>
+        <dataType>Boolean</dataType>
+        <expression>IF(
+    AND(
+        {!$Record.AHTH__c},
+        OR(
+            AND(NOT(ISBLANK({!$Record.AHTH_End_Date__c})), ISBLANK({!$Record__Prior.AHTH_End_Date__c})),
+            AND(NOT(ISBLANK({!$Record.AHTH_On_Hold_Date__c})), ISBLANK({!$Record__Prior.AHTH_On_Hold_Date__c})),
+            AND({!$Record.AHTH_Onboarding__c}, NOT({!$Record__Prior.AHTH_Onboarding__c}))
+        )
+    ),
+    false,
+    {!$Record.AHTH__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>APCM_Active_Value</name>
+        <dataType>Boolean</dataType>
+        <expression>IF(
+    AND(
+        {!$Record.APCM__c},
+        OR(
+            AND(NOT(ISBLANK({!$Record.APCM_End_Date__c})), ISBLANK({!$Record__Prior.APCM_End_Date__c})),
+            AND(NOT(ISBLANK({!$Record.APCM_On_Hold_Date__c})), ISBLANK({!$Record__Prior.APCM_On_Hold_Date__c})),
+            AND({!$Record.APCM_Onboarding__c}, NOT({!$Record__Prior.APCM_Onboarding__c}))
+        )
+    ),
+    false,
+    {!$Record.APCM__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>BHI_Active_Value</name>
+        <dataType>Boolean</dataType>
+        <expression>IF(
+    AND(
+        {!$Record.BHI__c},
+        OR(
+            AND(NOT(ISBLANK({!$Record.BHI_End_Date__c})), ISBLANK({!$Record__Prior.BHI_End_Date__c})),
+            AND(NOT(ISBLANK({!$Record.BHI_On_Hold_Date__c})), ISBLANK({!$Record__Prior.BHI_On_Hold_Date__c})),
+            AND({!$Record.BHI_Onboarding__c}, NOT({!$Record__Prior.BHI_Onboarding__c}))
+        )
+    ),
+    false,
+    {!$Record.BHI__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>CCM_Active_Value</name>
+        <dataType>Boolean</dataType>
+        <expression>IF(
+    AND(
+        {!$Record.CCM__c},
+        OR(
+            AND(NOT(ISBLANK({!$Record.CCM_End_Date__c})), ISBLANK({!$Record__Prior.CCM_End_Date__c})),
+            AND(NOT(ISBLANK({!$Record.CCM_On_Hold_Date__c})), ISBLANK({!$Record__Prior.CCM_On_Hold_Date__c})),
+            AND({!$Record.CCM_Onboarding__c}, NOT({!$Record__Prior.CCM_Onboarding__c}))
+        )
+    ),
+    false,
+    {!$Record.CCM__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>COCM_Active_Value</name>
+        <dataType>Boolean</dataType>
+        <expression>IF(
+    AND(
+        {!$Record.COCM__c},
+        OR(
+            AND(NOT(ISBLANK({!$Record.COCM_End_Date__c})), ISBLANK({!$Record__Prior.COCM_End_Date__c})),
+            AND(NOT(ISBLANK({!$Record.COCM_On_Hold_Date__c})), ISBLANK({!$Record__Prior.COCM_On_Hold_Date__c})),
+            AND({!$Record.COCM_Onboarding__c}, NOT({!$Record__Prior.COCM_Onboarding__c}))
+        )
+    ),
+    false,
+    {!$Record.COCM__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>Dashboard_Active_Value</name>
+        <dataType>Boolean</dataType>
+        <expression>IF(
+    AND(
+        {!$Record.Dashboard__c},
+        OR(
+            AND(NOT(ISBLANK({!$Record.Dashboard_End_Date__c})), ISBLANK({!$Record__Prior.Dashboard_End_Date__c})),
+            AND(NOT(ISBLANK({!$Record.Dashboard_Hold_Date__c})), ISBLANK({!$Record__Prior.Dashboard_Hold_Date__c})),
+            AND({!$Record.Dashboard_Onboarding__c}, NOT({!$Record__Prior.Dashboard_Onboarding__c}))
+        )
+    ),
+    false,
+    {!$Record.Dashboard__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>PCM_Active_Value</name>
+        <dataType>Boolean</dataType>
+        <expression>IF(
+    AND(
+        {!$Record.PCM__c},
+        OR(
+            AND(NOT(ISBLANK({!$Record.PCM_End_Date__c})), ISBLANK({!$Record__Prior.PCM_End_Date__c})),
+            AND(NOT(ISBLANK({!$Record.PCM_On_Hold_Date__c})), ISBLANK({!$Record__Prior.PCM_On_Hold_Date__c})),
+            AND({!$Record.PCM_Onboarding__c}, NOT({!$Record__Prior.PCM_Onboarding__c}))
+        )
+    ),
+    false,
+    {!$Record.PCM__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>RPM_Active_Value</name>
+        <dataType>Boolean</dataType>
+        <expression>IF(
+    AND(
+        {!$Record.RPM__c},
+        OR(
+            AND(NOT(ISBLANK({!$Record.RPM_End_Date__c})), ISBLANK({!$Record__Prior.RPM_End_Date__c})),
+            AND(NOT(ISBLANK({!$Record.RPM_On_Hold_Date__c})), ISBLANK({!$Record__Prior.RPM_On_Hold_Date__c})),
+            AND({!$Record.RPM_Onboarding__c}, NOT({!$Record__Prior.RPM_Onboarding__c}))
+        )
+    ),
+    false,
+    {!$Record.RPM__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>TCM_Active_Value</name>
+        <dataType>Boolean</dataType>
+        <expression>IF(
+    AND(
+        {!$Record.TCM__c},
+        OR(
+            AND(NOT(ISBLANK({!$Record.TCM_End_Date__c})), ISBLANK({!$Record__Prior.TCM_End_Date__c})),
+            AND(NOT(ISBLANK({!$Record.TCM_On_Hold_Date__c})), ISBLANK({!$Record__Prior.TCM_On_Hold_Date__c})),
+            AND({!$Record.TCM_Onboarding__c}, NOT({!$Record__Prior.TCM_Onboarding__c}))
+        )
+    ),
+    false,
+    {!$Record.TCM__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>Telepsych_Active_Value</name>
+        <dataType>Boolean</dataType>
+        <expression>IF(
+    AND(
+        {!$Record.Telepsych__c},
+        OR(
+            AND(NOT(ISBLANK({!$Record.Telepsych_End_Date__c})), ISBLANK({!$Record__Prior.Telepsych_End_Date__c})),
+            AND(NOT(ISBLANK({!$Record.Telepsych_Hold_Date__c})), ISBLANK({!$Record__Prior.Telepsych_Hold_Date__c})),
+            AND({!$Record.Telepsych_Onboarding__c}, NOT({!$Record__Prior.Telepsych_Onboarding__c}))
+        )
+    ),
+    false,
+    {!$Record.Telepsych__c}
+)</expression>
+    </formulas>
+    <interviewLabel>Facility - TF - Before Save Set Program Active Flags {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Facility - TF - Before Save Set Program Active Flags</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Set_Program_Active_Flags</targetReference>
+        </connector>
+        <object>Facility__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

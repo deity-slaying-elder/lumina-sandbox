@@ -126,23 +126,34 @@ public with sharing class FacilityEditorController {
                 // Dynamically set fields with proper type conversion
                 for (String fieldName : fieldsMap.keySet()) {
                     Object fieldValue = fieldsMap.get(fieldName);
-                    if (fieldValue != null) {
-                        // Get field type to handle conversion
-                        Schema.SObjectField fieldToken = facilityFields.get(fieldName);
-                        if (fieldToken != null) {
-                            Schema.DisplayType fieldType = fieldToken.getDescribe().getType();
+                    // Get field type to handle conversion (field map keys are lowercase)
+                    Schema.SObjectField fieldToken = facilityFields.get(fieldName.toLowerCase());
+                    if (fieldToken != null) {
+                        Schema.DisplayType fieldType = fieldToken.getDescribe().getType();
 
-                            // Convert based on field type
-                            if (fieldType == Schema.DisplayType.BOOLEAN) {
-                                if (fieldValue instanceof String) {
-                                    facility.put(fieldName, Boolean.valueOf((String) fieldValue));
-                                } else {
-                                    facility.put(fieldName, fieldValue);
-                                }
+                        // Convert based on field type
+                        if (fieldType == Schema.DisplayType.BOOLEAN) {
+                            if (fieldValue == null) {
+                                facility.put(fieldName, false);
+                            } else if (fieldValue instanceof String) {
+                                facility.put(fieldName, Boolean.valueOf((String) fieldValue));
                             } else {
                                 facility.put(fieldName, fieldValue);
                             }
+                        } else if (fieldType == Schema.DisplayType.DATE) {
+                            // Handle Date field conversion
+                            if (fieldValue == null || (fieldValue instanceof String && String.isBlank((String) fieldValue))) {
+                                facility.put(fieldName, null);
+                            } else if (fieldValue instanceof String) {
+                                facility.put(fieldName, Date.valueOf((String) fieldValue));
+                            }
                         } else {
+                            if (fieldValue != null) {
+                                facility.put(fieldName, fieldValue);
+                            }
+                        }
+                    } else {
+                        if (fieldValue != null) {
                             facility.put(fieldName, fieldValue);
                         }
                     }
@@ -152,7 +163,12 @@ public with sharing class FacilityEditorController {
             }
 
             if (!facilitiesToUpdate.isEmpty()) {
-                update facilitiesToUpdate;
+                // Use Security.stripInaccessible to enforce FLS before DML
+                SObjectAccessDecision decision = Security.stripInaccessible(
+                    AccessType.UPDATABLE,
+                    facilitiesToUpdate
+                );
+                update decision.getRecords();
             }
 
             Map<String, Object> result = new Map<String, Object>();

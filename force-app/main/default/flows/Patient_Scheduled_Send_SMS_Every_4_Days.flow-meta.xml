@@ -258,7 +258,9 @@ null
         </filters>
         <object>Patient__c</object>
         <schedule>
+            <dayOfMonthToRun>0</dayOfMonthToRun>
             <frequency>Daily</frequency>
+            <frequencyNumber>0</frequencyNumber>
             <startDate>2025-07-15</startDate>
             <startTime>10:00:00.000Z</startTime>
         </schedule>
@@ -270,7 +272,7 @@ null
         <isViewedAsPlainText>true</isViewedAsPlainText>
         <text>Hi {!$Record.First_Name__c},
 This is the Lumina Care Team checking in. Do you need any assistance or have questions about your care or follow-up?
-Reply YES and someone from our team will reach out to you.
+Reply &quot;Follow Up&quot; and someone from our team will reach out to you.
 You can also call us anytime at (929) 650-3990.
 
 Take care,

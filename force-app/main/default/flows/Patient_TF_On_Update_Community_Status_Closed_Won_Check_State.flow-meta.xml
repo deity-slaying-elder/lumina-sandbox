@@ -28,7 +28,13 @@
         <name>Update_State</name>
         <label>Update State</label>
         <locationX>176</locationX>
-        <locationY>323</locationY>
+        <locationY>287</locationY>
+        <inputAssignments>
+            <field>Address__CountryCode__s</field>
+            <value>
+                <stringValue>US</stringValue>
+            </value>
+        </inputAssignments>
         <inputAssignments>
             <field>Address__StateCode__s</field>
             <value>
@@ -71,7 +77,7 @@
         </filters>
         <object>Patient__c</object>
         <recordTriggerType>Update</recordTriggerType>
-        <triggerType>RecordAfterSave</triggerType>
+        <triggerType>RecordBeforeSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>InvalidDraft</status>
 </Flow>

@@ -50,9 +50,21 @@ public with sharing class BulkOpportunityCreatorController {
             List<Map<String, Object>> fieldSetFields = getFieldSetMetadata();
             System.debug('*** Found ' + fieldSetFields.size() + ' fields in fieldset');
 
+            List<Contact> signers = [
+                SELECT Id, Name
+                FROM Contact
+                WHERE AccountId = :accountId
+                  AND Company_Contact_Type__c = 'Authorized Signer'
+                ORDER BY CreatedDate ASC
+                LIMIT 1
+            ];
+            String authorizedSignerName = signers.isEmpty() ? null : signers[0].Name;
+            System.debug('*** Authorized Signer found: ' + authorizedSignerName);
+
             result.put('facilities', facilities);
             result.put('typeOptions', typeOptions);
             result.put('fieldSetFields', fieldSetFields);
+            result.put('authorizedSignerName', authorizedSignerName);
 
             System.debug('*** getInitialData SUCCESS - returning result');
             return result;
@@ -118,6 +130,16 @@ public with sharing class BulkOpportunityCreatorController {
                             }
                             fieldInfo.put('picklistValues', picklistOptions);
                             System.debug('*** Found ' + picklistOptions.size() + ' picklist values');
+                        } else if (field.getType() == Schema.DisplayType.REFERENCE) {
+                            List<String> referenceTo = new List<String>();
+                            for (Schema.sObjectType refType : fieldDescribe.getReferenceTo()) {
+                                referenceTo.add(refType.getDescribe().getName());
+                            }
+                            fieldInfo.put('referenceTo', referenceTo);
+                            String relName = fieldDescribe.getRelationshipName();
+                            if (relName != null) {
+                                fieldInfo.put('relationshipName', relName);
+                            }
                         }
 
                         fieldMetadata.add(fieldInfo);
@@ -163,7 +185,7 @@ public with sharing class BulkOpportunityCreatorController {
                 Opportunity opp = new Opportunity();
                 opp.AccountId = accountId;
                 opp.Name = (String) oppMap.get('name');
-                opp.StageName = 'Proposal';
+                opp.StageName = 'Qualification';
                 opp.Type = (String) oppMap.get('type');
 
                 // Set the Facility lookup field
