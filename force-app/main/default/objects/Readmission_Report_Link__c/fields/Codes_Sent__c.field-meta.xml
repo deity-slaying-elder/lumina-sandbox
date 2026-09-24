@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Codes_Sent__c</fullName>
+    <defaultValue>0</defaultValue>
+    <description>How many one-time codes have been emailed for this link. The row is locked after five.</description>
+    <externalId>false</externalId>
+    <label>Codes Sent</label>
+    <precision>2</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

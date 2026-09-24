@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>TCMReportConfigTest</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>TCMReadmissionReportGate</members>
+        <name>ApexPage</name>
+    </types>
+    <types>
+        <members>TCM_Report_Config__mdt.Global_CC_Emails__c</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>Resend_Readmissions_Report</members>
+        <name>CustomPermission</name>
+    </types>
+    <types>
+        <members>Facility_Record_Page</members>
+        <name>FlexiPage</name>
+    </types>
+    <types>
+        <members>TCM_Readmission_Report_Operator</members>
+        <members>TCM_Readmission_Reports</members>
+        <name>PermissionSet</name>
+    </types>
+    <version>65.0</version>
+</Package>

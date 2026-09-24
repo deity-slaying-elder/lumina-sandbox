@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Max_Opens__c</fullName>
+    <description>Opens allowed per recipient link before it is expired early. Zero or blank disables the cap. Enforced when the audit sync runs, so it is a soft cap: a burst of opens inside one sync window can exceed it slightly.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Opens allowed per link before it is closed early. Blank or 0 means no cap.</inlineHelpText>
+    <label>Max Opens</label>
+    <precision>4</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

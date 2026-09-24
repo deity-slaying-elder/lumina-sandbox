@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomSite xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <allowHomePage>false</allowHomePage>
+    <allowStandardAnswersPages>false</allowStandardAnswersPages>
+    <allowStandardIdeasPages>false</allowStandardIdeasPages>
+    <allowStandardLookups>false</allowStandardLookups>
+    <allowStandardPortalPages>false</allowStandardPortalPages>
+    <allowStandardSearch>false</allowStandardSearch>
+    <authorizationRequiredPage>TCMReadmissionPortalUnauthorized</authorizationRequiredPage>
+    <bandwidthExceededPage>TCMReadmissionPortalError</bandwidthExceededPage>
+    <browserXssProtection>true</browserXssProtection>
+    <clickjackProtectionLevel>SameOriginOnly</clickjackProtectionLevel>
+    <contentSniffingProtection>true</contentSniffingProtection>
+    <enableAuraRequests>false</enableAuraRequests>
+    <fileNotFoundPage>TCMReadmissionPortalError</fileNotFoundPage>
+    <genericErrorPage>TCMReadmissionPortalError</genericErrorPage>
+    <guestProfile>TCM Readmission Portal Profile</guestProfile>
+    <inMaintenancePage>TCMReadmissionPortalMaintenance</inMaintenancePage>
+    <inactiveIndexPage>TCMReadmissionPortalMaintenance</inactiveIndexPage>
+    <indexPage>TCMReadmissionReportGate</indexPage>
+    <masterLabel>TCM Readmission Portal</masterLabel>
+    <redirectToCustomDomain>false</redirectToCustomDomain>
+    <referrerPolicyOriginWhenCrossOrigin>true</referrerPolicyOriginWhenCrossOrigin>
+    <siteType>Visualforce</siteType>
+    <subdomain>data-efficiency-9627--partialsb</subdomain>
+    <urlPathPrefix>report</urlPathPrefix>
+</CustomSite>

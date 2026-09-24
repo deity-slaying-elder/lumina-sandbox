@@ -1,0 +1,81 @@
+/* ============================================
+   Resend Readmissions Report - quick action
+   Spacing and colour come from SLDS hooks so the dialog matches whatever theme the org runs.
+   ============================================ */
+
+.resend {
+    position: relative;
+    min-height: 4rem;
+    /* The quick-action modal gives the body no inset of its own. */
+    padding: var(--slds-g-spacing-4, var(--lwc-spacingMedium, 1rem));
+}
+
+/* Label and value on one row, with the labels sharing a column so values line up. */
+.resend__facts {
+    display: grid;
+    grid-template-columns: minmax(7rem, max-content) 1fr;
+    column-gap: var(--slds-g-spacing-4, var(--lwc-spacingMedium, 1rem));
+    row-gap: var(--slds-g-spacing-1, var(--lwc-spacingXxSmall, 0.25rem));
+    margin: 0;
+}
+
+.resend__facts dt,
+.resend__facts dd {
+    margin: 0;
+    min-width: 0;
+}
+
+.resend__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 4rem;
+}
+
+/* Utility margin classes do not always reach inside the shadow root, so section rhythm is
+   defined here rather than with slds-m-* on the markup. */
+.resend__facts {
+    margin-bottom: var(--slds-g-spacing-4, var(--lwc-spacingMedium, 1rem));
+}
+
+.resend__caps {
+    margin: 0 0 var(--slds-g-spacing-1, 0.25rem);
+}
+
+.resend__list {
+    border: var(--slds-g-sizing-border-1, 1px) solid
+        var(--slds-g-color-border-base-1, var(--lwc-colorBorder, #e5e5e5));
+    border-radius: var(--slds-g-radius-border-2, var(--lwc-borderRadiusMedium, 0.25rem));
+}
+
+.resend__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--slds-g-spacing-2, var(--lwc-spacingSmall, 0.75rem));
+    padding: var(--slds-g-spacing-2, var(--lwc-spacingXSmall, 0.5rem))
+        var(--slds-g-spacing-3, var(--lwc-spacingSmall, 0.75rem));
+}
+
+.resend__row + .resend__row {
+    border-top: var(--slds-g-sizing-border-1, 1px) solid
+        var(--slds-g-color-border-base-1, var(--lwc-colorBorder, #e5e5e5));
+}
+
+.resend__who {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.resend__state {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+}
+
+.resend__footer {
+    display: flex;
+    justify-content: flex-end;
+}

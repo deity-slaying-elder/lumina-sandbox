@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <classAccesses>
+        <apexClass>TCMReadmissionAccessToken</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>TCMReadmissionGateController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>TCMReadmissionGateService</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>TCMReadmissionPortal</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>TCMReadmissionReportGateApi</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>TCMReportConfig</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <description>Assigned to the guest user of the TCM Readmission Portal site. Grants the gate page, the PDF endpoint and their classes, and nothing else: no object, no field. The service reaches the link row and the stored PDF in system mode, and only by token hash.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>TCM Readmission Portal Guest</label>
+    <pageAccesses>
+        <apexPage>TCMReadmissionPortalError</apexPage>
+        <enabled>true</enabled>
+    </pageAccesses>
+    <pageAccesses>
+        <apexPage>TCMReadmissionReportGate</apexPage>
+        <enabled>true</enabled>
+    </pageAccesses>
+</PermissionSet>

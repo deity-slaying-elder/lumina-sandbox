@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LMNA-581 technical: the code-gated report site</title>
+<style>
+  * { box-sizing: border-box }
+  :root {
+    --navy: #0c263b; --yellow: #f5fd7e; --ink: #16212b; --muted: #5b6b7a; --line: #dce3ea;
+    --mono: 'SF Mono', Menlo, Consolas, monospace;
+    --ok: #1f7a3d; --bad: #b3261e; --new: #1d5c9e;
+  }
+  body { margin: 0; background: #eef1f4; color: var(--ink);
+    font: 15px/1.6 'DM Sans', -apple-system, 'SF Pro Text', Helvetica, Arial, sans-serif }
+  .page { max-width: 1120px; margin: 0 auto; background: #fff }
+  h1, h2 { font-family: 'Antonia Variable', Georgia, 'Times New Roman', serif; font-weight: 400 }
+
+  header { background: var(--navy); color: #fff; padding: 24px 34px 26px;
+    border-bottom: 5px solid var(--yellow) }
+  .htop { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px }
+  .logo { height: 26px; width: auto }
+  .meta { font: 10px var(--mono); letter-spacing: .09em; text-transform: uppercase;
+    color: #b9d8f5; text-align: right; line-height: 1.8 }
+  header h1 { margin: 16px 0 6px; font-size: 27px }
+  header p { margin: 0; max-width: 78ch; color: #cfe0ee; font-size: 15px }
+
+  main { padding: 24px 34px 36px }
+  h2 { font-size: 19px; margin: 0 0 4px; display: flex; align-items: center; gap: 10px }
+  h2:before { content: ''; width: 5px; height: 18px; background: var(--yellow); border-radius: 3px }
+  .snum { font: 10.5px var(--mono); letter-spacing: .12em; color: var(--muted) }
+  .lede { margin: 6px 0 14px; max-width: 92ch; color: #46586a; font-size: 14.5px }
+  section { margin-bottom: 32px }
+
+  /* ---------- component map ---------- */
+  .lane { border: 1px solid var(--line) }
+  .lane.a { border-radius: 8px 8px 0 0 }
+  .lane.b { border-top: 0; border-radius: 0 0 8px 8px }
+  .lanehead { display: flex; justify-content: space-between; gap: 12px; padding: 8px 14px;
+    background: #f4f7fa; border-bottom: 1px solid var(--line); font: 10px var(--mono);
+    letter-spacing: .1em; text-transform: uppercase; color: var(--muted) }
+  .lane.b .lanehead { background: #fbfbfc }
+  .lanehead b { color: var(--navy) }
+  .boxes { display: grid; grid-template-columns: 1fr 22px 1fr 22px 1fr 22px 1fr; padding: 14px 12px }
+  .bx { border: 1px solid var(--line); border-radius: 6px; padding: 10px 11px; background: #fff }
+  .bx .t { font: 10px var(--mono); letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted) }
+  .bx h5 { margin: 3px 0 4px; font: 11px var(--mono); line-height: 1.4; letter-spacing: -.2px;
+    overflow-wrap: normal; word-break: keep-all }
+  .bx p { margin: 0; font-size: 11.5px; color: var(--muted); line-height: 1.45 }
+  .bx.new { border-color: #a9c9e6; background: #f3f8fd }
+  .bx.new .t { color: var(--new) }
+  .bx.gone { border-color: #e8b6b1; background: #fdf5f4; border-style: dashed }
+  .bx.gone .t { color: var(--bad) }
+  .bx.gone h5 { text-decoration: line-through; text-decoration-color: #d8a49e }
+  .arw { display: flex; align-items: center; justify-content: center; color: #a9b6c3 }
+  .arw:after { content: '\2192' }
+  .boxes.support { padding-top: 0 }
+  .boxes.support .arw:after { content: '' }
+  .cross { display: flex; align-items: center; gap: 12px; padding: 12px 14px 0 }
+  .cross .bar { flex: 1; border-top: 2px dashed #c9d4de }
+  .cross span { font: 10px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: #8c9aa8 }
+
+  /* ---------- mockups ---------- */
+  .mocks { display: grid; grid-template-columns: 1fr 1fr; gap: 16px }
+  .mock { border: 1px solid #c9d0d8; border-radius: 8px; overflow: hidden; background: #fff }
+  .chrome { display: flex; align-items: center; gap: 6px; padding: 7px 11px;
+    background: #f1f3f6; border-bottom: 1px solid #d9dfe5; font: 10.5px var(--mono); color: #5f6672 }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block }
+  .capt { font-size: 12.5px; color: var(--muted); margin: 7px 2px 0; line-height: 1.5 }
+
+  /* email */
+  .ol { font: 13.5px/1.55 'Segoe UI', -apple-system, Helvetica, Arial, sans-serif; color: #201f1e }
+  .ol-hd { padding: 13px 15px 11px; border-bottom: 1px solid #e6e7ea }
+  .ol-subj { font-size: 15.5px; font-weight: 600; margin-bottom: 9px }
+  .ol-row { display: flex; gap: 10px; align-items: flex-start }
+  .ol-av { flex: 0 0 32px; height: 32px; border-radius: 50%; background: #0f6cbd; color: #fff;
+    font-size: 12px; display: flex; align-items: center; justify-content: center }
+  .ol-who { flex: 1; font-size: 12.5px; line-height: 1.45 }
+  .ol-addr { color: #605e5c }
+  .ol-body { padding: 14px 15px 16px }
+  .ol-body p { margin: 0 0 11px }
+  .ol-btn { display: inline-block; background: #1f5fe0; color: #fff; padding: 9px 16px;
+    border-radius: 3px; font-weight: 600; font-size: 13px }
+  .pinbox { border: 1px solid #d8dde3; border-radius: 5px; background: #f7f9fb; padding: 9px 12px;
+    margin: 0 0 11px; display: flex; align-items: baseline; gap: 10px }
+  .pinbox span { font: 10px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted) }
+  .pinbox b { font: 19px var(--mono); letter-spacing: .18em; color: #30385c }
+  .fine { font-size: 11.5px; color: #605e5c }
+
+  /* portal */
+  .portal { padding: 0 }
+  .p-top { background: #fff; color: #30385c; padding: 11px 15px; display: flex;
+    border-bottom: 3px solid #1f5fe0;
+    justify-content: space-between; align-items: center }
+  .p-top .brand { font-size: 13px; font-weight: 600 }
+  .p-top .tag { font: 9.5px var(--mono); letter-spacing: .08em; text-transform: uppercase;
+    color: #30385c }
+  .p-body { padding: 20px 18px 22px; text-align: center; color: #30385c }
+  .p-body .fac { font-size: 15px; font-weight: 600 }
+  .p-body .sub { font-size: 12.5px; color: var(--muted); margin: 2px 0 14px }
+  .pins { display: flex; gap: 6px; justify-content: center; margin-bottom: 13px }
+  .pins i { width: 34px; height: 42px; border: 1px solid #c3ccd6; border-radius: 5px;
+    font: 19px var(--mono); font-style: normal; line-height: 42px; background: #fbfcfd }
+  .pins i.on { border-color: #1f5fe0; background: #fff }
+  .pbtn { display: inline-block; background: #1f5fe0; color: #fff; padding: 9px 20px;
+    border-radius: 4px; font-size: 13px; font-weight: 600 }
+  .pbtn.ghost { background: #fff; color: #1f5fe0; border: 1px solid #1f5fe0 }
+  .p-foot { font-size: 11.5px; color: var(--muted); margin-top: 11px }
+  .p-err { color: var(--bad); font-size: 12.5px; margin-top: 10px }
+  .p-msg { background: #dee9ff; border-left: 3px solid #1f5fe0; padding: 7px 10px; font-size: 12px;
+    text-align: left; margin: 0 0 12px }
+  .doc { text-align: left; border: 1px solid var(--line); border-radius: 5px; padding: 11px;
+    font-size: 11px; color: #44525f; background: #fff }
+  .doc b { display: block; font-size: 12.5px; color: #30385c; margin-bottom: 1px }
+  .doc table { margin-top: 7px; font-size: 10px }
+  .doc th { background: #30385c; font-size: 8.5px; padding: 4px 6px }
+  .doc td { padding: 4px 6px; border-bottom: 1px solid #eef1f4 }
+  .p-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding: 9px 15px; border-top: 1px solid var(--line); background: #fbfcfd;
+    font-size: 11.5px; color: var(--muted) }
+
+  /* ---------- sequence ---------- */
+  .seq { border: 1px solid var(--line); border-radius: 8px; overflow: hidden }
+  .sq { display: grid; grid-template-columns: 34px 1fr 1.15fr; align-items: stretch }
+  .sq + .sq { border-top: 1px solid var(--line) }
+  .sq .n { background: #f4f7fa; color: var(--muted); font: 11px var(--mono);
+    display: flex; align-items: center; justify-content: center }
+  .sq .what { padding: 10px 13px; font-size: 13.5px }
+  .sq .what b { font-weight: 600 }
+  .sq .code { padding: 10px 13px; border-left: 1px solid var(--line); background: #101c27;
+    color: #cfd9e3; font: 11.5px/1.6 var(--mono); word-break: break-word }
+  .sq .code .k { color: #7ee2a8 }
+  .sq .code .c { color: #8b9aa9 }
+  .sq .code .x { color: #ff9b91 }
+
+  table.grid { width: 100%; border-collapse: collapse; font-size: 13.5px }
+  table.grid th { background: var(--navy); color: #fff; text-align: left; padding: 9px 12px;
+    font: 10px var(--mono); letter-spacing: .08em; text-transform: uppercase }
+  table.grid td { padding: 9px 12px; border-bottom: 1px solid #e8edf2; vertical-align: top }
+  table.grid tr:nth-child(even) td { background: #f8fafc }
+  code.f { font: 11.5px var(--mono); background: #eef2f6; padding: 1px 5px; border-radius: 3px;
+    word-break: break-word }
+  .yes { color: var(--ok); font-weight: 600 } .no { color: var(--bad); font-weight: 600 }
+  .note { background: #fdf6e3; border-left: 3px solid #d8b13a; padding: 11px 14px;
+    font-size: 13.5px; margin-top: 12px }
+
+  footer { background: var(--navy); color: #cfe0ee; padding: 16px 34px; font-size: 12.5px;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px }
+  footer b { color: #fff }
+
+  @media (max-width: 900px) {
+    .boxes { grid-template-columns: 1fr }
+    .arw { height: 24px } .arw:after { content: '\2193' }
+    .mocks { grid-template-columns: 1fr }
+    .sq { grid-template-columns: 1fr }
+    .sq .code { border-left: 0; border-top: 1px solid var(--line) }
+    main, header, footer { padding-left: 18px; padding-right: 18px }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <div class="htop">
+    <svg id="propela-logo" class="logo" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 530 128"><defs><clipPath id="clippath"><rect width="530" height="128" style="fill:none;"/></clipPath></defs><g id="Components"><g id="ac1c3380-4e8f-46d9-90f9-4d4e248a946c_7"><g style="clip-path:url(#clippath);"><path d="M98.3266,77.5319c-15.3952,25.3151-45.3348,38.9091-66.8476,30.3621-8.9535-3.582-15.0711-10.4193-18.0286-19.0069,1.7421,1.1802,3.6868,2.1977,5.753,3.0117,20.743,8.2622,49.7103-5.0874,64.7408-29.792,9.7233-15.9949,11.1818-32.8446,5.3884-44.973,19.7304,9.483,23.9034,35.9377,9.0345,60.3981h-.0405Z" style="fill:#f5fd7e;"/><path d="M89.2924,17.134c-.6888-.3256-1.3775-.6512-2.1067-.936-21.5533-8.5469-51.4929,5.006-66.8881,30.3618-8.9536,14.7739-11.0198,30.2804-6.8469,42.3275-15.7598-10.5819-18.1501-34.4318-4.659-56.6537C23.8223,7.529,52.7895-5.8205,73.5325,2.4415c7.2925,2.8897,12.5998,8.0992,15.7599,14.6925Z" style="fill:#f5fd7e;"/><path d="M189.644,12.2916c-5.105-2.1571-11.02-3.256-17.745-3.256h-30.183v.5291c1.661,2.1164,2.796,4.6805,3.363,7.6922.567,3.0118.851,7.0818.851,12.2099v51.4442c0,5.1281-.284,9.1981-.851,12.1692-.567,2.971-1.702,5.5758-3.363,7.7738v.529h22.121v-.529c-1.864-2.198-3.12-4.8435-3.849-7.8552-.689-3.0118-1.053-7.0411-1.053-12.0878v-17.0124h12.964c6.685,0,12.6-1.1396,17.745-3.3781,5.105-2.2791,9.075-5.4537,11.911-9.6458,2.836-4.1513,4.254-9.0352,4.254-14.6111s-1.418-10.5412-4.254-14.6111c-2.836-4.07-6.806-7.2038-11.911-9.3609ZM186.119,50.305c-3.93,3.0524-9.561,4.599-16.853,4.599h-10.331V17.9488h10.331c7.333,0,12.964,1.4652,16.853,4.4363,3.93,2.9711,5.875,7.6108,5.875,13.8785s-1.945,10.9482-5.875,14.0414Z" style="fill:#fff;"/><path d="M249.078,37.3616c-1.945-.3663-3.565-.5291-4.902-.5291-4.416,0-8.143,1.3838-11.182,4.1921-3.038,2.8082-5.388,7.1224-7.09,12.9424h-.648v-15.9542h-.405l-15.071,1.5873v.814c1.215,1.6687,2.106,3.5815,2.593,5.7386.486,2.1571.729,5.0874.729,8.9132v30.9723c0,3.9886-.162,7.0411-.527,9.1167-.364,2.0757-1.134,4.0293-2.39,5.7791v.529h18.393v-.529c-1.418-1.7905-2.309-3.6627-2.714-5.6977-.405-2.0349-.608-5.0874-.608-9.1574v-12.0877c0-5.4131.851-9.9714,2.593-13.7565,1.701-3.7443,4.011-6.5933,6.887-8.4248,2.877-1.8721,5.915-2.8082,9.197-2.8082,2.025,0,3.768.2035,5.145.6512v-12.2913Z" style="fill:#fff;"/><path d="M296.317,40.9845c-4.78-2.8082-10.088-4.192-16.003-4.192s-11.384,1.4245-16.205,4.2734c-4.821,2.849-8.589,6.7561-11.303,11.7622-2.715,5.006-4.092,10.6633-4.092,16.931s1.377,12.0878,4.092,17.1345c2.714,5.0467,6.522,8.9946,11.303,11.8436,4.821,2.8488,10.209,4.2328,16.205,4.2328s11.263-1.425,16.003-4.2328c4.74-2.8083,8.508-6.7969,11.263-11.8436,2.714-5.0467,4.092-10.7854,4.092-17.1345s-1.378-12.0878-4.092-17.0938c-2.755-5.006-6.482-8.9132-11.263-11.6808ZM296.155,82.7422c-1.499,3.663-3.606,6.4713-6.361,8.4248-2.754,1.9536-5.914,2.9304-9.52,2.9304-3.809,0-7.05-.9768-9.805-2.9711-2.754-1.9942-4.861-4.8025-6.36-8.4248-1.499-3.6222-2.269-7.9364-2.269-12.9017s.77-9.1167,2.269-12.7797c1.499-3.6222,3.646-6.4305,6.401-8.3841,2.795-1.9535,6.037-2.9303,9.723-2.9303s6.807.9768,9.521,2.9303c2.714,1.9536,4.862,4.7212,6.361,8.3027,1.499,3.5816,2.268,7.855,2.268,12.8204s-.769,9.2795-2.268,12.9831h.04Z" style="fill:#fff;"/><path d="M364.467,40.781c-4.092-2.6454-8.629-3.9885-13.572-3.9885-4.335,0-8.103.9361-11.384,2.8489-3.282,1.9129-6.037,4.6398-8.346,8.1807h-.527v-9.8493h-.405l-15.233,1.5872v.814c1.337,1.6687,2.188,3.5816,2.633,5.6573.446,2.0756.649,5.0467.649,8.8318v57.7119c0,4.07-.162,7.122-.527,9.117-.365,1.994-1.094,3.907-2.269,5.779v.529h18.11v-.529c-1.256-1.872-2.066-3.826-2.431-5.861-.405-2.035-.608-5.046-.608-9.035v-17.8264h.527c1.945,2.6455,4.456,4.6804,7.616,6.1054,3.12,1.424,6.402,2.116,9.845,2.116,5.308,0,10.169-1.384,14.626-4.1921,4.456-2.8083,8.021-6.7969,10.655-11.9657,2.633-5.1688,3.97-11.1517,3.97-17.8671,0-6.3898-1.215-12.0064-3.646-16.8903-2.431-4.8839-5.672-8.6283-9.804-11.3145l.121.0407ZM363.009,83.0678c-1.54,3.7444-3.687,6.5934-6.401,8.6283-2.755,2.035-5.915,3.0525-9.521,3.0525-3.363,0-6.28-.8547-8.751-2.5234-2.471-1.6687-4.376-4.1513-5.672-7.3666-1.297-3.2152-1.985-7.1631-1.985-11.7622v-7.3259c0-3.7443.729-7.041,2.269-9.9713,1.499-2.9304,3.524-5.2096,6.077-6.919,2.552-1.6686,5.388-2.5233,8.467-2.5233,5.469,0,9.804,2.157,13.045,6.5119,3.201,4.3548,4.822,10.1342,4.822,17.4194,0,4.8025-.77,9.0353-2.31,12.7796h-.04Z" style="fill:#fff;"/><path d="M427.142,91.1672c-2.917.9768-6.077,1.4652-9.521,1.4652-4.578,0-8.629-.9768-12.113-2.9711-3.485-1.9943-6.158-4.9246-8.063-8.8318-1.701-3.5002-2.592-7.7329-2.755-12.6168h42.013v-5.0468c0-5.5758-1.053-10.3377-3.16-14.2855-2.107-3.9479-5.064-6.9189-8.872-8.9539-3.809-2.035-8.103-3.0525-12.965-3.0525-5.55,0-10.574,1.4245-15.03,4.2735-4.457,2.8489-7.941,6.7561-10.453,11.6807-2.512,4.9654-3.768,10.5412-3.768,16.7682,0,6.6341,1.378,12.5355,4.173,17.6229,2.796,5.0875,6.604,9.0353,11.506,11.7622,4.902,2.7265,10.331,4.1105,16.327,4.1105,4.578,0,8.792-.814,12.559-2.442,3.809-1.6278,7.293-4.1105,10.453-7.3664l-1.459-6.512c-2.998,2.035-5.955,3.5409-8.872,4.5177v-.1221ZM402.064,47.4966c2.431-1.7094,5.348-2.6048,8.791-2.6048,2.998,0,5.591.814,7.739,2.4013,2.147,1.5873,3.767,3.8665,4.78,6.8375.648,1.8722.932,3.9479,1.013,6.1863h-29.291c.324-1.9128.81-3.7036,1.418-5.3316,1.296-3.2967,3.119-5.7793,5.55-7.5294v.0407Z" style="fill:#fff;"/><path d="M459.309,85.713V6.6338h-.405l-15.071,1.5873v.814c1.337,1.8721,2.188,3.6629,2.633,5.4537.446,1.7908.649,4.599.649,8.5062v62.7586c0,4.07-.162,7.1632-.527,9.3202-.365,2.1164-1.134,4.07-2.39,5.8612v.529h17.866v-.529c-1.134-1.7912-1.904-3.7041-2.269-5.8612-.364-2.1163-.526-5.2502-.526-9.3202l.04-.0406Z" style="fill:#fff;"/><path d="M526.116,93.5676c-1.499.6105-2.876.9361-4.092.9361-1.499,0-2.633-.4477-3.443-1.343-.811-.8954-1.175-2.3199-1.175-4.2328v-28.3269c0-5.3316-1.013-9.7678-3.039-13.3494-2.026-3.5816-4.78-6.227-8.265-7.8957-3.484-1.6687-7.495-2.5234-11.992-2.5234-4.254,0-8.346.814-12.356,2.4013-4.011,1.5873-7.617,3.785-10.777,6.5119l1.337,6.7968c6.442-4.0699,12.64-6.1049,18.677-6.1049,4.335,0,7.819,1.1396,10.452,3.3781,2.634,2.2384,3.971,5.7386,3.971,10.419v4.07l-13.248,3.5002c-7.495,1.9535-13.208,4.3955-17.057,7.3259-3.889,2.9303-5.834,6.9189-5.834,11.9656,0,4.5991,1.621,8.4248,4.903,11.4366,3.281,3.012,7.292,4.518,12.032,4.518,3.808,0,7.293-.896,10.453-2.727,3.16-1.8317,5.955-4.5993,8.345-8.3029h.527v.2849c.162,3.1745,1.378,5.7793,3.565,7.6922,2.188,1.9538,4.862,2.9308,7.941,2.9308,1.945,0,3.727-.285,5.348-.814,1.62-.53,3.2-1.344,4.699-2.4017l-.931-6.105-.041-.0407ZM503.104,85.6719c-1.499,2.6048-3.403,4.5991-5.753,5.9829-2.349,1.3838-4.659,2.0756-6.927,2.0756s-4.376-.7325-6.037-2.1977c-1.621-1.4652-2.431-3.4188-2.431-5.9015,0-1.8721.486-3.4187,1.54-4.7211,1.013-1.3024,2.471-2.4013,4.375-3.3374,1.904-.9361,4.416-1.9128,7.617-2.971l9.926-3.256v5.3724c0,3.378-.77,6.3491-2.269,8.9538h-.041Z" style="fill:#fff;"/></g></g></g></svg>
+    <div class="meta">LMNA-581 &middot; phase two &middot; technical<br>Lumina Care<br>15 September 2026</div>
+  </div>
+  <h1>Code-gated report access: components, screens, sequence</h1>
+  <p>Real class and field names, the screens the recipient sees, the exact order of checks, and
+     what production needs before deploy. Blue is new or changed. Built and live-tested in the
+     lumDev sandbox on 15 September 2026; 142 Apex tests green across 13 classes.</p>
+</header>
+
+<main>
+
+<section>
+  <div class="snum">01</div>
+  <h2>Components</h2>
+  <p class="lede">The batch and the PDF render are untouched. The publisher and the email builder
+     change. Everything on the site is new. The public file link
+     (<code class="f">ContentDistribution</code>) is gone, so the site page is the only door.</p>
+
+  <div class="lane a">
+    <div class="lanehead"><span><b>Inside the org</b> &middot; runs as the scheduled user</span>
+      <span>Apex, custom object, custom metadata</span></div>
+    <div class="boxes">
+      <div class="bx">
+        <div class="t">Batchable &middot; unchanged</div>
+        <h5>TCMDailyReadmissionBatch</h5>
+        <p>08:00 weekdays via TCMDailyReadmissionScheduler. Groups admissions per facility.</p>
+      </div>
+      <div class="arw"></div>
+      <div class="bx">
+        <div class="t">VF page &middot; unchanged</div>
+        <h5>TCMReadmissionReportPdf<br>TCMReadmissionReportPdfController</h5>
+        <p>getContentAsPDF() renders one facility. Stored as a ContentVersion on Facility__c.</p>
+      </div>
+      <div class="arw"></div>
+      <div class="bx new">
+        <div class="t">Changed</div>
+        <h5>TCMReadmissionLinkPublisher</h5>
+        <p>Mints a 256-bit token per recipient, writes the link row with its SHA-256, and closes
+           the previous live link to the same address as Superseded. No ContentDistribution.</p>
+      </div>
+      <div class="arw"></div>
+      <div class="bx new">
+        <div class="t">Changed</div>
+        <h5>TCMReadmissionEmailBuilder</h5>
+        <p>Button points at the site URL + token. Tells the reader to choose Email me a code.
+           No code in the email.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="lane b">
+    <div class="cross"><span>Messaging.sendEmail &middot; leaves the org</span><div class="bar"></div></div>
+    <div class="lanehead" style="margin-top:12px">
+      <span><b>Salesforce Site</b> &middot; runs as the site guest user, no session</span>
+      <span>all new</span></div>
+    <div class="boxes">
+      <div class="bx new">
+        <div class="t">New &middot; Site</div>
+        <h5>TCM_Readmission_Portal</h5>
+        <p>Visualforce site, path prefix /report. Guest profile TCM Readmission Portal Profile.
+           Index page is the gate; every error page is ours.</p>
+      </div>
+      <div class="arw"></div>
+      <div class="bx new">
+        <div class="t">New &middot; VF page + controller</div>
+        <h5>TCMReadmissionReportGate<br>TCMReadmissionGateController</h5>
+        <p>Four states: request, verify, report, unavailable. Controller is with sharing and
+           holds no logic; it calls the service.</p>
+      </div>
+      <div class="arw"></div>
+      <div class="bx new">
+        <div class="t">New &middot; Apex service</div>
+        <h5>TCMReadmissionGateService</h5>
+        <p>without sharing. look / requestCode / verify / serve, plus log() and setCaller(). Every
+           rule lives here, and the row is reachable only by token hash.</p>
+      </div>
+      <div class="arw"></div>
+      <div class="bx new">
+        <div class="t">New &middot; Apex REST</div>
+        <h5>TCMReadmissionReportGateApi</h5>
+        <p>@RestResource /tcm/report. Streams the PDF inline or as a download, only inside the
+           10-minute unlock window. Otherwise 404.</p>
+      </div>
+    </div>
+    <div class="boxes support">
+      <div class="bx new">
+        <div class="t">New &middot; helper</div>
+        <h5>TCMReadmissionAccessToken</h5>
+        <p>mintToken, mintCode, hashToken, hashCode, constant-time matches, shape checks.</p>
+      </div>
+      <div class="arw"></div>
+      <div class="bx new">
+        <div class="t">New &middot; helper</div>
+        <h5>TCMReadmissionPortal</h5>
+        <p>Site URL from the Site record + DomainSite, or the Portal_Base_Url__c override.
+           linkFor, pdfPath.</p>
+      </div>
+      <div class="arw"></div>
+      <div class="bx new">
+        <div class="t">New &middot; permission set</div>
+        <h5>TCM_Readmission_Portal_Guest</h5>
+        <p>Page and class access only. No object, no field. Assigned to the site guest user.</p>
+      </div>
+      <div class="arw"></div>
+      <div class="bx new">
+        <div class="t">New &middot; site error pages</div>
+        <h5>TCMReadmissionPortalError<br>TCMReadmissionPortalMaintenance<br>TCMReadmissionPortalUnauthorized</h5>
+        <p>404 and generic error, site inactive, and authorization required.</p>
+      </div>
+    </div>
+  </div>
+
+  <table class="grid" style="margin-top:14px">
+    <tr><th>Class</th><th>Status</th><th>What changed</th></tr>
+    <tr><td><code class="f">TCMReadmissionLinkAudit</code></td><td>Changed</td>
+        <td>Totals come from our own rows, not ContentDistributionView. Closes rows left at the
+            cap, counts locked links for the digest.</td></tr>
+    <tr><td><code class="f">TCMReadmissionReportPurge</code></td><td>Changed</td>
+        <td>Reads <code class="f">Content_Version_Id__c</code>. Deletes a stored PDF only when no
+            live link points at it, after a 7 day grace.</td></tr>
+    <tr><td><code class="f">TCMReportConfig</code></td><td>Changed</td>
+        <td>Adds <code class="f">portalBaseUrl()</code>.</td></tr>
+    <tr><td><code class="f">TCMDailyReadmissionBatch</code>, <code class="f">TCMReadmissionResend</code>,
+            LWC <code class="f">tcmResendReadmissionReport</code></td><td>Unchanged in shape</td>
+        <td>Both issuing paths call the publisher, so both mint new links and supersede the old
+            ones without any change of their own.</td></tr>
+  </table>
+</section>
+
+<section>
+  <div class="snum">02</div>
+  <h2>Schema changes</h2>
+  <p class="lede">New fields on <code class="f">Readmission_Report_Link__c</code>, one row per
+     recipient per report, and one new child object for the access log. Nothing stores the raw
+     token or the raw code.</p>
+  <table class="grid">
+    <tr><th>Field</th><th>Type</th><th>Holds</th></tr>
+    <tr><td><code class="f">Access_Token_Hash__c</code></td>
+        <td>Text(64), unique, external id, case-sensitive</td>
+        <td>SHA-256 of the 256-bit token in the URL (<code class="f">Crypto.generateAesKey(256)</code>,
+            hex). The raw token exists only in the recipient's email.</td></tr>
+    <tr><td><code class="f">Content_Version_Id__c</code></td><td>Text(18)</td>
+        <td>The stored PDF the row points at. The purge job reads this.</td></tr>
+    <tr><td><code class="f">Code_Hash__c</code></td><td>Text(64)</td>
+        <td>SHA-256 of token + ':' + code. Salted with the token, so a database read alone cannot
+            be tested against a code offline. Cleared when the code is used.</td></tr>
+    <tr><td><code class="f">Code_Expires_At__c</code>, <code class="f">Code_Sent_At__c</code></td>
+        <td>DateTime</td>
+        <td>The 10-minute code life, and the 60-second resend throttle.</td></tr>
+    <tr><td><code class="f">Codes_Sent__c</code></td><td>Number(2,0)</td>
+        <td>Five per link, then the row is Locked.</td></tr>
+    <tr><td><code class="f">Failed_Attempts__c</code></td><td>Number(2,0)</td>
+        <td>Reset on a correct code. Five locks the row.</td></tr>
+    <tr><td><code class="f">Unlocked_Until__c</code></td><td>DateTime</td>
+        <td>Set to now + 10 minutes by a correct code. The REST endpoint serves only inside it.</td></tr>
+    <tr><td><code class="f">Closed_Reason__c</code></td><td>Picklist, 2 new values</td>
+        <td>Adds <code class="f">Locked</code> and <code class="f">Superseded</code> to the existing
+            <code class="f">View limit reached</code> and <code class="f">Manually revoked</code>.</td></tr>
+    <tr><td><code class="f">Distribution_Id__c</code></td><td>Text, legacy</td>
+        <td>Phase one only. Kept for old rows, no longer written.</td></tr>
+    <tr><td><code class="f">TCM_Report_Config__mdt.Portal_Base_Url__c</code></td><td>URL, optional</td>
+        <td>Override for the site base. When blank the URL is derived from the Site record and
+            its domain, so nothing is hardcoded per org.</td></tr>
+  </table>
+  <p class="capt" style="margin-top:8px">Unchanged and still in use: <code class="f">Opens__c</code>,
+     <code class="f">Downloads__c</code>, <code class="f">First_Opened_At__c</code>,
+     <code class="f">Last_Activity_At__c</code>, <code class="f">Expires_At__c</code>,
+     <code class="f">Closed_At__c</code>, <code class="f">Recipient_Email__c</code>,
+     <code class="f">Intended_For__c</code>, <code class="f">Recipient_Role__c</code>,
+     <code class="f">Report_Date__c</code>.</p>
+
+  <table class="grid" style="margin-top:16px">
+    <tr><th>New object <code class="f" style="background:#243a4f;color:#fff">Readmission_Report_Access__c</code></th><th>Type</th><th>Holds</th></tr>
+    <tr><td>Object</td><td>Master-detail child of <code class="f">Readmission_Report_Link__c</code>,
+            relationship <code class="f">Access_Log</code></td>
+        <td>One record per event on a link. Label "Readmission Report Access". Written by
+            <code class="f">TCMReadmissionGateService.log()</code> in system mode. Never holds a
+            code or a token.</td></tr>
+    <tr><td><code class="f">Event__c</code></td><td>Picklist</td>
+        <td>Code sent, Code throttled, Code refused, Wrong code, Code expired, Locked, Opened,
+            View limit reached, PDF fetched, Downloaded, Fetch refused.</td></tr>
+    <tr><td><code class="f">IP_Address__c</code></td><td>Text(45)</td>
+        <td>From <code class="f">X-Salesforce-SIP</code>, falling back to
+            <code class="f">True-Client-IP</code>, then the first <code class="f">X-Forwarded-For</code>
+            hop. IPv6 fits.</td></tr>
+    <tr><td><code class="f">User_Agent__c</code></td><td>Text(255)</td><td>The browser or client string.</td></tr>
+    <tr><td><code class="f">Occurred_At__c</code></td><td>DateTime</td><td>When the event happened.</td></tr>
+    <tr><td><code class="f">Detail__c</code></td><td>Text(255)</td>
+        <td>Such as "Attempt 3 of 5", "Open 2 of 10", "Download 1", "Outside the unlock window".</td></tr>
+  </table>
+  <p class="capt" style="margin-top:8px">Staff read the log through the <code class="f">TCM_Readmission_Reports</code>
+     and <code class="f">TCM_Readmission_Report_Operator</code> permission sets. The guest has no
+     access to it. A made-up token has no row to log against and leaves no trace, by design.</p>
+</section>
+
+<section>
+  <div class="snum">03</div>
+  <h2>What the recipient sees</h2>
+  <p class="lede">The two emails and the four states of the page. Wording is taken from the built
+     page and the email builder. Sample data only, no real facility or patient. On the real site the
+     header is Lumina's own image, the org static resource <code class="f">Lumina_Welcome_Header</code>
+     served at <code class="f">/report/resource/Lumina_Welcome_Header</code>; the mockups stand a text
+     wordmark in for it. Buttons are Lumina blue, text Lumina navy, no Propela colours on the site
+     pages, the PDF header or the email buttons.</p>
+
+  <div class="mocks">
+    <div>
+      <div class="mock">
+        <div class="chrome"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span style="margin-left:5px">Outlook &middot; Inbox</span></div>
+        <div class="ol">
+          <div class="ol-hd">
+            <div class="ol-subj">Readmissions Report &middot; Sample Care Center &middot; 2026-09-15</div>
+            <div class="ol-row">
+              <div class="ol-av">LC</div>
+              <div class="ol-who"><b>Lumina Care</b>
+                <span class="ol-addr">&lt;tcm@luminacare.com&gt;</span><br>
+                <span class="ol-addr">To: Maria Santos (Administrator)</span></div>
+            </div>
+          </div>
+          <div class="ol-body">
+            <p><b>3 hospital admissions</b> for Sample Care Center during Monday, 14 September 2026.</p>
+            <p>These are patients discharged home from your facility who were subsequently
+               admitted to a hospital.</p>
+            <p><span class="ol-btn">View report</span></p>
+            <p>When you open the link, choose <b>Email me a code</b>. A six-digit code will be
+               sent to this address and works for 10 minutes.</p>
+            <p class="fine">This link expires on Wednesday, September 16, 2026 8:00 AM EDT. It also
+               closes after 10 views, whichever comes first. It was issued to
+               maria.santos@samplecarecenter.com and should not be forwarded. No patient
+               information is included in this email.</p>
+            <p class="fine">Link expired or stopped working? Reply to this email and we will send
+               a new one.</p>
+          </div>
+        </div>
+      </div>
+      <p class="capt"><b>The report email.</b> A count, a button, and the instruction. No code, no
+         patient data. Link life is 24 hours (configurable) and the view cap is 10.</p>
+    </div>
+
+    <div>
+      <div class="mock">
+        <div class="chrome"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span style="margin-left:5px">data-efficiency-9627--partialsb.sandbox.my.salesforce-sites.com/report?t=9f3c&hellip;</span></div>
+        <div class="portal">
+          <div class="p-top"><span class="brand">Lumina Care</span>
+            <span class="tag">TCM readmissions</span></div>
+          <div class="p-body" style="text-align:left">
+            <div class="fac">Sample Care Center</div>
+            <div class="sub">Readmissions report for Monday, September 14, 2026. This link expires
+              Wednesday, September 16, 2026 8:00 AM EDT.</div>
+            <p style="margin:0 0 12px;font-size:13px">To open it, we will email a six-digit code to
+              <b>m***@samplecarecenter.com</b>. The code works for 10 minutes.</p>
+            <span class="pbtn">Email me a code</span>
+            <div class="p-foot">Nothing from the report is shown until the code is entered. Please
+              do not forward this link.</div>
+          </div>
+        </div>
+      </div>
+      <p class="capt"><b>State 1, request.</b> <code class="f">look()</code> found a live row.
+         Facility name, report date, link expiry and the masked address. No counts, no patient
+         data is queried.</p>
+    </div>
+
+    <div>
+      <div class="mock">
+        <div class="chrome"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span style="margin-left:5px">Outlook &middot; Inbox</span></div>
+        <div class="ol">
+          <div class="ol-hd">
+            <div class="ol-subj">Your code for the readmissions report</div>
+            <div class="ol-row">
+              <div class="ol-av">LC</div>
+              <div class="ol-who"><b>Lumina Care</b>
+                <span class="ol-addr">&lt;tcm@luminacare.com&gt;</span><br>
+                <span class="ol-addr">To: Maria Santos (Administrator)</span></div>
+            </div>
+          </div>
+          <div class="ol-body">
+            <p>Your code for the readmissions report for Sample Care Center is</p>
+            <div class="pinbox"><span>Code</span><b>418 302</b></div>
+            <p>It works for 10 minutes. Enter it on the page that asked for it.</p>
+            <p class="fine">If you did not ask for a code, ignore this email. Nobody can open the
+               report without it.</p>
+          </div>
+        </div>
+      </div>
+      <p class="capt"><b>The code email.</b> Sent by <code class="f">requestCode()</code> from the
+         site guest context, to <code class="f">Recipient_Email__c</code> and nowhere else. From
+         the org-wide address when the guest profile may use it, otherwise as the site user.</p>
+    </div>
+
+    <div>
+      <div class="mock">
+        <div class="chrome"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span style="margin-left:5px">data-efficiency-9627--partialsb.sandbox.my.salesforce-sites.com/report?t=9f3c&hellip;</span></div>
+        <div class="portal">
+          <div class="p-top"><span class="brand">Lumina Care</span>
+            <span class="tag">TCM readmissions</span></div>
+          <div class="p-body">
+            <div class="fac">Sample Care Center</div>
+            <div class="sub">Readmissions report for Monday, September 14, 2026.</div>
+            <div class="p-msg">Enter the code we emailed to m***@samplecarecenter.com.</div>
+            <div class="pins"><i>4</i><i>1</i><i>8</i><i>3</i><i class="on">0</i><i>&nbsp;</i></div>
+            <span class="pbtn">Open report</span>
+            <div class="p-err">That code is not right. 4 attempts left.</div>
+            <div class="p-foot">Send me a new code &middot; Check your spam folder if the code has
+              not arrived within a minute. Codes work for 10 minutes.</div>
+          </div>
+        </div>
+      </div>
+      <p class="capt"><b>State 2, verify.</b> A wrong code costs a strike; the fifth locks the
+         link. An expired code says <i>That code has expired. Ask for a new one.</i> and costs no
+         strike. Asking again inside 60 seconds is refused: <i>A code was sent less than a minute
+         ago.</i></p>
+    </div>
+
+    <div>
+      <div class="mock">
+        <div class="chrome"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span style="margin-left:5px">data-efficiency-9627--partialsb.sandbox.my.salesforce-sites.com/report?t=9f3c&hellip;</span></div>
+        <div class="portal">
+          <div class="p-top"><span class="brand">Lumina Care</span>
+            <span class="tag">TCM readmissions</span></div>
+          <div class="p-body" style="padding:14px;text-align:left">
+            <div class="fac">Sample Care Center</div>
+            <div class="sub">This view stays open until Tuesday, September 15, 2026 10:47 AM EDT;
+              after that, ask for a new code.</div>
+            <div style="margin-bottom:10px"><span class="pbtn" style="padding:6px 12px">Download PDF</span>
+              <span class="pbtn ghost" style="padding:6px 12px">Open in a new tab</span></div>
+            <div class="doc">
+              <b>Sample Care Center</b>
+              Patients discharged home who were subsequently admitted to a hospital,
+              Monday, 14 September 2026.
+              <table class="grid" style="font-size:10px">
+                <tr><th>Patient</th><th>Hospital</th><th>Admitted</th><th>TCM visit</th></tr>
+                <tr><td>Pat Sample</td><td>Sample General</td><td>14/09 02:00</td><td>No</td></tr>
+                <tr><td>Alex Sample</td><td>Sample General</td><td>14/09 09:00</td><td>No</td></tr>
+                <tr><td>Chris Sample</td><td>Placeholder Medical</td><td>14/09 14:00</td><td>No</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="capt"><b>State 3, report.</b> The PDF is an <code class="f">&lt;object&gt;</code>
+         whose source is <code class="f">/services/apexrest/tcm/report?t=&hellip;</code>. Download
+         adds <code class="f">&amp;dl=1</code> and is counted in <code class="f">Downloads__c</code>.
+         Reloading inside the 10 minutes shows the report again without a new code.</p>
+    </div>
+
+    <div>
+      <div class="mock">
+        <div class="chrome"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span style="margin-left:5px">data-efficiency-9627--partialsb.sandbox.my.salesforce-sites.com/report?t=aaaa&hellip;</span></div>
+        <div class="portal">
+          <div class="p-top"><span class="brand">Lumina Care</span>
+            <span class="tag">TCM readmissions</span></div>
+          <div class="p-body">
+            <div class="fac">This report is no longer available.</div>
+            <div class="sub">Report links stop working when they expire, after they have been
+              opened the allowed number of times, or after too many wrong codes.</div>
+            <div class="p-foot">If you still need the report, reply to the email that brought you
+              here and Lumina Care will send a new link.</div>
+          </div>
+        </div>
+      </div>
+      <p class="capt"><b>State 4, unavailable.</b> Identical for an expired link, a locked link, a
+         closed link and a made-up token, so a guesser learns nothing. The REST endpoint gives the
+         same sentence as a 404 body.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="snum">04</div>
+  <h2>Request sequence</h2>
+  <p class="lede">The four entry points on <code class="f">TCMReadmissionGateService</code>, in the
+     order a reader hits them. Every one starts by resolving the token; a miss at any guard returns
+     the unavailable outcome and nothing below it runs. The page controller and the REST endpoint
+     first pass the request headers in through <code class="f">setCaller(headers)</code>, so every
+     log row below carries the caller's IP and user agent.</p>
+  <div class="seq">
+    <div class="sq">
+      <div class="n">01</div>
+      <div class="what"><b>look(token).</b> On page load. Shape-check the token, hash it, find
+        exactly one live row. Decides which of the four states to render. No writes.</div>
+      <div class="code"><span class="c">// find(): 64 hex chars or nothing</span><br>
+        String hash = TCMReadmissionAccessToken.hashToken(rawToken);<br>
+        [SELECT ... FROM Readmission_Report_Link__c<br>
+        &nbsp;WHERE Access_Token_Hash__c = :hash LIMIT 1]<br>
+        <span class="c">// isLive(): Closed_Reason__c == null AND Expires_At__c &gt; now</span><br>
+        Unlocked_Until__c &gt; now &rarr; <span class="k">report</span> &middot;
+        code outstanding &rarr; <span class="k">verify</span> &middot; else <span class="k">request</span></div>
+    </div>
+    <div class="sq">
+      <div class="n">02</div>
+      <div class="what"><b>requestCode(token).</b> Throttle, cap, sandbox guard, then mint, email
+        and store the hash. The code goes to <code class="f">Recipient_Email__c</code> only.</div>
+      <div class="code">Code_Sent_At__c + <span class="k">60s</span> &gt; now &rarr; <span class="x">refuse</span>, no write<br>
+        Codes_Sent__c &gt;= <span class="k">5</span> &rarr; close(<span class="k">'Locked'</span>)<br>
+        isSandbox() &amp;&amp; !sandboxMayReceive(email) &rarr; <span class="x">refuse</span>, no email<br>
+        code = mintCode(); sendCode(row, code)<br>
+        Code_Hash__c = hashCode(token, code) <span class="c">// sha256(token + ':' + code)</span><br>
+        Code_Expires_At__c = now + <span class="k">10 min</span>; Codes_Sent__c++</div>
+    </div>
+    <div class="sq">
+      <div class="n">03</div>
+      <div class="what"><b>verify(token, code).</b> Constant-time compare. Wrong is a strike;
+        expired is not. Right counts the open, checks the cap, and opens the window.</div>
+      <div class="code">!looksLikeCode &rarr; <span class="x">"Enter the six-digit code"</span>, no strike<br>
+        !codeOutstanding &rarr; <span class="x">"That code has expired"</span>, no strike<br>
+        !matches(Code_Hash__c, hashCode(token, code)) &rarr; Failed_Attempts__c++<br>
+        &nbsp;&nbsp;<span class="k">5</span> &rarr; close(<span class="k">'Locked'</span>) else <span class="x">"N attempts left"</span><br>
+        Opens__c &gt;= maxOpens() &rarr; close(<span class="k">'View limit reached'</span>)<br>
+        Opens__c++; First_Opened_At__c ??= now; Last_Activity_At__c = now<br>
+        Unlocked_Until__c = now + <span class="k">10 min</span>; Code_Hash__c = null; Failed_Attempts__c = 0</div>
+    </div>
+    <div class="sq">
+      <div class="n">04</div>
+      <div class="what"><b>serve(token, download).</b> Called by the REST endpoint for the
+        <code class="f">&lt;object&gt;</code>, the new tab and the Download button. Inline fetches
+        add no opens; only a correct code does.</div>
+      <div class="code"><span class="c">// GET /services/apexrest/tcm/report?t=..[&amp;dl=1]</span><br>
+        !isLive || Unlocked_Until__c &lt;= now || no Content_Version_Id__c<br>
+        &nbsp;&nbsp;&rarr; <span class="x">404</span> "This report is no longer available."<br>
+        [SELECT VersionData FROM ContentVersion WHERE Id = :versionId]<br>
+        dl=1 &rarr; Downloads__c++, Content-Disposition: attachment<br>
+        Cache-Control: <span class="k">no-store, private</span> &middot; X-Content-Type-Options: nosniff</div>
+    </div>
+    <div class="sq">
+      <div class="n">05</div>
+      <div class="what"><b>log(event, detail).</b> Called from every branch above that touches a
+        real row. Writes one <code class="f">Readmission_Report_Access__c</code> child in system
+        mode, with time, IP and user agent. Never a code, never a token.</div>
+      <div class="code">requestCode &rarr; <span class="k">Code sent</span> | <span class="x">Code throttled</span> | <span class="x">Code refused</span> | <span class="x">Locked</span><br>
+        verify &rarr; <span class="x">Wrong code</span> "Attempt 3 of 5" | <span class="x">Code expired</span> | <span class="x">Locked</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">Opened</span> "Open 2 of 10" | <span class="x">View limit reached</span><br>
+        serve &rarr; <span class="k">PDF fetched</span> | <span class="k">Downloaded</span> "Download 1" | <span class="x">Fetch refused</span> "Outside the unlock window"<br>
+        <span class="c">// IP: X-Salesforce-SIP, else True-Client-IP, else first X-Forwarded-For hop</span></div>
+    </div>
+  </div>
+  <div class="note">
+    <b>Reissue.</b> The Resend button (<code class="f">TCMReadmissionResend</code>) and the daily
+    job both call <code class="f">TCMReadmissionLinkPublisher</code>, which mints a new token and
+    closes the previous live link to the same address for the same facility with
+    <code class="f">Closed_Reason__c = 'Superseded'</code>. Only the newest link works.
+  </div>
+</section>
+
+<section>
+  <div class="snum">05</div>
+  <h2>Guest user reach, in full</h2>
+  <p class="lede">This table is the security answer. The guest holds no object and no field
+     permission. The service runs in system mode and can name a row only by presenting the token
+     whose hash it stores.</p>
+  <table class="grid">
+    <tr><th>Grant</th><th>Guest access</th><th>Note</th></tr>
+    <tr><td>Permission set <code class="f">TCM_Readmission_Portal_Guest</code></td>
+        <td class="yes">Assigned to the site guest user</td>
+        <td>Classes: <code class="f">TCMReadmissionGateController</code>,
+            <code class="f">TCMReadmissionGateService</code>,
+            <code class="f">TCMReadmissionReportGateApi</code>,
+            <code class="f">TCMReadmissionAccessToken</code>,
+            <code class="f">TCMReadmissionPortal</code>,
+            <code class="f">TCMReportConfig</code>. Pages:
+            <code class="f">TCMReadmissionReportGate</code>,
+            <code class="f">TCMReadmissionPortalError</code>. The guest profile
+            <i>TCM Readmission Portal Profile</i> carries the same page and class access.</td></tr>
+    <tr><td>Objects and fields</td><td class="no">None</td>
+        <td>No CRUD, no FLS on any object. <code class="f">Readmission_Report_Link__c</code> and
+            <code class="f">ContentVersion</code> are reached by the without-sharing service only,
+            and only for the row that matches the token hash.</td></tr>
+    <tr><td><code class="f">Facility__c</code>, <code class="f">Patient__c</code>,
+            <code class="f">Hospital_Admission__c</code></td>
+        <td class="no">None</td>
+        <td>The service never queries them. The facility name comes through the link row's
+            lookup, inside the same query.</td></tr>
+    <tr><td><code class="f">Readmission_Report_Access__c</code></td><td class="no">None</td>
+        <td>Written by the service in system mode only. Staff read it through
+            <code class="f">TCM_Readmission_Reports</code> and
+            <code class="f">TCM_Readmission_Report_Operator</code>.</td></tr>
+    <tr><td>Internal page <code class="f">TCMReadmissionReportPdf</code></td><td class="no">Not exposed</td>
+        <td>The page that renders patient data stays inside the org and runs as the job.</td></tr>
+    <tr><td>Site settings</td><td class="yes">Locked down</td>
+        <td>No standard pages, lookups, search or home page. Clickjack protection same-origin
+            only. Content sniffing and XSS protection on. Aura requests off.</td></tr>
+  </table>
+  <div class="note">
+    Verified by test: <code class="f">TCMReadmissionGateServiceTest</code> includes a run of the
+    whole flow as the real site guest user under <code class="f">System.runAs</code>. In a
+    sandbox the service also refuses to email a code to any address that is not on the sandbox
+    redirect list, so a hand-made row cannot reach a real facility.
+  </div>
+</section>
+
+<section>
+  <div class="snum">06</div>
+  <h2>Production prerequisites</h2>
+  <p class="lede">The site is built and tested in lumDev. Production needs these five things, in
+     this order.</p>
+  <table class="grid">
+    <tr><th>#</th><th>Step</th><th>Who</th></tr>
+    <tr><td>01</td>
+        <td><b>Register Salesforce Sites once in production.</b> Setup &gt; Sites &gt; accept the
+            terms &gt; Register My Salesforce Site Domain. The domain
+            <code class="f">data-efficiency-9627.my.salesforce-sites.com</code> already exists.
+            Until this is done every page shows the maintenance page.</td>
+        <td>Lumina admin</td></tr>
+    <tr><td>02</td>
+        <td><b>Change the subdomain before the production deploy.</b> In
+            <code class="f">sites/TCM_Readmission_Portal.site-meta.xml</code>, change
+            <code class="f">data-efficiency-9627--partialsb</code> to
+            <code class="f">data-efficiency-9627</code>. Production links will then read
+            <code class="f">https://data-efficiency-9627.my.salesforce-sites.com/report?t=&hellip;</code></td>
+        <td>Propela</td></tr>
+    <tr><td>03</td>
+        <td><b>Assign the permission set</b> <code class="f">TCM_Readmission_Portal_Guest</code> to
+            the site guest user after the site is created.</td>
+        <td>Propela</td></tr>
+    <tr><td>04</td>
+        <td><b>Allow the org-wide address</b> <code class="f">tcm@luminacare.com</code> for all
+            profiles, or for the guest profile, so the code email comes from it. Otherwise the code
+            email is sent as the site guest user, which works but reads worse.</td>
+        <td>Lumina admin</td></tr>
+    <tr><td>05</td>
+        <td><b>Deploy is a human action.</b> Propela prepares the files and the exact command; a
+            person runs it against production after Lumina's go-ahead.</td>
+        <td>Propela</td></tr>
+  </table>
+</section>
+
+<section>
+  <div class="snum">07</div>
+  <h2>What was live-tested</h2>
+  <p class="lede">15 September 2026, lumDev, in a clean browser with no Salesforce session. Each
+     row below was exercised by hand and matched the rule in section 04.</p>
+  <table class="grid">
+    <tr><th>Path</th><th>Observed</th></tr>
+    <tr><td>Open the link</td><td>Request screen with facility, report date, expiry and masked address.</td></tr>
+    <tr><td>Email me a code</td><td>Code email delivered, sent from the guest context.</td></tr>
+    <tr><td>Ask again inside 60 seconds</td><td>Refused with the less-than-a-minute message. No second email.</td></tr>
+    <tr><td>Wrong code</td><td>Strike counted, attempts-left message. Fifth wrong code: link Locked, unavailable page.</td></tr>
+    <tr><td>Expired code</td><td>Expired message, no strike.</td></tr>
+    <tr><td>Correct code</td><td><code class="f">Opens__c</code> +1, inline PDF, Download counted in <code class="f">Downloads__c</code>.</td></tr>
+    <tr><td>Reload inside the window</td><td>Report shown again, no new code, no extra open.</td></tr>
+    <tr><td>Window expiry</td><td>Endpoint answers 404; page returns to the request state.</td></tr>
+    <tr><td>Tenth open</td><td>Next correct code refused; link closed with View limit reached.</td></tr>
+    <tr><td>Expired link, made-up token</td><td>Same unavailable page for both.</td></tr>
+    <tr><td>Sandbox guard</td><td>An address off the redirect list gets no code and an explanatory message.</td></tr>
+    <tr><td>Resend button and daily job</td><td>Both issued new links and superseded the old ones.</td></tr>
+    <tr><td>Audit and purge jobs</td><td>Both ran clean on the new rows.</td></tr>
+    <tr><td>Access log</td><td>An inline fetch from Chrome and a download from curl both landed with the real public IP and their two different user agents.</td></tr>
+  </table>
+</section>
+
+</main>
+
+<footer>
+  <div><b>LMNA-581 phase two</b> &middot; technical &middot; built and live-tested in lumDev, not yet in production</div>
+  <div>Propela Tech &middot; 15 September 2026</div>
+</footer>
+</div>
+</body></html>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Required_Patient_Class__c</fullName>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Only report admissions whose Patient Class contains this word, for example Inpatient. Patient Class holds a comma separated list such as &quot;Emergency, Inpatient&quot;, so this is a contains match, not an exact one. Leave blank to report every class.</inlineHelpText>
+    <label>Required Patient Class</label>
+    <length>255</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

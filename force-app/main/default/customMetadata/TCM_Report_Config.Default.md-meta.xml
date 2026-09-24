@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Default</label>
+    <protected>false</protected>
+    <values>
+        <field>Business_Timezone__c</field>
+        <value xsi:type="xsd:string">America/New_York</value>
+    </values>
+    <values>
+        <field>Allow_Download__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+    <values>
+        <field>Delivery_Mode__c</field>
+        <value xsi:type="xsd:string">Link</value>
+    </values>
+    <values>
+        <field>Digest_Recipients__c</field>
+        <value xsi:type="xsd:string">chayim@propela.tech; kevingrayson@luminacare.com</value>
+    </values>
+    <values>
+        <field>Link_Expiry_Hours__c</field>
+        <value xsi:type="xsd:double">24.0</value>
+    </values>
+    <values>
+        <field>Max_Opens__c</field>
+        <value xsi:type="xsd:double">10.0</value>
+    </values>
+    <values>
+        <field>Notify_On_Visit__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>From_Org_Wide_Address__c</field>
+        <value xsi:type="xsd:string">tcm@luminacare.com</value>
+    </values>
+    <values>
+        <field>Internal_CC_Emails__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Is_Active__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>NJ_GHC_CC_Email__c</field>
+        <value xsi:type="xsd:string">chayim@propela.tech</value>
+    </values>
+    <values>
+        <field>NJ_GHC_Parent_Company_Name__c</field>
+        <value xsi:type="xsd:string">GHC</value>
+    </values>
+    <values>
+        <field>Required_Patient_Class__c</field>
+        <value xsi:type="xsd:string">Inpatient</value>
+    </values>
+    <values>
+        <field>Require_Facility_TCM__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+    <values>
+        <field>Sandbox_From_Org_Wide_Address__c</field>
+        <value xsi:type="xsd:string">james@propela.tech</value>
+    </values>
+    <values>
+        <field>Sandbox_Redirect_Email__c</field>
+        <value xsi:type="xsd:string">james@propela.tech</value>
+    </values>
+    <values>
+        <field>Sandbox_Redirect_Emails__c</field>
+        <value xsi:type="xsd:string">james@propela.tech; shuaib.abdurahman22@gmail.com</value>
+    </values>
+    <values>
+        <field>Subject_Template__c</field>
+        <value xsi:type="xsd:string">Readmissions Report - {0} - {1}</value>
+    </values>
+</CustomMetadata>

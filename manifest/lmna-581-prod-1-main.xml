@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  LMNA-581 production push, stage 1 of 3.
+  Everything that does not depend on the Salesforce Site existing.
+  Deliberately excludes: the Facility page layout (prod's copy is newer and richer),
+  the custom metadata RECORD (this org rejects customMetadata in a deploy),
+  and TcmSettings / TcmAutomationPermissionsTest (those belong to LMNA-580).
+-->
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>TCMDailyReadmissionBatch</members>
+        <members>TCMDailyReadmissionBatchTest</members>
+        <members>TCMDailyReadmissionScheduler</members>
+        <members>TCMReadmissionAccessToken</members>
+        <members>TCMReadmissionAccessTokenTest</members>
+        <members>TCMReadmissionAdmissionScope</members>
+        <members>TCMReadmissionAdmissionScopeTest</members>
+        <members>TCMReadmissionCsvBuilder</members>
+        <members>TCMReadmissionCsvBuilderTest</members>
+        <members>TCMReadmissionEmailBuilder</members>
+        <members>TCMReadmissionGateController</members>
+        <members>TCMReadmissionGateService</members>
+        <members>TCMReadmissionGateServiceTest</members>
+        <members>TCMReadmissionLinkAudit</members>
+        <members>TCMReadmissionLinkAuditTest</members>
+        <members>TCMReadmissionLinkPublisher</members>
+        <members>TCMReadmissionLinkPublisherTest</members>
+        <members>TCMReadmissionPortal</members>
+        <members>TCMReadmissionRecipientResolver</members>
+        <members>TCMReadmissionRecipientResolverTest</members>
+        <members>TCMReadmissionReportGateApi</members>
+        <members>TCMReadmissionReportPdfController</members>
+        <members>TCMReadmissionReportPdfControllerTest</members>
+        <members>TCMReadmissionReportPurge</members>
+        <members>TCMReadmissionReportPurgeTest</members>
+        <members>TCMReadmissionResend</members>
+        <members>TCMReadmissionResendTest</members>
+        <members>TCMReadmissionWindow</members>
+        <members>TCMReadmissionWindowTest</members>
+        <members>TCMReportConfig</members>
+        <members>TCMReportConfigTest</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>TCMReadmissionPortalError</members>
+        <members>TCMReadmissionPortalMaintenance</members>
+        <members>TCMReadmissionPortalUnauthorized</members>
+        <members>TCMReadmissionReportGate</members>
+        <members>TCMReadmissionReportPdf</members>
+        <name>ApexPage</name>
+    </types>
+    <types>
+        <members>Readmission_Report_Access__c</members>
+        <members>Readmission_Report_Link__c</members>
+        <members>TCM_Report_Config__mdt</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
+        <members>Readmission_Report_Link__c-Readmission Report Link Layout</members>
+        <name>Layout</name>
+    </types>
+    <types>
+        <members>Facility__c.Resend_Readmissions_Report</members>
+        <name>QuickAction</name>
+    </types>
+    <types>
+        <members>tcmResendReadmissionReport</members>
+        <name>LightningComponentBundle</name>
+    </types>
+    <types>
+        <members>Resend_Readmissions_Report</members>
+        <name>CustomPermission</name>
+    </types>
+    <types>
+        <members>Readmission_Report_Link__c</members>
+        <name>CustomTab</name>
+    </types>
+    <types>
+        <members>TCM_Readmission_Portal_Guest</members>
+        <members>TCM_Readmission_Report_Operator</members>
+        <members>TCM_Readmission_Reports</members>
+        <name>PermissionSet</name>
+    </types>
+    <version>65.0</version>
+</Package>

@@ -1,0 +1,155 @@
+<apex:page controller="TCMReadmissionGateController" showHeader="false" sidebar="false" standardStylesheets="false" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0" cache="false" expires="0" title="Readmissions Report">
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="robots" content="noindex, nofollow"/>
+    <title>Readmissions Report</title>
+    <style type="text/css">
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #f7f3ee; color: #30385c; font: 16px/1.5 Arial, Helvetica, sans-serif; }
+        .bar { background: #ffffff; border-bottom: 1px solid #dee9ff; padding: 10px 20px 6px 20px; }
+        .bar img { display: block; max-width: 100%; width: 560px; height: auto; }
+        .bar .sub { display: block; color: #30385c; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; margin: 4px 0 0 12px; }
+        .wrap { max-width: 640px; margin: 44px auto; padding: 0 16px; }
+        .wrap.wide { max-width: 1100px; }
+        .card { background: #fff; border: 1px solid #e6edf9; border-radius: 12px; padding: 32px; box-shadow: 0 1px 2px rgba(48,56,92,0.04), 0 8px 24px rgba(48,56,92,0.07); }
+        .eyebrow { display: block; font-size: 12px; font-weight: bold; letter-spacing: 1.2px; text-transform: uppercase; color: #1f5fe0; margin: 0 0 8px 0; }
+        h1 { font-size: 25px; line-height: 1.25; margin: 0 0 14px 0; color: #30385c; letter-spacing: -0.2px; }
+        .meta { color: #6b7390; font-size: 14px; margin: 0 0 18px 0; }
+        .facts { list-style: none; margin: 0 0 24px 0; padding: 18px 0 0 0; border-top: 1px solid #eef2fa; }
+        .facts li { display: flex; justify-content: space-between; gap: 16px; font-size: 14px; padding: 7px 0; }
+        .facts .k { color: #6b7390; }
+        .facts .v { color: #30385c; font-weight: bold; text-align: right; }
+        p { margin: 0 0 14px 0; }
+        .btn, .btn:visited { display: inline-block; background: #1f5fe0; color: #fff; border: 0; border-radius: 6px; padding: 13px 22px; font: bold 16px Arial, Helvetica, sans-serif; cursor: pointer; text-decoration: none; box-shadow: 0 1px 2px rgba(31,95,224,0.3); }
+        .btn:hover { background: #1a52c4; }
+        .btn:active { position: relative; top: 1px; }
+        .btn.full { width: 100%; text-align: center; }
+        .btn.secondary { background: #fff; color: #1f5fe0; border: 1px solid #1f5fe0; }
+        .link { background: none; border: 0; padding: 0; color: #1f5fe0; text-decoration: underline; font: 14px Arial, Helvetica, sans-serif; cursor: pointer; }
+        .code { font: bold 26px/1 "Courier New", monospace; letter-spacing: 8px; width: 100%; max-width: 260px; padding: 10px 12px; border: 2px solid #9aa8b4; border-radius: 4px; text-align: center; }
+        .code:focus { outline: none; border-color: #1f5fe0; }
+        .dest { font: 16px/1.4 Arial, Helvetica, sans-serif; color: #30385c; background: #fff; width: 100%; max-width: 380px; padding: 11px 36px 11px 12px; border: 1px solid #9aa8b4; border-radius: 4px; cursor: pointer;
+                appearance: none; -webkit-appearance: none; -moz-appearance: none;
+                background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%236b7390' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+                background-repeat: no-repeat; background-position: right 12px center; }
+        .dest:focus { outline: none; border-color: #1f5fe0; box-shadow: 0 0 0 3px rgba(31,95,224,0.15); }
+        .dest-wrap { margin: 0 0 22px 0; padding: 16px; background: #f7faff; border: 1px solid #e6edf9; border-radius: 8px; }
+        .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 6px 0 14px 0; }
+        .msg { background: #dee9ff; border-left: 4px solid #1f5fe0; padding: 10px 12px; margin: 0 0 14px 0; font-size: 15px; }
+        .err { background: #faded9; border-left: 4px solid #f66360; padding: 10px 12px; margin: 0 0 14px 0; font-size: 15px; }
+        .viewer { width: 100%; height: 78vh; border: 1px solid #dee9ff; border-radius: 4px; background: #fff; }
+        .foot { color: #6b7390; font-size: 13px; margin: 22px 0 0 0; padding-top: 18px; border-top: 1px solid #eef2fa; }
+        label { display: block; font-size: 13px; font-weight: bold; letter-spacing: 0.3px; text-transform: uppercase; color: #6b7390; margin-bottom: 8px; }
+        .dest-note { color: #6b7390; font-size: 13px; margin: 10px 0 0 0; }
+        @media (max-width: 480px) { .card { padding: 18px; } h1 { font-size: 19px; } .viewer { height: 70vh; } }
+    </style>
+</head>
+<body>
+    <div class="bar"><img src="{!URLFOR($Resource.Lumina_Welcome_Header)}" alt="Lumina Care"/><span class="sub">TCM Readmissions</span></div>
+
+    <apex:outputPanel layout="none" rendered="{!isUnavailable}">
+        <div class="wrap">
+            <div class="card">
+                <h1>This report is no longer available.</h1>
+                <p>Report links stop working when they expire, after they have been opened the allowed number of times, or after too many wrong codes.</p>
+                <p>If you still need the report, reply to the email that brought you here and Lumina Care will send a new link.</p>
+            </div>
+        </div>
+    </apex:outputPanel>
+
+    <apex:outputPanel layout="none" rendered="{!isRequest}">
+        <div class="wrap">
+            <div class="card">
+                <span class="eyebrow">Readmissions report</span>
+                <h1><apex:outputText value="{!facilityName}"/></h1>
+                <ul class="facts">
+                    <li><span class="k">Report for</span><span class="v"><apex:outputText value="{!reportDateLabel}"/></span></li>
+                    <li><span class="k">Link expires</span><span class="v"><apex:outputText value="{!expiresLabel}"/></span></li>
+                </ul>
+                <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(error))}"><div class="err"><apex:outputText value="{!error}"/></div></apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(message))}"><div class="msg"><apex:outputText value="{!message}"/></div></apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!NOT(hasDestinationChoice)}">
+                    <p>To open it, we will email a six-digit code to <strong><apex:outputText value="{!maskedEmail}"/></strong>. It works for&#160;<apex:outputText value="{!codeMinutes}"/> minutes.</p>
+                </apex:outputPanel>
+                <apex:form >
+                    <apex:outputPanel layout="none" rendered="{!hasDestinationChoice}">
+                        <div class="dest-wrap">
+                            <label for="dest">Send the code to</label>
+                            <apex:selectList id="dest" value="{!destinationKey}" size="1" styleClass="dest">
+                                <apex:selectOptions value="{!destinationOptions}"/>
+                            </apex:selectList>
+                            <p class="dest-note">A six-digit code will be emailed to this address. It works for&#160;<apex:outputText value="{!codeMinutes}"/> minutes.</p>
+                        </div>
+                    </apex:outputPanel>
+                    <apex:commandButton action="{!requestCode}" value="Email me a code" styleClass="btn full"/>
+                </apex:form>
+                <p class="foot">Nothing from the report is shown until the code is entered. Please do not forward this link.</p>
+            </div>
+        </div>
+    </apex:outputPanel>
+
+    <apex:outputPanel layout="none" rendered="{!isVerify}">
+        <div class="wrap">
+            <div class="card">
+                <span class="eyebrow">Enter your code</span>
+                <h1><apex:outputText value="{!facilityName}"/></h1>
+                <p class="meta">Readmissions report for&#160;<apex:outputText value="{!reportDateLabel}"/>.</p>
+                <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(error))}"><div class="err"><apex:outputText value="{!error}"/></div></apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(message))}"><div class="msg"><apex:outputText value="{!message}"/></div></apex:outputPanel>
+                <apex:form >
+                    <label for="code">Six-digit code</label>
+                    <div class="row">
+                        <apex:inputText id="code" value="{!codeInput}" styleClass="code" maxlength="6" html-inputmode="numeric" html-autocomplete="one-time-code" html-placeholder="000000" html-autofocus="autofocus"/>
+                        <apex:commandButton action="{!verifyCode}" value="Open report" styleClass="btn"/>
+                    </div>
+                    <apex:outputPanel layout="none" rendered="{!hasDestinationChoice}">
+                        <div class="dest-wrap">
+                            <label for="dest2">Send a new code to</label>
+                            <apex:selectList id="dest2" value="{!destinationKey}" size="1" styleClass="dest">
+                                <apex:selectOptions value="{!destinationOptions}"/>
+                            </apex:selectList>
+                        </div>
+                    </apex:outputPanel>
+                    <p><apex:commandLink action="{!requestCode}" value="Send me a new code" styleClass="link"/></p>
+                </apex:form>
+                <p class="foot">Check your spam folder if the code has not arrived within a minute. Codes work for&#160;<apex:outputText value="{!codeMinutes}"/> minutes.</p>
+            </div>
+        </div>
+    </apex:outputPanel>
+
+    <apex:outputPanel layout="none" rendered="{!isReport}">
+        <div class="wrap wide">
+            <div class="card">
+                <h1><apex:outputText value="{!facilityName}"/></h1>
+                <p class="meta">Readmissions report for&#160;<apex:outputText value="{!reportDateLabel}"/>. This view stays open until&#160;<apex:outputText value="{!unlockedUntilLabel}"/>; after that, ask for a new code.</p>
+                <div class="row">
+                    <apex:outputPanel layout="none" rendered="{!downloadAllowed}">
+                        <a class="btn" href="{!downloadUrl}">Download PDF</a>
+                    </apex:outputPanel>
+                    <a class="btn secondary" href="{!pdfUrl}" target="_blank" rel="noopener">Open in a new tab</a>
+                </div>
+                <object class="viewer" data="{!pdfUrl}" type="application/pdf">
+                    <p>Your browser cannot show the PDF here. Use <strong>Open in a new tab</strong> above.</p>
+                </object>
+                <p class="foot">This report contains patient information. Do not forward it.</p>
+            </div>
+        </div>
+        <script>
+            // The unlock key arrives in the query string because a browser that refuses cookies
+            // has no other way to carry it. Where the cookie was accepted it is doing the job,
+            // so take the key back out of the address bar: a URL copied from there then opens
+            // the code form for whoever it is pasted to, the same as the emailed link.
+            (function () {
+                if (document.cookie.indexOf('tcmReportKey=') === -1) { return; }
+                var url = new URL(window.location.href);
+                if (!url.searchParams.has('k')) { return; }
+                url.searchParams.delete('k');
+                window.history.replaceState(null, '', url.toString());
+            })();
+        </script>
+    </apex:outputPanel>
+</body>
+</html>
+</apex:page>

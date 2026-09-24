@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Intended_For__c</fullName>
+    <description>The facility contact this report was really for. In production this equals Recipient Email. In a sandbox run delivery is redirected to testers, so Recipient Email is the tester who can open the link and this field keeps the real contact visible.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>The facility contact the report represents. Differs from Recipient Email only on a redirected sandbox run.</inlineHelpText>
+    <label>Intended For</label>
+    <length>255</length>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LMNA-581 PHI Delivery Options</title>
+<style>
+:root{
+  --ink:#0c263b; --ink-2:#123551; --ink-3:#1b4568;
+  --accent:#f5fd7e; --accent-dim:#c9d15f;
+  --paper:#f4f6f8; --card:#ffffff; --line:#dbe2e8;
+  --txt:#16232e; --txt-dim:#5b6b7a;
+  --ok:#2f9e5f; --ok-bright:#5cd68a;
+  --bad:#c8402f; --bad-bright:#ff7a68;
+  --warn:#b8860b; --warn-bright:#ffcc4d;
+  --mono:"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--txt);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+
+.brandbar{background:var(--ink);border-bottom:4px solid var(--accent)}
+.brandbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-top:20px;padding-bottom:20px}
+.brandbar svg{height:34px;width:auto;display:block}
+.brandmeta{text-align:right;font:11px/1.5 var(--mono);color:#8fa6bb;letter-spacing:.06em;text-transform:uppercase}
+.brandmeta b{color:var(--accent);font-weight:600}
+
+.titleblock{background:var(--ink);color:#fff;padding:34px 0 40px}
+.titleblock .kicker{font:11px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+.titleblock h1{margin:0 0 12px;font-size:34px;line-height:1.15;font-weight:650;letter-spacing:-.01em}
+.titleblock p{margin:0;max-width:72ch;color:#c3d3e0;font-size:16px}
+
+.bluf{background:var(--ink-2);border-left:5px solid var(--accent);border-radius:3px;padding:24px 26px;margin:-22px 0 0;box-shadow:0 14px 34px rgba(12,38,59,.22)}
+.bluf .lbl{font:11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.bluf .lede{color:#fff;font-size:19px;line-height:1.45;font-weight:600;margin:0 0 16px}
+.bluf ul{margin:0;padding-left:20px;color:#c8d8e5}
+.bluf li{margin:6px 0}
+.bluf li b{color:#fff}
+
+.strip{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:26px 0 0}
+.strip div{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--ink);border-radius:3px;padding:16px 18px}
+.strip h4{margin:0 0 6px;font:11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--txt-dim)}
+.strip p{margin:0;font-size:14px}
+
+section{padding:46px 0 6px}
+.shead{display:flex;align-items:baseline;gap:14px;margin-bottom:8px}
+.snum{font:13px/1 var(--mono);color:var(--accent-dim);background:var(--ink);padding:7px 9px;border-radius:3px}
+.shead h2{margin:0;font-size:23px;font-weight:650;letter-spacing:-.01em}
+.lede{color:var(--txt-dim);max-width:80ch;margin:0 0 22px;font-size:15px}
+h3.sub{font-size:16.5px;margin:28px 0 6px;font-weight:640;color:var(--txt)}
+
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:3px;margin:18px 0;font-size:14px}
+th{background:var(--ink);color:#dfe9f1;text-align:left;padding:11px 13px;font:11px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;font-weight:500}
+td{padding:11px 13px;border-top:1px solid var(--line);vertical-align:top}
+td .m{font:12px var(--mono);background:#eef2f6;padding:2px 5px;border-radius:2px;word-break:break-word}
+tr.r-bad td:first-child{box-shadow:inset 4px 0 0 var(--bad)}
+tr.r-warn td:first-child{box-shadow:inset 4px 0 0 var(--warn-bright)}
+tr.r-ok td:first-child{box-shadow:inset 4px 0 0 var(--ok)}
+.tag{display:inline-block;font:10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:5px 7px;border-radius:2px;white-space:nowrap}
+.t-bad{background:#fbe7e4;color:#8e2b1e}
+.t-warn{background:#fdf3d9;color:#7d5c07}
+.t-ok{background:#e2f5ea;color:#1e6b3f}
+.t-neutral{background:#e9eef3;color:#40566a}
+.scroller{overflow-x:auto}
+
+.note{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--ink);padding:15px 18px;border-radius:3px;margin:18px 0;font-size:14px}
+.note.warn{border-left-color:var(--warn-bright)}
+.note.bad{border-left-color:var(--bad)}
+.note.good{border-left-color:var(--ok)}
+.note h5{margin:0 0 6px;font:11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--txt-dim)}
+.note p{margin:0}
+.note p+p{margin-top:8px}
+
+.src{margin:18px 0 0;padding:0;list-style:none;font-size:13.5px}
+.src li{position:relative;padding:9px 0 9px 26px;border-top:1px solid var(--line)}
+.src li:before{content:"\2197";position:absolute;left:4px;top:9px;color:var(--accent-dim);font-size:13px}
+.src a{color:var(--ink-3);text-decoration:none;border-bottom:1px solid #c3d3e0;word-break:break-word;font-weight:600}
+.src a:hover{border-bottom-color:var(--ink)}
+.src .who{font:10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--txt-dim);display:block;margin-bottom:4px}
+
+.analogy{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));background:var(--ink);border-radius:4px;overflow:hidden;margin:22px 0;border-top:4px solid var(--accent)}
+.analogy>div{padding:20px 22px;border-right:1px solid #24506f}
+.analogy>div:last-child{border-right:0}
+.analogy .n{font:10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:9px}
+.analogy h4{margin:0 0 8px;color:#fff;font-size:15px;font-weight:620}
+.analogy p{margin:0;color:#b6cbdc;font-size:13.5px;line-height:1.55}
+.analogy p+p{margin-top:8px}
+.analogy .x{color:var(--bad-bright);font-weight:600}
+
+.jr{background:var(--ink);border-radius:4px;border-top:4px solid var(--accent);padding:24px;margin:22px 0}
+.jr-hd{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.jr-hd h3{margin:0;color:#fff;font-size:17px;font-weight:620}
+.jr-hd .ct{font:10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#7f9ab2}
+.jr-sub{color:#a9c0d3;font-size:13.5px;margin:0 0 20px;max-width:82ch}
+
+.jr-rail{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.jr-step{flex:1 1 auto;min-width:100px;background:#0f2f49;border:1px solid #24506f;border-radius:3px;padding:9px 10px;cursor:pointer;text-align:left;transition:background .18s,border-color .18s}
+.jr-step:hover{border-color:#3f78a4}
+.jr-step .sn{font:9px/1 var(--mono);letter-spacing:.1em;color:#7f9ab2;display:block;margin-bottom:4px}
+.jr-step .st{font-size:11.5px;color:#cfe0ed;line-height:1.3;word-break:break-word;display:block}
+.jr-step.on{background:var(--accent);border-color:var(--accent)}
+.jr-step.on .sn{color:#5c6a1f}
+.jr-step.on .st{color:var(--ink);font-weight:600}
+.jr-step.done{border-color:#2f6d4c}
+.jr-step.done .sn{color:var(--ok-bright)}
+
+.jr-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:20px;align-items:start}
+.jr-say .tt{font:10px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.jr-say h4{margin:0 0 10px;color:#fff;font-size:19px;font-weight:640;line-height:1.25}
+.jr-say p{margin:0;color:#b6cbdc;font-size:14px;line-height:1.6}
+.jr-say .facts{margin:15px 0 0;padding:0;list-style:none}
+.jr-say .facts li{font:11.5px/1.5 var(--mono);color:#93aec4;padding:5px 0 5px 16px;position:relative;word-break:break-word}
+.jr-say .facts li:before{content:"";position:absolute;left:0;top:11px;width:6px;height:6px;border-radius:50%;background:var(--accent-dim)}
+.jr-say .facts li b{color:var(--ok-bright);font-weight:400}
+
+.screen{background:#0a2135;border:1px solid #24506f;border-radius:5px;overflow:hidden}
+.chrome{background:#0f2f49;padding:8px 11px;display:flex;gap:8px;align-items:center;border-bottom:1px solid #24506f}
+.chrome i{width:9px;height:9px;border-radius:50%;background:#2b5c85;flex:0 0 auto}
+.chrome .url{flex:1;background:#0a2135;border:1px solid #24506f;border-radius:3px;padding:4px 9px;font:10.5px var(--mono);color:#93aec4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stage{position:relative;min-height:404px;background:#fff}
+.frame{position:absolute;inset:0;padding:18px;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .34s ease,transform .34s ease;overflow:auto}
+.frame.show{opacity:1;transform:none;pointer-events:auto}
+
+.fk{display:inline-block;font:9px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;background:#fdf3d9;color:#7d5c07;padding:4px 6px;border-radius:2px;margin-bottom:11px}
+.mailhd{border-bottom:1px solid var(--line);padding-bottom:11px;margin-bottom:13px}
+.mailhd .s{font-weight:660;font-size:15px;margin-bottom:3px}
+.mailhd .f{font:11px var(--mono);color:var(--txt-dim)}
+.bigbtn{display:inline-block;background:var(--ink);color:#fff;padding:10px 17px;border-radius:3px;font-size:13.5px;font-weight:600;border-bottom:2px solid var(--accent);margin-top:12px}
+.smallnote{font:11px/1.5 var(--mono);color:var(--txt-dim);margin-top:11px}
+.rrow{display:grid;grid-template-columns:1fr auto;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px;align-items:center}
+.rrow:last-child{border-bottom:0}
+.rrow .nm{font-weight:600}
+.rrow .dt{font:11px var(--mono);color:var(--txt-dim)}
+.sfrec{font:11px/1.5 var(--mono);background:#f4f6f8;border:1px solid var(--line);border-radius:3px;padding:12px 13px}
+.sfrec>div{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:10px;padding:3px 0}
+.sfrec .k{color:var(--txt-dim);word-break:break-word}
+.sfrec .v{color:var(--ink);font-weight:600;word-break:break-word}
+.logrow{font:11px/1.6 var(--mono);display:grid;grid-template-columns:70px 1fr auto;gap:9px;padding:7px 0;border-bottom:1px dashed var(--line);align-items:center}
+.logrow:last-child{border-bottom:0}
+.logrow .t{color:var(--txt-dim)}
+.logrow .e{color:var(--ink);word-break:break-word}
+.logrow .b{padding:3px 6px;border-radius:2px;font-size:9.5px;letter-spacing:.06em;text-transform:none;word-break:break-all;text-align:right}
+.b-view{background:#e9eef3;color:#40566a}
+.b-dl{background:#e2f5ea;color:#1e6b3f}
+.expired{text-align:center;padding:24px 12px}
+.expired .ic{font-size:30px;margin-bottom:10px}
+.expired h4{margin:0 0 7px;font-size:16.5px}
+.expired p{margin:0 auto;max-width:44ch;font-size:13.5px;color:var(--txt-dim)}
+.batchpanel{background:#0a2135;margin:-18px;padding:18px;min-height:404px;font:11.5px/1.8 var(--mono)}
+.batchpanel .g{color:var(--ok-bright)}
+.batchpanel .y{color:var(--accent)}
+.batchpanel .d{color:#93aec4}
+
+.jr-ctl{display:flex;gap:9px;align-items:center;margin-top:18px;flex-wrap:wrap}
+.jr-ctl button{background:var(--ink-3);border:1px solid #2b5c85;color:#dce8f2;padding:9px 15px;border-radius:3px;cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:600}
+.jr-ctl button:hover{background:#22557d;border-color:var(--accent-dim)}
+.jr-ctl button.pri{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+.jr-ctl .prog{flex:1;min-width:110px;height:3px;background:#24506f;border-radius:2px;overflow:hidden}
+.jr-ctl .prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+
+.cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:14px;margin:20px 0}
+.opt{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:18px;position:relative}
+.opt.win{border-color:var(--ink);border-top:4px solid var(--accent);box-shadow:0 8px 24px rgba(12,38,59,.11)}
+.opt h4{margin:0 0 4px;font-size:15.5px;font-weight:650}
+.opt .sub2{font:10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--txt-dim);margin-bottom:13px}
+.opt ul{margin:0;padding-left:17px;font-size:13.5px;color:var(--txt-dim)}
+.opt li{margin:5px 0}
+.opt li.y::marker{color:var(--ok)}
+.opt li.n::marker{color:var(--bad)}
+.opt .badge{position:absolute;top:-11px;right:14px;background:var(--accent);color:var(--ink);font:9.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:6px 9px;border-radius:2px;font-weight:600}
+
+.asks{counter-reset:a;list-style:none;margin:18px 0;padding:0}
+.asks li{counter-increment:a;background:var(--card);border:1px solid var(--line);border-radius:3px;padding:13px 16px 13px 50px;position:relative;margin-bottom:9px;font-size:14px}
+.asks li::before{content:counter(a,decimal-leading-zero);position:absolute;left:15px;top:13px;font:11px var(--mono);color:var(--accent-dim);background:var(--ink);padding:5px 6px;border-radius:2px}
+.asks li b{display:block;margin-bottom:2px}
+.asks li span{color:var(--txt-dim)}
+
+footer{background:var(--ink);color:#8fa6bb;margin-top:52px;padding:26px 0;font:11px/1.7 var(--mono)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between}
+footer b{color:var(--accent)}
+
+@media (max-width:980px){.jr-body{grid-template-columns:1fr}}
+@media (max-width:860px){.strip{grid-template-columns:1fr}.titleblock h1{font-size:26px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="brandbar"><div class="wrap">
+  <svg id="propela-logo" role="img" aria-label="Propela Tech" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 530 128"><defs><clipPath id="pclip"><rect width="530" height="128" style="fill:none;"/></clipPath></defs><g id="Components"><g id="ac1c3380-4e8f-46d9-90f9-4d4e248a946c_7"><g style="clip-path:url(#pclip);"><path d="M98.3266,77.5319c-15.3952,25.3151-45.3348,38.9091-66.8476,30.3621-8.9535-3.582-15.0711-10.4193-18.0286-19.0069,1.7421,1.1802,3.6868,2.1977,5.753,3.0117,20.743,8.2622,49.7103-5.0874,64.7408-29.792,9.7233-15.9949,11.1818-32.8446,5.3884-44.973,19.7304,9.483,23.9034,35.9377,9.0345,60.3981h-.0405Z" style="fill:#f5fd7e;"/><path d="M89.2924,17.134c-.6888-.3256-1.3775-.6512-2.1067-.936-21.5533-8.5469-51.4929,5.006-66.8881,30.3618-8.9536,14.7739-11.0198,30.2804-6.8469,42.3275-15.7598-10.5819-18.1501-34.4318-4.659-56.6537C23.8223,7.529,52.7895-5.8205,73.5325,2.4415c7.2925,2.8897,12.5998,8.0992,15.7599,14.6925Z" style="fill:#f5fd7e;"/><path d="M189.644,12.2916c-5.105-2.1571-11.02-3.256-17.745-3.256h-30.183v.5291c1.661,2.1164,2.796,4.6805,3.363,7.6922.567,3.0118.851,7.0818.851,12.2099v51.4442c0,5.1281-.284,9.1981-.851,12.1692-.567,2.971-1.702,5.5758-3.363,7.7738v.529h22.121v-.529c-1.864-2.198-3.12-4.8435-3.849-7.8552-.689-3.0118-1.053-7.0411-1.053-12.0878v-17.0124h12.964c6.685,0,12.6-1.1396,17.745-3.3781,5.105-2.2791,9.075-5.4537,11.911-9.6458,2.836-4.1513,4.254-9.0352,4.254-14.6111s-1.418-10.5412-4.254-14.6111c-2.836-4.07-6.806-7.2038-11.911-9.3609ZM186.119,50.305c-3.93,3.0524-9.561,4.599-16.853,4.599h-10.331V17.9488h10.331c7.333,0,12.964,1.4652,16.853,4.4363,3.93,2.9711,5.875,7.6108,5.875,13.8785s-1.945,10.9482-5.875,14.0414Z" style="fill:#fff;"/><path d="M249.078,37.3616c-1.945-.3663-3.565-.5291-4.902-.5291-4.416,0-8.143,1.3838-11.182,4.1921-3.038,2.8082-5.388,7.1224-7.09,12.9424h-.648v-15.9542h-.405l-15.071,1.5873v.814c1.215,1.6687,2.106,3.5815,2.593,5.7386.486,2.1571.729,5.0874.729,8.9132v30.9723c0,3.9886-.162,7.0411-.527,9.1167-.364,2.0757-1.134,4.0293-2.39,5.7791v.529h18.393v-.529c-1.418-1.7905-2.309-3.6627-2.714-5.6977-.405-2.0349-.608-5.0874-.608-9.1574v-12.0877c0-5.4131.851-9.9714,2.593-13.7565,1.701-3.7443,4.011-6.5933,6.887-8.4248,2.877-1.8721,5.915-2.8082,9.197-2.8082,2.025,0,3.768.2035,5.145.6512v-12.2913Z" style="fill:#fff;"/><path d="M296.317,40.9845c-4.78-2.8082-10.088-4.192-16.003-4.192s-11.384,1.4245-16.205,4.2734c-4.821,2.849-8.589,6.7561-11.303,11.7622-2.715,5.006-4.092,10.6633-4.092,16.931s1.377,12.0878,4.092,17.1345c2.714,5.0467,6.522,8.9946,11.303,11.8436,4.821,2.8488,10.209,4.2328,16.205,4.2328s11.263-1.425,16.003-4.2328c4.74-2.8083,8.508-6.7969,11.263-11.8436,2.714-5.0467,4.092-10.7854,4.092-17.1345s-1.378-12.0878-4.092-17.0938c-2.755-5.006-6.482-8.9132-11.263-11.6808ZM296.155,82.7422c-1.499,3.663-3.606,6.4713-6.361,8.4248-2.754,1.9536-5.914,2.9304-9.52,2.9304-3.809,0-7.05-.9768-9.805-2.9711-2.754-1.9942-4.861-4.8025-6.36-8.4248-1.499-3.6222-2.269-7.9364-2.269-12.9017s.77-9.1167,2.269-12.7797c1.499-3.6222,3.646-6.4305,6.401-8.3841,2.795-1.9535,6.037-2.9303,9.723-2.9303s6.807.9768,9.521,2.9303c2.714,1.9536,4.862,4.7212,6.361,8.3027,1.499,3.5816,2.268,7.855,2.268,12.8204s-.769,9.2795-2.268,12.9831h.04Z" style="fill:#fff;"/><path d="M364.467,40.781c-4.092-2.6454-8.629-3.9885-13.572-3.9885-4.335,0-8.103.9361-11.384,2.8489-3.282,1.9129-6.037,4.6398-8.346,8.1807h-.527v-9.8493h-.405l-15.233,1.5872v.814c1.337,1.6687,2.188,3.5816,2.633,5.6573.446,2.0756.649,5.0467.649,8.8318v57.7119c0,4.07-.162,7.122-.527,9.117-.365,1.994-1.094,3.907-2.269,5.779v.529h18.11v-.529c-1.256-1.872-2.066-3.826-2.431-5.861-.405-2.035-.608-5.046-.608-9.035v-17.8264h.527c1.945,2.6455,4.456,4.6804,7.616,6.1054,3.12,1.424,6.402,2.116,9.845,2.116,5.308,0,10.169-1.384,14.626-4.1921,4.456-2.8083,8.021-6.7969,10.655-11.9657,2.633-5.1688,3.97-11.1517,3.97-17.8671,0-6.3898-1.215-12.0064-3.646-16.8903-2.431-4.8839-5.672-8.6283-9.804-11.3145l.121.0407ZM363.009,83.0678c-1.54,3.7444-3.687,6.5934-6.401,8.6283-2.755,2.035-5.915,3.0525-9.521,3.0525-3.363,0-6.28-.8547-8.751-2.5234-2.471-1.6687-4.376-4.1513-5.672-7.3666-1.297-3.2152-1.985-7.1631-1.985-11.7622v-7.3259c0-3.7443.729-7.041,2.269-9.9713,1.499-2.9304,3.524-5.2096,6.077-6.919,2.552-1.6686,5.388-2.5233,8.467-2.5233,5.469,0,9.804,2.157,13.045,6.5119,3.201,4.3548,4.822,10.1342,4.822,17.4194,0,4.8025-.77,9.0353-2.31,12.7796h-.04Z" style="fill:#fff;"/><path d="M427.142,91.1672c-2.917.9768-6.077,1.4652-9.521,1.4652-4.578,0-8.629-.9768-12.113-2.9711-3.485-1.9943-6.158-4.9246-8.063-8.8318-1.701-3.5002-2.592-7.7329-2.755-12.6168h42.013v-5.0468c0-5.5758-1.053-10.3377-3.16-14.2855-2.107-3.9479-5.064-6.9189-8.872-8.9539-3.809-2.035-8.103-3.0525-12.965-3.0525-5.55,0-10.574,1.4245-15.03,4.2735-4.457,2.8489-7.941,6.7561-10.453,11.6807-2.512,4.9654-3.768,10.5412-3.768,16.7682,0,6.6341,1.378,12.5355,4.173,17.6229,2.796,5.0875,6.604,9.0353,11.506,11.7622,4.902,2.7265,10.331,4.1105,16.327,4.1105,4.578,0,8.792-.814,12.559-2.442,3.809-1.6278,7.293-4.1105,10.453-7.3664l-1.459-6.512c-2.998,2.035-5.955,3.5409-8.872,4.5177v-.1221ZM402.064,47.4966c2.431-1.7094,5.348-2.6048,8.791-2.6048,2.998,0,5.591.814,7.739,2.4013,2.147,1.5873,3.767,3.8665,4.78,6.8375.648,1.8722.932,3.9479,1.013,6.1863h-29.291c.324-1.9128.81-3.7036,1.418-5.3316,1.296-3.2967,3.119-5.7793,5.55-7.5294v.0407Z" style="fill:#fff;"/><path d="M459.309,85.713V6.6338h-.405l-15.071,1.5873v.814c1.337,1.8721,2.188,3.6629,2.633,5.4537.446,1.7908.649,4.599.649,8.5062v62.7586c0,4.07-.162,7.1632-.527,9.3202-.365,2.1164-1.134,4.07-2.39,5.8612v.529h17.866v-.529c-1.134-1.7912-1.904-3.7041-2.269-5.8612-.364-2.1163-.526-5.2502-.526-9.3202l.04-.0406Z" style="fill:#fff;"/><path d="M526.116,93.5676c-1.499.6105-2.876.9361-4.092.9361-1.499,0-2.633-.4477-3.443-1.343-.811-.8954-1.175-2.3199-1.175-4.2328v-28.3269c0-5.3316-1.013-9.7678-3.039-13.3494-2.026-3.5816-4.78-6.227-8.265-7.8957-3.484-1.6687-7.495-2.5234-11.992-2.5234-4.254,0-8.346.814-12.356,2.4013-4.011,1.5873-7.617,3.785-10.777,6.5119l1.337,6.7968c6.442-4.0699,12.64-6.1049,18.677-6.1049,4.335,0,7.819,1.1396,10.452,3.3781,2.634,2.2384,3.971,5.7386,3.971,10.419v4.07l-13.248,3.5002c-7.495,1.9535-13.208,4.3955-17.057,7.3259-3.889,2.9303-5.834,6.9189-5.834,11.9656,0,4.5991,1.621,8.4248,4.903,11.4366,3.281,3.012,7.292,4.518,12.032,4.518,3.808,0,7.293-.896,10.453-2.727,3.16-1.8317,5.955-4.5993,8.345-8.3029h.527v.2849c.162,3.1745,1.378,5.7793,3.565,7.6922,2.188,1.9538,4.862,2.9308,7.941,2.9308,1.945,0,3.727-.285,5.348-.814,1.62-.53,3.2-1.344,4.699-2.4017l-.931-6.105-.041-.0407ZM503.104,85.6719c-1.499,2.6048-3.403,4.5991-5.753,5.9829-2.349,1.3838-4.659,2.0756-6.927,2.0756s-4.376-.7325-6.037-2.1977c-1.621-1.4652-2.431-3.4188-2.431-5.9015,0-1.8721.486-3.4187,1.54-4.7211,1.013-1.3024,2.471-2.4013,4.375-3.3374,1.904-.9361,4.416-1.9128,7.617-2.971l9.926-3.256v5.3724c0,3.378-.77,6.3491-2.269,8.9538h-.041Z" style="fill:#fff;"/></g></g></g></svg>
+  <div class="brandmeta">LMNA-581<br><b>Internal / Client Review</b><br>8 September 2026</div>
+</div></div>
+
+<div class="titleblock"><div class="wrap">
+  <div class="kicker">Lumina Care &middot; TCM Daily Readmission Reports</div>
+  <h1>Delivering a report that contains patient data</h1>
+  <p>Why the standard Salesforce email route into Microsoft 365 is closed to us, what that
+     actually means in plain terms, and a simpler alternative that removes the problem rather
+     than working around it. Every rule cited below links to the vendor's own documentation.</p>
+</div></div>
+
+<div class="wrap">
+  <div class="bluf">
+    <div class="lbl">Bottom line up front</div>
+    <p class="lede">The build is finished and switched off. The only open question is delivery, and
+       the route almost everyone uses is blocked here by a Microsoft policy change rather than by
+       anything in our setup.</p>
+    <ul>
+      <li><b>Email Relay into Microsoft 365 will not pass.</b> Microsoft now requires the sending system to prove its identity in a way Salesforce cannot.</li>
+      <li><b>Lumina's licensing is close, with one gap.</b> Microsoft 365 F3 does not include message encryption on its own, and the licence has to sit on the account doing the sending.</li>
+      <li><b>Recommended: stop emailing the data.</b> Email a link that expires instead. Salesforce has this built in, with a record of every view and download.</li>
+    </ul>
+  </div>
+
+  <div class="strip">
+    <div><h4>Background</h4><p>Facilities need to know each morning which of their discharged patients went back to hospital. The report names patients, so it counts as protected health information.</p></div>
+    <div><h4>The ask</h4><p>A decision on how we deliver it. The batch, scheduler, recipient logic and tests are already written and tested.</p></div>
+    <div><h4>Status</h4><p>Code complete in the dev sandbox since 24 August. Scheduled 8am Mon to Fri, held by a kill switch pending this decision.</p></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<section>
+  <div class="shead"><span class="snum">01</span><h2>What Email Relay is, and why it is the normal answer</h2></div>
+  <p class="lede">Worth setting out plainly, because this is genuinely the standard approach and it
+     is what most Salesforce organisations running Microsoft 365 use. The objection here is
+     specific to our situation, not to the feature.</p>
+
+  <p class="lede">Left alone, Salesforce sends email from its own servers. Fine for a password
+     reset, but it means the message never passes through the client's own mail system, so none of
+     the client's rules apply to it. No company signature, no archiving, and critically for us,
+     <b>no encryption</b>.</p>
+
+  <p class="lede"><b>Email Relay changes the exit door.</b> Rather than posting the letter itself,
+     Salesforce hands it to the client's mail server and lets that server post it. Everything the
+     client's mail system normally does then happens, including applying their encryption rules.
+     That is why it was the obvious first choice. Salesforce cannot encrypt to a HIPAA standard,
+     but Lumina's Microsoft tenant already can, and already has.</p>
+
+  <h3 class="sub">It is configured on both sides, and most of the work is theirs</h3>
+  <p class="lede">This is the part clients are sometimes surprised by. Roughly a quarter of the
+     configuration sits in Salesforce. The rest is inside the client's own Microsoft tenant, and
+     only their IT team can do it.</p>
+
+  <div class="scroller"><table>
+    <thead><tr><th style="width:22%">Who</th><th>What they configure</th></tr></thead>
+    <tbody>
+      <tr><td><b>Us, in Salesforce</b></td><td>An Email Relay record holding the client's mail host, port and TLS setting. An email domain filter, without which the relay never activates. A verified sending address. Switching off Salesforce compliance headers and bounce management.</td></tr>
+      <tr><td><b>Client IT, in Microsoft</b></td><td>An inbound connector that accepts mail from Salesforce. An allowlist of Salesforce's sending IP addresses. A rule restricting which Salesforce organisation may use it. DNS changes for SPF and DKIM. Then ongoing upkeep whenever Salesforce changes its addresses.</td></tr>
+    </tbody>
+  </table></div>
+
+  <p class="lede">One more thing worth knowing before the next section. Salesforce has four ways to
+     send mail, and only Email Relay covers the kind of email we are sending. The Microsoft 365
+     and Gmail integrations handle only mail a person types and sends by hand, which Salesforce
+     documents explicitly. Our report comes from an automated job, so relay is the only option
+     that can route it through the client's mail system at all.</p>
+
+  <ul class="src">
+    <li><span class="who">Salesforce Help &middot; the four options compared</span><a href="https://help.salesforce.com/s/articleView?id=000382640&language=en_US&type=1" target="_blank" rel="noopener">Best Email Setup for Your Salesforce Organization</a><div>Confirms Send through Office 365 and Send through Gmail cover only composer and certain API email, not workflow or system email, while Email Relay covers Salesforce generated mail.</div></li>
+    <li><span class="who">Salesforce Help &middot; relay configuration</span><a href="https://help.salesforce.com/s/articleView?id=sf.email_relay.htm&language=en_US&type=5" target="_blank" rel="noopener">Set Up Email Relay</a><div>The host, port and TLS fields, the supported ports, and the requirement for an email domain filter before a relay will activate.</div></li>
+  </ul>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">02</span><h2>Why it will not pass, explained properly</h2></div>
+  <p class="lede">A mail server will not post letters for a stranger. If it did, spammers would use
+     every company's mail server to blast the world. So before Microsoft accepts mail from an
+     outside system and forwards it on, it insists on knowing who that system is.</p>
+
+  <div class="analogy">
+    <div>
+      <div class="n">The rule</div>
+      <h4>Microsoft accepts two forms of ID</h4>
+      <p>A <b>TLS certificate</b> carrying a domain name Microsoft recognises as the client's. Think of it as a company badge with Lumina's name on it.</p>
+      <p>Or a <b>fixed IP address belonging to that client alone</b>. Think of it as a permanent desk that only Lumina uses.</p>
+    </div>
+    <div>
+      <div class="n">The problem</div>
+      <h4>Salesforce carries neither</h4>
+      <p>Salesforce is one shared building serving thousands of companies. Its mail leaves from <span class="x">IP ranges shared across all its customers</span>, so the desk is not Lumina's.</p>
+      <p>And Salesforce <span class="x">does not issue a per customer certificate</span> for email. Its TLS settings verify the certificate of the server it is <i>connecting to</i>, not one it presents itself. So there is no badge either.</p>
+    </div>
+    <div>
+      <div class="n">What changed</div>
+      <h4>A third form of ID was withdrawn</h4>
+      <p>Until <b>1 November 2023</b> Microsoft also accepted the name printed on the letterhead, meaning the visible From address. That was enough to make this route work.</p>
+      <p>Anyone can print letterhead, so Microsoft stopped accepting it. Their documentation names our exact situation, a cloud service sending on a customer's behalf, as one broken by the change.</p>
+    </div>
+  </div>
+
+  <p class="lede">That is what the shorthand "their replacement needs a certificate Salesforce does
+     not issue" means. Microsoft's written remedy for a third party service in this position is a
+     unique certificate for the customer's organisation, whose domain the customer has registered
+     with Microsoft. Salesforce does not offer that for email relay, so the remedy is not available
+     to us. It is not a setting anyone has missed, and no Salesforce licence changes it.</p>
+
+  <h3 class="sub">What that produces in practice</h3>
+  <div class="scroller"><table>
+    <thead><tr><th style="width:26%">Symptom</th><th>Cause</th></tr></thead>
+    <tbody>
+      <tr class="r-bad">
+        <td><span class="m">550 5.7.64 Relay Access Denied ATTR36</span></td>
+        <td>Microsoft cannot attribute the message to Lumina's tenant, because the identifying detail does not match a connector. Documented by Microsoft, and by Salesforce in knowledge article 000337644.</td>
+      </tr>
+      <tr class="r-bad">
+        <td><span class="m">550 5.7.64 TenantAttribution</span></td>
+        <td>The certificate or IP address configured in the connector no longer matches the system actually submitting the mail.</td>
+      </tr>
+      <tr class="r-warn">
+        <td>Recurring maintenance</td>
+        <td>If the IP route is used instead, Salesforce publishes its ranges with a note that they change and should be re-checked. Salesforce also recommends relying on TLS, SPF, DKIM and DMARC rather than IP allowlists, which is the opposite of what Microsoft's connector requires. The two vendors' guidance conflicts.</td>
+      </tr>
+      <tr class="r-warn">
+        <td>Tenant left open</td>
+        <td>Allowlisting shared Salesforce IPs lets any Salesforce customer on those addresses relay mail through Lumina's tenant, unless a rule checks the sending organisation's ID. That rule is community practice, not a documented Salesforce feature.</td>
+      </tr>
+      <tr class="r-bad">
+        <td>Not supported</td>
+        <td>Salesforce states outright that Email Relay does not support sending through Microsoft 365 Exchange Online to people outside your organisation. If it breaks in production there is no support path.</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <ul class="src">
+    <li><span class="who">Microsoft Learn &middot; the 2023 rule change</span><a href="https://learn.microsoft.com/en-us/exchange/mail-flow-best-practices/updated-requirements-smtp-relay" target="_blank" rel="noopener">Updated requirements for SMTP Relay in Exchange Online</a><div>States that as of 1 November 2023 the From address condition was removed. Lists "you use a non-Microsoft service to relay messages" as an affected scenario, describing exactly our case where the envelope sender is the third party's domain but the From address is the customer's. Gives the remedy as "a unique certificate for your organization" whose domain is an accepted domain.</div></li>
+    <li><span class="who">Microsoft Learn &middot; the two forms of ID</span><a href="https://learn.microsoft.com/en-us/exchange/mail-flow-best-practices/how-to-set-up-a-multifunction-device-or-application-to-send-email-using-microsoft-365-or-office-365" target="_blank" rel="noopener">Set up a multifunction device or application to send email using Microsoft 365</a><div>Requires "a certificate or a static IP address that isn't shared with another organization", and notes the certificate method is the recommended one.</div></li>
+    <li><span class="who">Microsoft Learn &middot; the rejection itself</span><a href="https://learn.microsoft.com/en-us/exchange/troubleshoot/connectors/relay-access-denied-smtp" target="_blank" rel="noopener">550 5.7.64 TenantAttribution when users send mail externally</a><div>The cause is a connector whose certificate or IP address no longer matches the submitting server.</div></li>
+    <li><span class="who">Microsoft Learn &middot; certificate connectors</span><a href="https://learn.microsoft.com/en-us/troubleshoot/exchange/email-delivery/office-365-notice" target="_blank" rel="noopener">Configure a certificate-based connector to relay email through Microsoft 365</a><div>The certificate must carry a domain registered in Microsoft 365 and added as an accepted domain of the organisation.</div></li>
+    <li><span class="who">Salesforce Help &middot; the plain statement</span><a href="https://help.salesforce.com/s/articleView?id=000387487&language=en_US&type=1" target="_blank" rel="noopener">Salesforce Email Relay with Microsoft 365</a><div>Email Relay "doesn't support sending emails directly through Microsoft 365 Exchange (Exchange Online) to people outside of your organization". Cites shared IP routing as the cause and lists a standalone SMTP gateway or hybrid Exchange as the alternatives.</div></li>
+    <li><span class="who">Salesforce Help &middot; the address list</span><a href="https://help.salesforce.com/s/articleView?language=en_US&id=000384438&type=1" target="_blank" rel="noopener">Salesforce Core Services, IP Addresses and Domains to Allow</a><div>Publishes the ranges, advises checking back for additions, and recommends relying on standard email protocols rather than IP allowlists.</div></li>
+  </ul>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">03</span><h2>Lumina's Microsoft licensing, and the one catch</h2></div>
+  <p class="lede">Lumina confirmed a mix of Microsoft 365 Business Premium and Microsoft 365 F3,
+     that Purview Message Encryption is enabled and has been tested to external recipients, and
+     that Microsoft provides the HIPAA agreement through its Online Services terms. That settles
+     the capability question. One detail does not hold up, and it matters because the failure is
+     silent.</p>
+
+  <div class="scroller"><table>
+    <thead><tr><th>Licence</th><th>Message encryption included</th><th>What it means here</th></tr></thead>
+    <tbody>
+      <tr class="r-ok"><td><b>Business Premium</b></td><td><span class="tag t-ok">Yes</span></td><td>Works out of the box for these users.</td></tr>
+      <tr class="r-bad"><td><b>Microsoft 365 F3</b></td><td><span class="tag t-bad">No, add on required</span></td><td>Microsoft's documentation states Azure Information Protection Plan 1 can be added to F3 to receive Purview Message Encryption. On its own, F3 does not include it.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note bad">
+    <h5>Why this is the risk to watch</h5>
+    <p>Encryption is licensed on the <b>sender</b>, not the recipient, and Microsoft states each
+       user benefiting from message encryption needs a licence. These reports send from a service
+       address rather than a person, so that account needs its own entitlement. Lumina's successful
+       test was almost certainly from a Business Premium account, which does not prove the service
+       mailbox will encrypt.</p>
+    <p>If that mailbox lands on F3 without the add on, mail leaves unencrypted and <b>nothing
+       reports an error</b>. No bounce, nothing to alert on. One test send from that specific
+       address, triggered by a script rather than by a person in Outlook, settles it in minutes.</p>
+  </div>
+
+  <ul class="src">
+    <li><span class="who">Microsoft Learn &middot; licensing</span><a href="https://learn.microsoft.com/en-us/purview/ome-faq" target="_blank" rel="noopener">Message Encryption FAQ</a><div>Azure Information Protection Plan 1 can be added to Office 365 F3 to receive Purview Message Encryption, and each user benefiting from message encryption needs a licence.</div></li>
+    <li><span class="who">Microsoft Learn &middot; service description</span><a href="https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-purview-service-description" target="_blank" rel="noopener">Microsoft Purview service description</a><div>Per service licensing detail for Purview features across Microsoft 365 plans.</div></li>
+  </ul>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">04</span><h2>What recipients actually experience</h2></div>
+  <p class="lede">Encryption is only half a delivery decision. Purview treats recipients very
+     differently depending on the mail system they use, so we looked up the mail provider for all
+     66 recipient company domains.</p>
+
+  <div class="scroller"><table>
+    <thead><tr><th>Recipient mail provider</th><th>Domains</th><th>Addresses</th><th>Experience</th></tr></thead>
+    <tbody>
+      <tr class="r-ok"><td><b>Microsoft 365</b></td><td>60</td><td>119 <span class="tag t-neutral">37%</span></td><td>Opens in Outlook as normal. No portal, no passcode.</td></tr>
+      <tr class="r-bad"><td><b>Google Workspace</b><br><span class="m">genesishcc.com</span></td><td>3</td><td>195 <span class="tag t-bad">61%</span></td><td>Wrapper email, click through to a Microsoft page, sign in with Google. Every morning.</td></tr>
+      <tr class="r-warn"><td><b>Other</b></td><td>3</td><td>4 <span class="tag t-neutral">1%</span></td><td>Portal plus a one time passcode.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note bad">
+    <h5>The awkward part</h5>
+    <p>Genesis is on Google Workspace and accounts for 193 of the 318 recipient addresses. So the
+       largest chain, the one named in the ticket for a corporate contact, gets the worst
+       experience. Around 61% of recipients would click out to a Microsoft page and sign in daily.</p>
+    <p>Which matters, because encrypted email was preferred partly to avoid sending people to a
+       portal. For most recipients it sends them to one anyway.</p>
+  </div>
+
+  <ul class="src">
+    <li><span class="who">Microsoft Learn &middot; recipient experience</span><a href="https://learn.microsoft.com/en-us/purview/ome" target="_blank" rel="noopener">Microsoft Purview Message Encryption</a><div>Microsoft 365 users reading mail in Outlook clients get a native reading experience even outside the sender's organisation, while Gmail and Yahoo recipients receive a wrapper mail directing them to the encrypted message portal, and all other identities use a one time passcode.</div></li>
+  </ul>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">05</span><h2>The recommended route, start to finish</h2></div>
+  <p class="lede">If most recipients end up clicking a link either way, ours can be better than
+     Microsoft's: one click, no sign in, and it expires on its own. The notification email carries
+     no patient data at all, which is why none of the constraints above apply to it.</p>
+
+  <div class="jr">
+    <div class="jr-hd">
+      <h3>The journey, eight steps</h3>
+      <span class="ct" id="jrCount">Step 1 of 8</span>
+    </div>
+    <p class="jr-sub">Click through it, or press Play. Screens are mockups and the patient names
+       are invented. Field names on the Salesforce side are the real ones, confirmed against
+       Lumina's production org.</p>
+
+    <div class="jr-rail" id="jrRail"></div>
+
+    <div class="jr-body">
+      <div class="jr-say">
+        <div class="tt" id="jrTag">Step</div>
+        <h4 id="jrTitle"></h4>
+        <p id="jrText"></p>
+        <ul class="facts" id="jrFacts"></ul>
+      </div>
+
+      <div class="screen">
+        <div class="chrome"><i></i><i></i><i></i><span class="url" id="jrUrl">&nbsp;</span></div>
+        <div class="stage" id="jrStage">
+
+          <div class="frame" data-f="0">
+            <div class="batchpanel">
+              <div class="d">08:00:04&nbsp; TCMDailyReadmissionScheduler.execute()</div>
+              <div class="d">08:00:04&nbsp; TCM_Report_Config__mdt.Is_Active__c = true</div>
+              <div class="d">08:00:05&nbsp; Window resolved, America/New_York</div>
+              <div class="y">08:00:05&nbsp; Scope: 214 facilities, TCM active</div>
+              <div class="g">08:00:11&nbsp; Sample Care Center ....... 3 admissions</div>
+              <div class="g">08:00:11&nbsp; Placeholder Manor ........ 1 admission</div>
+              <div class="g">08:00:12&nbsp; Example Health Center .... 2 admissions</div>
+              <div class="d">08:00:12&nbsp; Facilities with zero rows: skipped, no email</div>
+              <div class="y">08:00:13&nbsp; 23 reports to deliver</div>
+            </div>
+          </div>
+
+          <div class="frame" data-f="1">
+            <span class="fk">Salesforce record</span>
+            <div style="font-weight:660;margin-bottom:9px">ContentDistribution</div>
+            <div class="sfrec">
+              <div><span class="k">Name</span><span class="v">Readmissions Sample Care Center 2026-09-07</span></div>
+              <div><span class="k">PreferencesExpires</span><span class="v">true</span></div>
+              <div><span class="k">ExpiryDate</span><span class="v">2026-09-10 08:00</span></div>
+              <div><span class="k">PreferencesAllowOriginalDownload</span><span class="v">true</span></div>
+              <div><span class="k">PreferencesNotifyOnVisit</span><span class="v">true</span></div>
+              <div><span class="k">ViewCount</span><span class="v">0</span></div>
+              <div><span class="k">DistributionPublicUrl</span><span class="v">reports.luminacare.com/r/8f3a9c</span></div>
+            </div>
+            <div class="smallnote">Standard Salesforce object. No custom link, expiry or token code.</div>
+          </div>
+
+          <div class="frame" data-f="2">
+            <span class="fk">Sample data</span>
+            <div class="mailhd">
+              <div class="s">Readmissions Report, Sample Care Center, 7 Sep 2026</div>
+              <div class="f">from tcm@luminacare.com to admin@samplecarecenter.com</div>
+            </div>
+            <div style="font-size:13.5px;line-height:1.65">
+              <b>3 hospital admissions</b> for Sample Care Center on Sunday, 7 September 2026.
+              <div style="margin-top:9px;color:#5b6b7a">These are patients discharged home from
+                your facility who were later admitted to hospital.</div>
+              <span class="bigbtn">View report</span>
+              <div class="smallnote">Link expires in 72 hours. No patient information in this email.</div>
+            </div>
+          </div>
+
+          <div class="frame" data-f="3">
+            <span class="fk">Sample data</span>
+            <div style="font-weight:660;margin-bottom:2px">Sample Care Center</div>
+            <div style="font:11px var(--mono);color:#5b6b7a;margin-bottom:13px">Readmissions, Sunday 7 September 2026</div>
+            <div class="rrow"><span class="nm">Pat Sample</span><span class="dt">07 Sep 06:14</span></div>
+            <div class="rrow"><span class="nm">A. Placeholder</span><span class="dt">07 Sep 11:02</span></div>
+            <div class="rrow"><span class="nm">T. Testcase</span><span class="dt">07 Sep 19:48</span></div>
+            <span class="bigbtn">Download CSV</span>
+            <div class="smallnote">Only this facility's patients. Scope enforced server side.</div>
+          </div>
+
+          <div class="frame" data-f="4">
+            <span class="fk">Salesforce record</span>
+            <div style="font-weight:660;margin-bottom:9px">ContentDistributionView</div>
+            <div class="logrow"><span class="t">08:14:22</span><span class="e">Opened, Sample Care Center</span><span class="b b-view">view</span></div>
+            <div class="logrow"><span class="t">08:15:07</span><span class="e">CSV taken, 3 rows</span><span class="b b-dl">download</span></div>
+            <div class="logrow"><span class="t">08:41:55</span><span class="e">Opened again, same link</span><span class="b b-view">view</span></div>
+            <div class="logrow"><span class="t">09:02:13</span><span class="e">Opened, Placeholder Manor</span><span class="b b-view">view</span></div>
+            <div class="smallnote">One record per view, flagged as a view or a download. Standard object, nothing custom.</div>
+          </div>
+
+          <div class="frame" data-f="5">
+            <div class="expired">
+              <div class="ic">&#9203;</div>
+              <h4>This link has expired</h4>
+              <p>Links stay valid for 72 hours. Request a new one and we will email it to the
+                 address this report was sent to.</p>
+              <span class="bigbtn">Email me a new link</span>
+              <div class="smallnote">Sends to the original recipient, never to whoever clicked.</div>
+            </div>
+          </div>
+
+          <div class="frame" data-f="6">
+            <span class="fk">Sample data</span>
+            <div class="mailhd">
+              <div class="s">Your new link, Sample Care Center, 7 Sep 2026</div>
+              <div class="f">from tcm@luminacare.com to admin@samplecarecenter.com</div>
+            </div>
+            <div style="font-size:13.5px;line-height:1.65">
+              Here is a fresh link to the readmissions report for Sunday, 7 September 2026.
+              <span class="bigbtn">View report</span>
+              <div class="smallnote">Requested at 11:47 from the expired link page. Request logged.</div>
+            </div>
+          </div>
+
+          <div class="frame" data-f="7">
+            <span class="fk">Sample data</span>
+            <div class="mailhd">
+              <div class="s">Readmissions run, 7 Sep 2026, 23 sent, 2 skipped</div>
+              <div class="f">from tcm@luminacare.com to kevingrayson@luminacare.com</div>
+            </div>
+            <div class="logrow"><span class="t">3 adm.</span><span class="e">Sample Care Center</span><span class="b b-dl">admin@samplecarecenter.com</span></div>
+            <div class="logrow"><span class="t">1 adm.</span><span class="e">Placeholder Manor</span><span class="b b-dl">don@placeholdermanor.com</span></div>
+            <div class="logrow"><span class="t">2 adm.</span><span class="e">Example Health Center</span><span class="b b-dl">admin@examplehealth.com</span></div>
+            <div style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:12.5px;font-weight:600;color:#8e2b1e">Not sent, no contact on file</div>
+            <div class="logrow"><span class="t">2 adm.</span><span class="e">Specimen Rehab Center</span><span class="b b-view">no admin or DON email</span></div>
+            <div class="logrow"><span class="t">1 adm.</span><span class="e">Placeholder Village</span><span class="b b-view">no admin or DON email</span></div>
+            <div class="smallnote">Per facility detail needs building. The job currently reports totals and itemises only failures.</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="jr-ctl">
+      <button type="button" id="jrPrev">Back</button>
+      <button type="button" id="jrNext" class="pri">Next</button>
+      <button type="button" id="jrPlay">Play</button>
+      <span class="prog"><i id="jrProg"></i></span>
+    </div>
+  </div>
+
+  <div class="note good">
+    <h5>Why this is the recommendation</h5>
+    <p>The email contains no patient data, so there is nothing to encrypt in transit and no reason
+       to route it through anyone's mail system. That removes the connector, the certificate, the
+       IP allowlist, the quarterly maintenance and the licensing gap in one move. It is not a
+       cleverer way through the problem, it avoids having the problem.</p>
+    <p>It also treats every recipient the same. Genesis on Google and the smaller facilities on
+       Microsoft both get an identical single click, rather than 61% of recipients signing in to a
+       Microsoft page every morning.</p>
+  </div>
+
+  <div class="note warn">
+    <h5>What it costs, honestly</h5>
+    <p>Recipients click a link, so a custom domain is needed. A link on a generic Salesforce
+       address, sent to healthcare staff trained not to click links in email, will be reported as
+       suspicious. Something like reports.luminacare.com fixes that, and it is a DNS change plus a
+       certificate.</p>
+    <p>It also needs compliance sign off in writing. A link with no login authenticates by
+       possession of the mailbox it was sent to, which is the same model Microsoft's own one time
+       passcode flow uses, so it is accepted practice rather than novel. Adding one second factor,
+       the facility postcode for example, makes that conversation straightforward.</p>
+  </div>
+
+  <h3 class="sub">Optional extras, and what each one costs</h3>
+  <p class="lede">The seven steps above are the core. These are things we can switch on or build
+     on top, and each needs a yes or no from Lumina rather than being assumed. The first one is
+     the only one we would actively recommend.</p>
+
+  <div class="cmp">
+    <div class="opt win">
+      <span class="badge">Recommended</span>
+      <h4>Export to CSV or PDF</h4>
+      <div class="sub2">Needs Lumina's confirmation</div>
+      <ul>
+        <li class="y">Staff need to work the list, ring families and chase notes, not read it on a screen</li>
+        <li class="y">Every download recorded separately from a view, so you can tell looking from taking</li>
+        <li class="y">A logged export beats an unlogged screenshot, which is what people do otherwise</li>
+        <li class="n">A copy of the data leaves Salesforce and lands on their device, where their own obligations govern it</li>
+      </ul>
+    </div>
+
+    <div class="opt">
+      <h4>Second factor on open</h4>
+      <div class="sub2">Optional, compliance may ask</div>
+      <ul>
+        <li class="y">One extra field, the facility postcode, before the report shows</li>
+        <li class="y">Turns a forwarded link into a non event</li>
+        <li class="y">Makes the compliance conversation shorter</li>
+        <li class="n">One more step for the recipient every time</li>
+      </ul>
+    </div>
+
+    <div class="opt">
+      <h4>Code required to download</h4>
+      <div class="sub2">On request, stronger</div>
+      <ul>
+        <li class="y">A fresh code emailed at the moment of download</li>
+        <li class="y">A leaked link could be viewed but not exported</li>
+        <li class="n">Adds friction exactly where people are busiest</li>
+        <li class="n">We would build it as a switch and leave it off unless asked</li>
+      </ul>
+    </div>
+
+    <div class="opt">
+      <h4>Alert on every open</h4>
+      <div class="sub2">Optional, native toggle</div>
+      <ul>
+        <li class="y">Salesforce can notify Lumina each time a report is opened</li>
+        <li class="y">Useful during the first weeks to see whether facilities engage</li>
+        <li class="n">Around 23 notifications a day, so likely worth turning off after launch</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note">
+    <h5>On the export button specifically</h5>
+    <p>Nothing in HIPAA prevents a facility downloading data about its own former patients. They
+       are a covered entity receiving information for treatment and operations, and once it reaches
+       their device their own safeguards apply, exactly as they would if we had emailed a
+       spreadsheet.</p>
+    <p>The practical argument matters more. If someone can see the list on screen they can already
+       copy it, by screenshot, by print, or by retyping it. Blocking export does not prevent a copy
+       being made, it only prevents us knowing that one was. An export button that writes an audit
+       record is the better position of the two.</p>
+    <p>The one rule that is not negotiable is scope. An export must contain only that facility's
+       own rows, enforced on the server rather than by what the page happens to display.</p>
+  </div>
+
+  <ul class="src">
+    <li><span class="who">HHS &middot; is this allowed at all</span><a href="https://www.hhs.gov/hipaa/for-professionals/faq/2006/does-the-security-rule-allow-for-sending-electronic-phi-in-an-email/index.html" target="_blank" rel="noopener">Does the Security Rule allow sending ePHI in an email?</a><div>The Security Rule does not prohibit it, but requires access control, integrity and transmission security safeguards.</div></li>
+    <li><span class="who">HHS &middot; what counts as encrypted</span><a href="https://www.hhs.gov/hipaa/for-professionals/breach-notification/guidance/index.html" target="_blank" rel="noopener">Guidance to render unsecured PHI unusable</a><div>Names TLS per NIST SP 800-52 as a valid encryption process for data in motion, which is what HTTPS on the link page provides.</div></li>
+    <li><span class="who">eCFR &middot; the specific obligations</span><a href="https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-C/section-164.312" target="_blank" rel="noopener">45 CFR 164.312, Technical safeguards</a><div>Audit controls and person or entity authentication are required specifications. Encryption of transmissions is addressable, meaning it must be implemented if reasonable and appropriate after a risk assessment, or an equivalent measure documented.</div></li>
+    <li><span class="who">eCFR &middot; the audit trail requirement</span><a href="https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-E/section-164.528" target="_blank" rel="noopener">45 CFR 164.528, Accounting of disclosures</a><div>Individuals may request who received their information, what was disclosed and why. The per view records satisfy this. Email produces nothing comparable, you know only that it left the building.</div></li>
+    <li><span class="who">Salesforce &middot; contractual position</span><a href="https://www.salesforce.com/company/legal/business-associate-addendum/" target="_blank" rel="noopener">BAA Restrictions, last updated 31 July 2026</a><div>Lists Lightning Platform including Force.com, Site.com and Experience Cloud among the HIPAA Covered Services, with no restriction anywhere on guest, unauthenticated or public access. Salesforce does write such restrictions when it means them, Tableau has an explicit one about public facing publication of PHI.</div></li>
+  </ul>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">06</span><h2>The four options in short</h2></div>
+  <p class="lede">For completeness, since three of these were on the table earlier.</p>
+
+  <div class="cmp">
+    <div class="opt">
+      <h4>Email Relay</h4>
+      <div class="sub2">Route through Microsoft 365</div>
+      <ul>
+        <li class="n">Blocked by the 2023 rule unless bounce tracking is switched off</li>
+        <li class="n">Quarterly IP list upkeep at Lumina</li>
+        <li class="n">Needs a rule or the tenant is an open relay</li>
+        <li class="n">Not supported by Salesforce for external recipients</li>
+        <li class="y">No new vendor or licence</li>
+      </ul>
+    </div>
+    <div class="opt">
+      <h4>SMTP authentication</h4>
+      <div class="sub2">Sign in as a mailbox</div>
+      <ul>
+        <li class="y">Supported today, external recipients fine</li>
+        <li class="y">No IP list to maintain</li>
+        <li class="n">Microsoft retires the authentication method it relies on from December 2026</li>
+      </ul>
+    </div>
+    <div class="opt">
+      <h4>Microsoft Graph</h4>
+      <div class="sub2">Send via Microsoft's API</div>
+      <ul>
+        <li class="y">Nothing expires, no IP list, fully supported</li>
+        <li class="n">Needs an app registration and certificate from client IT</li>
+        <li class="n">A few days of development</li>
+        <li class="n">61% of recipients still click through and sign in</li>
+      </ul>
+    </div>
+    <div class="opt win">
+      <span class="badge">Recommended</span>
+      <h4>Expiring link</h4>
+      <div class="sub2">Native file distribution</div>
+      <ul>
+        <li class="y">No patient data in the email, so the transport problem disappears</li>
+        <li class="y">Per view and per download audit trail, standard object</li>
+        <li class="y">No vendor, no IP list, nothing that expires</li>
+        <li class="y">Same single click for every recipient</li>
+        <li class="n">Needs a custom domain and compliance sign off</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><span class="snum">07</span><h2>What we need to proceed</h2></div>
+  <ol class="asks">
+    <li><b>A delivery decision</b><span>Expiring link, or one of the email routes. Everything downstream follows from it.</span></li>
+    <li><b>One test send from the service mailbox</b><span>From tcm@luminacare.com to an external Gmail address, triggered by a script rather than Outlook, confirming the recipient gets the encrypted experience. Settles the F3 licensing question empirically.</span></li>
+    <li><b>The mailbox itself</b><span>Created and licensed. Someone with access needs to click a verification link. Lumina production currently has no verified sending address at all.</span></li>
+    <li><b>A custom domain, if the link route wins</b><span>Something like reports.luminacare.com, so it does not read as phishing to staff trained not to click links in email.</span></li>
+    <li><b>Confirmation that the export button should be there</b><span>The report page can offer a CSV or PDF download, and we would recommend it, since staff need to work the list rather than read it on screen. Every download is recorded separately from a view. Worth an explicit yes, because it means a copy of the data leaves Salesforce and lands on the recipient's device.</span></li>
+    <li><b>An owner for 26 facilities with no contact on file</b><span>They had readmissions but hold no administrator or director of nursing email, so roughly 15% of reports would go nowhere. 34 of the 49 facilities missing contacts belong to GHC. Independent of the delivery decision.</span></li>
+    <li><b>Compliance sign off in writing</b><span>Whichever route wins, the risk assessment and the reasoning need recording rather than agreeing verbally.</span></li>
+  </ol>
+</section>
+
+</div>
+
+<footer><div class="wrap">
+  <div>Propela Tech &middot; LMNA-581 &middot; PHI delivery options</div>
+  <div>Every rule cited links to Microsoft Learn, Salesforce Help, HHS.gov or eCFR. Org figures read from <b>Lumina production</b>, 8 Sep 2026.</div>
+</div></footer>
+
+<script>
+(function(){
+"use strict";
+
+var STEPS = [
+  {
+    rail:"Batch runs",
+    tag:"Step 1 &middot; 08:00, inside Salesforce",
+    title:"The job finds yesterday's readmissions",
+    text:"Nothing changes here. This is the batch that is already written and tested. It looks for patients discharged home from each facility who were later admitted to hospital, and groups them by facility.",
+    facts:["Facilities with no readmissions are <b>not emailed at all</b>","Mondays cover Friday, Saturday and Sunday together","Around 23 reports on a normal weekday"],
+    url:"Developer Console, Apex Jobs"
+  },
+  {
+    rail:"Link created",
+    tag:"Step 2 &middot; still inside Salesforce",
+    title:"The report is stored and given an expiring link",
+    text:"The report is saved as a file against the facility, and Salesforce generates a link to it with an expiry date. This is a standard Salesforce object, so the expiry, the view counter and the download permission are built in rather than written by us.",
+    facts:["<b>ExpiryDate</b> set 72 hours out","Downloads permitted and recorded","No custom token or expiry code to maintain"],
+    url:"Salesforce, ContentDistribution record"
+  },
+  {
+    rail:"Email sent",
+    tag:"Step 3 &middot; what the facility receives",
+    title:"An email with a count, and no patient data",
+    text:"The administrator gets a short message telling them how many readmissions there were, and a link. No patient names, no dates of birth, no attachment. Because the email carries nothing protected, it needs no encryption, no relay and no connector.",
+    facts:["Sent by ordinary Salesforce email","<b>Nothing in this message is protected health information</b>","Copy to Jennifer Bridges for GHC facilities in New Jersey"],
+    url:"Inbox, admin@samplecarecenter.com"
+  },
+  {
+    rail:"Report opened",
+    tag:"Step 4 &middot; one click, no sign in",
+    title:"The report opens in the browser",
+    text:"They click and the report appears. No password, no account, no passcode, and identical whether they are on Google or Microsoft. The page shows only that facility's patients, and that scope is enforced on the server rather than in the page.",
+    facts:["Served over HTTPS, which HHS names as valid encryption in transit","Only this facility's rows, never the full list","<b>Export button available</b>, subject to Lumina confirming they want it","Optional second factor, facility postcode, if compliance asks"],
+    url:"reports.luminacare.com/r/8f3a9c"
+  },
+  {
+    rail:"Audit written",
+    tag:"Step 5 &middot; the part clients ask about",
+    title:"Every view and download is recorded",
+    text:"Salesforce writes a record each time the link is opened, flagged as either a view or a download. That is the audit trail, and it comes from a standard object rather than something we built. Emailing a spreadsheet produces nothing comparable, you know only that it left the building.",
+    facts:["One record per open, marked view or download","Answers who received what, and when","Optional alert to Lumina on every visit"],
+    url:"Salesforce, ContentDistributionView records"
+  },
+  {
+    rail:"Link expires",
+    tag:"Step 6 &middot; 72 hours later",
+    title:"The link stops working on its own",
+    text:"After 72 hours the link is dead. Anyone opening it, including anyone the email was forwarded to, sees this page instead of the report. Exposure is bounded by time rather than sitting in a mailbox indefinitely.",
+    facts:["Expiry enforced by Salesforce, not by our code","A forwarded old link exposes nothing","Can be revoked early if an address turns out to be wrong"],
+    url:"reports.luminacare.com/r/8f3a9c"
+  },
+  {
+    rail:"New link",
+    tag:"Step 7 &middot; self service",
+    title:"They can request a fresh link themselves",
+    text:"The expired page offers a button that emails a new link. It always sends to the original recipient address, never to whoever clicked, so a forwarded expired link cannot be used to pull data out. Requests are capped per day and logged.",
+    facts:["<b>Always emails the original recipient</b>","Capped per facility per day to prevent abuse","No phone call to Lumina, no ticket"],
+    url:"Inbox, admin@samplecarecenter.com"
+  },
+  {
+    rail:"Kevin's digest",
+    tag:"Step 8 &middot; one email to Lumina",
+    title:"Kevin gets the whole morning on one page",
+    text:"Rather than copying Kevin on every facility email, he gets a single digest listing each facility that was sent a report, how many readmissions it had, and the address it went to. Facilities that were skipped because no contact is on file appear at the bottom, so gaps surface daily rather than going unnoticed.",
+    facts:["Replaces copying Kevin on 23 separate emails","<b>Needs building</b>, the job currently reports totals and itemises only failures","Skipped facilities listed, so missing contacts get chased"],
+    url:"Inbox, kevingrayson@luminacare.com"
+  }
+];
+
+var i = 0, playing = false, timer = null;
+var rail = document.getElementById("jrRail");
+var frames = document.querySelectorAll(".frame");
+
+STEPS.forEach(function(s, n){
+  var b = document.createElement("button");
+  b.type = "button";
+  b.className = "jr-step";
+  b.innerHTML = '<span class="sn">0' + (n+1) + '</span><span class="st">' + s.rail + '</span>';
+  b.addEventListener("click", function(){ stop(); go(n); });
+  rail.appendChild(b);
+});
+var railBtns = rail.querySelectorAll(".jr-step");
+
+function go(n){
+  i = (n + STEPS.length) % STEPS.length;
+  var s = STEPS[i];
+  document.getElementById("jrTag").innerHTML = s.tag;
+  document.getElementById("jrTitle").textContent = s.title;
+  document.getElementById("jrText").textContent = s.text;
+  document.getElementById("jrUrl").textContent = s.url;
+  document.getElementById("jrCount").textContent = "Step " + (i+1) + " of " + STEPS.length;
+  var f = document.getElementById("jrFacts");
+  f.innerHTML = "";
+  s.facts.forEach(function(t){
+    var li = document.createElement("li");
+    li.innerHTML = t;
+    f.appendChild(li);
+  });
+  frames.forEach(function(fr){ fr.classList.toggle("show", +fr.dataset.f === i); });
+  railBtns.forEach(function(b, n2){
+    b.classList.toggle("on", n2 === i);
+    b.classList.toggle("done", n2 < i);
+  });
+  document.getElementById("jrProg").style.width = ((i+1)/STEPS.length*100) + "%";
+}
+
+function stop(){
+  playing = false;
+  if (timer) { clearInterval(timer); timer = null; }
+  document.getElementById("jrPlay").textContent = "Play";
+}
+function play(){
+  if (playing) { stop(); return; }
+  playing = true;
+  document.getElementById("jrPlay").textContent = "Pause";
+  timer = setInterval(function(){
+    if (i === STEPS.length - 1) { stop(); return; }
+    go(i + 1);
+  }, 4200);
+}
+
+document.getElementById("jrNext").addEventListener("click", function(){ stop(); go(i+1); });
+document.getElementById("jrPrev").addEventListener("click", function(){ stop(); go(i-1); });
+document.getElementById("jrPlay").addEventListener("click", play);
+
+go(0);
+})();
+</script>
+</body>
+</html>

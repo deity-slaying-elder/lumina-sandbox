@@ -1,0 +1,12 @@
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0" cache="false" title="Readmissions Report">
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="robots" content="noindex, nofollow"/><title>Readmissions Report</title>
+<style type="text/css">
+        body { margin: 0; background: #f7f3ee; color: #30385c; font: 16px/1.5 Arial, Helvetica, sans-serif; }
+        .bar { background: #ffffff; border-bottom: 1px solid #dee9ff; padding: 10px 20px 6px 20px; }
+        .bar img { display: block; max-width: 100%; width: 560px; height: auto; }
+        .wrap { max-width: 720px; margin: 28px auto; padding: 0 16px; }
+        .card { background: #fff; border: 1px solid #dee9ff; border-radius: 8px; padding: 24px; }
+        h1 { font-size: 22px; margin: 0 0 6px 0; color: #30385c; }
+    </style></head>
+<body><div class="bar"><img src="{!URLFOR($Resource.Lumina_Welcome_Header)}" alt="Lumina Care"/></div><div class="wrap"><div class="card"><h1>The report site is temporarily unavailable.</h1><p>Use the link from your readmissions report email. If it no longer works, reply to that email and Lumina Care will send a new one.</p></div></div></body></html>
+</apex:page>

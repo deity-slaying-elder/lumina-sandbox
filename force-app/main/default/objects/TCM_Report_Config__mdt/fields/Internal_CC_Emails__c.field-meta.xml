@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Internal_CC_Emails__c</fullName>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Lumina staff who should receive the same readmissions report as the facility. Separate several with a semicolon or a comma. Each one gets their own email and their own link, so their one-time code goes to them and never to the facility. Supersedes Internal CC Email, which holds only one address.</inlineHelpText>
+    <label>Internal CC Emails</label>
+    <length>255</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

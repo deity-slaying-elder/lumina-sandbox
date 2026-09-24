@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Global_CC_Emails__c</fullName>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Cc&apos;d on every facility email. NOT the digest - see Digest Recipients. Separate with ; or , . A true Cc: no link of their own, not counted as extra sends. They can still open the report by sending the code to their own address. Ignored in a sandbox.</inlineHelpText>
+    <label>Global CC Emails</label>
+    <length>255</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

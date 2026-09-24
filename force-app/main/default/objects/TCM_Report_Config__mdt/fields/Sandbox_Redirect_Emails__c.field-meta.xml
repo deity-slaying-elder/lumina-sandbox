@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Sandbox_Redirect_Emails__c</fullName>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>One or more addresses, separated by ; or , that receive every facility email and the digest when the batch runs in a sandbox. Nothing reaches a real facility while this is set. Takes precedence over Sandbox Redirect Email.</inlineHelpText>
+    <label>Sandbox Redirect Emails</label>
+    <length>255</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

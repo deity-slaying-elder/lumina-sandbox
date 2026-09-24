@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LMNA-581: the new model, in one page</title>
+<style>
+  * { box-sizing: border-box }
+  :root {
+    --navy: #0c263b; --yellow: #f5fd7e; --ink: #16212b; --muted: #5b6b7a; --line: #dce3ea;
+    --mono: 'SF Mono', Menlo, Consolas, monospace;
+    --ok: #1f7a3d; --bad: #b3261e;
+  }
+  body { margin: 0; background: #eef1f4; color: var(--ink);
+    font: 15px/1.6 'DM Sans', -apple-system, 'SF Pro Text', Helvetica, Arial, sans-serif }
+  .page { max-width: 1060px; margin: 0 auto; background: #fff }
+  h1, h2 { font-family: 'Antonia Variable', Georgia, 'Times New Roman', serif; font-weight: 400 }
+
+  header { background: var(--navy); color: #fff; padding: 24px 34px 26px;
+    border-bottom: 5px solid var(--yellow) }
+  .htop { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px }
+  .logo { height: 26px; width: auto }
+  .meta { font: 10px var(--mono); letter-spacing: .09em; text-transform: uppercase;
+    color: #b9d8f5; text-align: right; line-height: 1.8 }
+  header h1 { margin: 16px 0 6px; font-size: 27px }
+  header p { margin: 0; max-width: 74ch; color: #cfe0ee; font-size: 15px }
+
+  main { padding: 24px 34px 34px }
+  h2 { font-size: 19px; margin: 0 0 12px; display: flex; align-items: center; gap: 10px }
+  h2:before { content: ''; width: 5px; height: 18px; background: var(--yellow); border-radius: 3px }
+  section { margin-bottom: 30px }
+
+  /* before / after, one line each */
+  .compare { border: 1px solid var(--line); border-radius: 8px; overflow: hidden }
+  .row { display: grid; grid-template-columns: 96px 1fr; align-items: stretch }
+  .row + .row { border-top: 1px solid var(--line) }
+  .row .tag { padding: 14px 12px; font: 10px var(--mono); letter-spacing: .1em;
+    text-transform: uppercase; display: flex; align-items: center; justify-content: center }
+  .row.before .tag { background: #fdf3f2; color: var(--bad) }
+  .row.after .tag { background: #f1faf4; color: var(--ok) }
+  .row .txt { padding: 13px 16px; font-size: 15px }
+  .row .txt b { font-weight: 600 }
+
+  /* the diagram: fixed grid, straight arrows, nothing can overlap */
+  .lane { border: 1px solid var(--line) }
+  .lane.inside { border-radius: 8px 8px 0 0; margin-top: 14px }
+  .lane.outside { border-top: 0; border-radius: 0 0 8px 8px }
+  .lanehead { display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 9px 14px; background: #f4f7fa; border-bottom: 1px solid var(--line);
+    font: 10px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted) }
+  .lane.outside .lanehead { background: #fbfbfc }
+  .lanehead .who { color: var(--navy); font-weight: 600 }
+
+  .steps { display: grid; grid-template-columns: 1fr 26px 1fr 26px 1fr 26px 1fr;
+    align-items: stretch; padding: 16px 14px }
+  .step { border: 1px solid var(--line); border-radius: 6px; padding: 11px 12px; background: #fff }
+  .step .n { font: 10px var(--mono); color: var(--muted); letter-spacing: .1em }
+  .step h5 { margin: 2px 0 3px; font-size: 13.5px; line-height: 1.3 }
+  .step p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.45 }
+  .step.new { border-color: #a9c9e6; background: #f3f8fd }
+  .step.new .n { color: #1d5c9e }
+  .arrow { display: flex; align-items: center; justify-content: center; color: #a9b6c3;
+    font-size: 15px }
+  .arrow:after { content: '\2192' }
+
+  .cross { display: flex; align-items: center; gap: 12px; padding: 12px 16px 0 }
+  .cross .bar { flex: 1; border-top: 2px dashed #c9d4de }
+  .cross span { font: 10px var(--mono); letter-spacing: .1em; text-transform: uppercase;
+    color: #8c9aa8 }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px }
+  .card { border: 1px solid var(--line); border-radius: 7px; padding: 13px 14px }
+  .card h5 { margin: 0 0 4px; font-size: 14px }
+  .card code { font: 11.5px var(--mono); color: var(--muted); word-break: break-word }
+  .card p { margin: 7px 0 0; font-size: 13px; color: #45525f }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px }
+  th { background: var(--navy); color: #fff; text-align: left; padding: 9px 12px;
+    font: 10px var(--mono); letter-spacing: .08em; text-transform: uppercase }
+  td { padding: 9px 12px; border-bottom: 1px solid #e8edf2; vertical-align: top }
+  tr:nth-child(even) td { background: #f8fafc }
+  .yes { color: var(--ok); font-weight: 600 }
+  .no { color: var(--bad); font-weight: 600 }
+  code.f { font: 11.5px var(--mono); background: #eef2f6; padding: 1px 5px; border-radius: 3px;
+    word-break: break-word }
+
+  .note { background: #fdf6e3; border-left: 3px solid #d8b13a; padding: 11px 14px;
+    font-size: 13.5px; margin-top: 12px }
+
+  footer { background: var(--navy); color: #cfe0ee; padding: 16px 34px; font-size: 12.5px;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px }
+  footer b { color: #fff }
+
+  @media (max-width: 860px) {
+    .steps { grid-template-columns: 1fr }
+    .arrow { height: 26px }
+    .arrow:after { content: '\2193' }
+    .cards { grid-template-columns: 1fr }
+    .row { grid-template-columns: 1fr }
+    .row .tag { justify-content: flex-start; padding: 8px 16px }
+    main, header, footer { padding-left: 18px; padding-right: 18px }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <div class="htop">
+    <svg id="propela-logo" class="logo" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 530 128"><defs><clipPath id="clippath"><rect width="530" height="128" style="fill:none;"/></clipPath></defs><g id="Components"><g id="ac1c3380-4e8f-46d9-90f9-4d4e248a946c_7"><g style="clip-path:url(#clippath);"><path d="M98.3266,77.5319c-15.3952,25.3151-45.3348,38.9091-66.8476,30.3621-8.9535-3.582-15.0711-10.4193-18.0286-19.0069,1.7421,1.1802,3.6868,2.1977,5.753,3.0117,20.743,8.2622,49.7103-5.0874,64.7408-29.792,9.7233-15.9949,11.1818-32.8446,5.3884-44.973,19.7304,9.483,23.9034,35.9377,9.0345,60.3981h-.0405Z" style="fill:#f5fd7e;"/><path d="M89.2924,17.134c-.6888-.3256-1.3775-.6512-2.1067-.936-21.5533-8.5469-51.4929,5.006-66.8881,30.3618-8.9536,14.7739-11.0198,30.2804-6.8469,42.3275-15.7598-10.5819-18.1501-34.4318-4.659-56.6537C23.8223,7.529,52.7895-5.8205,73.5325,2.4415c7.2925,2.8897,12.5998,8.0992,15.7599,14.6925Z" style="fill:#f5fd7e;"/><path d="M189.644,12.2916c-5.105-2.1571-11.02-3.256-17.745-3.256h-30.183v.5291c1.661,2.1164,2.796,4.6805,3.363,7.6922.567,3.0118.851,7.0818.851,12.2099v51.4442c0,5.1281-.284,9.1981-.851,12.1692-.567,2.971-1.702,5.5758-3.363,7.7738v.529h22.121v-.529c-1.864-2.198-3.12-4.8435-3.849-7.8552-.689-3.0118-1.053-7.0411-1.053-12.0878v-17.0124h12.964c6.685,0,12.6-1.1396,17.745-3.3781,5.105-2.2791,9.075-5.4537,11.911-9.6458,2.836-4.1513,4.254-9.0352,4.254-14.6111s-1.418-10.5412-4.254-14.6111c-2.836-4.07-6.806-7.2038-11.911-9.3609ZM186.119,50.305c-3.93,3.0524-9.561,4.599-16.853,4.599h-10.331V17.9488h10.331c7.333,0,12.964,1.4652,16.853,4.4363,3.93,2.9711,5.875,7.6108,5.875,13.8785s-1.945,10.9482-5.875,14.0414Z" style="fill:#fff;"/><path d="M249.078,37.3616c-1.945-.3663-3.565-.5291-4.902-.5291-4.416,0-8.143,1.3838-11.182,4.1921-3.038,2.8082-5.388,7.1224-7.09,12.9424h-.648v-15.9542h-.405l-15.071,1.5873v.814c1.215,1.6687,2.106,3.5815,2.593,5.7386.486,2.1571.729,5.0874.729,8.9132v30.9723c0,3.9886-.162,7.0411-.527,9.1167-.364,2.0757-1.134,4.0293-2.39,5.7791v.529h18.393v-.529c-1.418-1.7905-2.309-3.6627-2.714-5.6977-.405-2.0349-.608-5.0874-.608-9.1574v-12.0877c0-5.4131.851-9.9714,2.593-13.7565,1.701-3.7443,4.011-6.5933,6.887-8.4248,2.877-1.8721,5.915-2.8082,9.197-2.8082,2.025,0,3.768.2035,5.145.6512v-12.2913Z" style="fill:#fff;"/><path d="M296.317,40.9845c-4.78-2.8082-10.088-4.192-16.003-4.192s-11.384,1.4245-16.205,4.2734c-4.821,2.849-8.589,6.7561-11.303,11.7622-2.715,5.006-4.092,10.6633-4.092,16.931s1.377,12.0878,4.092,17.1345c2.714,5.0467,6.522,8.9946,11.303,11.8436,4.821,2.8488,10.209,4.2328,16.205,4.2328s11.263-1.425,16.003-4.2328c4.74-2.8083,8.508-6.7969,11.263-11.8436,2.714-5.0467,4.092-10.7854,4.092-17.1345s-1.378-12.0878-4.092-17.0938c-2.755-5.006-6.482-8.9132-11.263-11.6808ZM296.155,82.7422c-1.499,3.663-3.606,6.4713-6.361,8.4248-2.754,1.9536-5.914,2.9304-9.52,2.9304-3.809,0-7.05-.9768-9.805-2.9711-2.754-1.9942-4.861-4.8025-6.36-8.4248-1.499-3.6222-2.269-7.9364-2.269-12.9017s.77-9.1167,2.269-12.7797c1.499-3.6222,3.646-6.4305,6.401-8.3841,2.795-1.9535,6.037-2.9303,9.723-2.9303s6.807.9768,9.521,2.9303c2.714,1.9536,4.862,4.7212,6.361,8.3027,1.499,3.5816,2.268,7.855,2.268,12.8204s-.769,9.2795-2.268,12.9831h.04Z" style="fill:#fff;"/><path d="M364.467,40.781c-4.092-2.6454-8.629-3.9885-13.572-3.9885-4.335,0-8.103.9361-11.384,2.8489-3.282,1.9129-6.037,4.6398-8.346,8.1807h-.527v-9.8493h-.405l-15.233,1.5872v.814c1.337,1.6687,2.188,3.5816,2.633,5.6573.446,2.0756.649,5.0467.649,8.8318v57.7119c0,4.07-.162,7.122-.527,9.117-.365,1.994-1.094,3.907-2.269,5.779v.529h18.11v-.529c-1.256-1.872-2.066-3.826-2.431-5.861-.405-2.035-.608-5.046-.608-9.035v-17.8264h.527c1.945,2.6455,4.456,4.6804,7.616,6.1054,3.12,1.424,6.402,2.116,9.845,2.116,5.308,0,10.169-1.384,14.626-4.1921,4.456-2.8083,8.021-6.7969,10.655-11.9657,2.633-5.1688,3.97-11.1517,3.97-17.8671,0-6.3898-1.215-12.0064-3.646-16.8903-2.431-4.8839-5.672-8.6283-9.804-11.3145l.121.0407ZM363.009,83.0678c-1.54,3.7444-3.687,6.5934-6.401,8.6283-2.755,2.035-5.915,3.0525-9.521,3.0525-3.363,0-6.28-.8547-8.751-2.5234-2.471-1.6687-4.376-4.1513-5.672-7.3666-1.297-3.2152-1.985-7.1631-1.985-11.7622v-7.3259c0-3.7443.729-7.041,2.269-9.9713,1.499-2.9304,3.524-5.2096,6.077-6.919,2.552-1.6686,5.388-2.5233,8.467-2.5233,5.469,0,9.804,2.157,13.045,6.5119,3.201,4.3548,4.822,10.1342,4.822,17.4194,0,4.8025-.77,9.0353-2.31,12.7796h-.04Z" style="fill:#fff;"/><path d="M427.142,91.1672c-2.917.9768-6.077,1.4652-9.521,1.4652-4.578,0-8.629-.9768-12.113-2.9711-3.485-1.9943-6.158-4.9246-8.063-8.8318-1.701-3.5002-2.592-7.7329-2.755-12.6168h42.013v-5.0468c0-5.5758-1.053-10.3377-3.16-14.2855-2.107-3.9479-5.064-6.9189-8.872-8.9539-3.809-2.035-8.103-3.0525-12.965-3.0525-5.55,0-10.574,1.4245-15.03,4.2735-4.457,2.8489-7.941,6.7561-10.453,11.6807-2.512,4.9654-3.768,10.5412-3.768,16.7682,0,6.6341,1.378,12.5355,4.173,17.6229,2.796,5.0875,6.604,9.0353,11.506,11.7622,4.902,2.7265,10.331,4.1105,16.327,4.1105,4.578,0,8.792-.814,12.559-2.442,3.809-1.6278,7.293-4.1105,10.453-7.3664l-1.459-6.512c-2.998,2.035-5.955,3.5409-8.872,4.5177v-.1221ZM402.064,47.4966c2.431-1.7094,5.348-2.6048,8.791-2.6048,2.998,0,5.591.814,7.739,2.4013,2.147,1.5873,3.767,3.8665,4.78,6.8375.648,1.8722.932,3.9479,1.013,6.1863h-29.291c.324-1.9128.81-3.7036,1.418-5.3316,1.296-3.2967,3.119-5.7793,5.55-7.5294v.0407Z" style="fill:#fff;"/><path d="M459.309,85.713V6.6338h-.405l-15.071,1.5873v.814c1.337,1.8721,2.188,3.6629,2.633,5.4537.446,1.7908.649,4.599.649,8.5062v62.7586c0,4.07-.162,7.1632-.527,9.3202-.365,2.1164-1.134,4.07-2.39,5.8612v.529h17.866v-.529c-1.134-1.7912-1.904-3.7041-2.269-5.8612-.364-2.1163-.526-5.2502-.526-9.3202l.04-.0406Z" style="fill:#fff;"/><path d="M526.116,93.5676c-1.499.6105-2.876.9361-4.092.9361-1.499,0-2.633-.4477-3.443-1.343-.811-.8954-1.175-2.3199-1.175-4.2328v-28.3269c0-5.3316-1.013-9.7678-3.039-13.3494-2.026-3.5816-4.78-6.227-8.265-7.8957-3.484-1.6687-7.495-2.5234-11.992-2.5234-4.254,0-8.346.814-12.356,2.4013-4.011,1.5873-7.617,3.785-10.777,6.5119l1.337,6.7968c6.442-4.0699,12.64-6.1049,18.677-6.1049,4.335,0,7.819,1.1396,10.452,3.3781,2.634,2.2384,3.971,5.7386,3.971,10.419v4.07l-13.248,3.5002c-7.495,1.9535-13.208,4.3955-17.057,7.3259-3.889,2.9303-5.834,6.9189-5.834,11.9656,0,4.5991,1.621,8.4248,4.903,11.4366,3.281,3.012,7.292,4.518,12.032,4.518,3.808,0,7.293-.896,10.453-2.727,3.16-1.8317,5.955-4.5993,8.345-8.3029h.527v.2849c.162,3.1745,1.378,5.7793,3.565,7.6922,2.188,1.9538,4.862,2.9308,7.941,2.9308,1.945,0,3.727-.285,5.348-.814,1.62-.53,3.2-1.344,4.699-2.4017l-.931-6.105-.041-.0407ZM503.104,85.6719c-1.499,2.6048-3.403,4.5991-5.753,5.9829-2.349,1.3838-4.659,2.0756-6.927,2.0756s-4.376-.7325-6.037-2.1977c-1.621-1.4652-2.431-3.4188-2.431-5.9015,0-1.8721.486-3.4187,1.54-4.7211,1.013-1.3024,2.471-2.4013,4.375-3.3374,1.904-.9361,4.416-1.9128,7.617-2.971l9.926-3.256v5.3724c0,3.378-.77,6.3491-2.269,8.9538h-.041Z" style="fill:#fff;"/></g></g></g></svg>
+    <div class="meta">LMNA-581 &middot; phase two &middot; built<br>Lumina Care<br>15 September 2026</div>
+  </div>
+  <h1>The new model, in one page</h1>
+  <p>The report link now opens a page we host on a Salesforce site. That page emails a one-time
+     code to the address the link was issued to, and shows the report only after the code is
+     entered. Built and tested in the sandbox on 15 September 2026.</p>
+</header>
+
+<main>
+
+<section>
+  <h2>The whole change</h2>
+  <div class="compare">
+    <div class="row before">
+      <div class="tag">Phase one</div>
+      <div class="txt">The email carries a link. <b>Anyone holding that link opens the report</b>,
+        nothing else asked.</div>
+    </div>
+    <div class="row after">
+      <div class="tag">Now</div>
+      <div class="txt">The email carries a link and nothing secret. The link opens our page, the page
+        <b>emails a six-digit code to the address on file</b>, and the report appears only after
+        that code is entered. The code works for 10 minutes.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>How it works</h2>
+
+  <div class="lane inside">
+    <div class="lanehead">
+      <span class="who">Inside Salesforce</span>
+      <span>already built, keeps working</span>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="n">01</div>
+        <h5>The job runs</h5>
+        <p>8am on weekdays, one facility at a time.</p>
+      </div>
+      <div class="arrow"></div>
+      <div class="step">
+        <div class="n">02</div>
+        <h5>The report is built</h5>
+        <p>One PDF per facility, filed on the facility record.</p>
+      </div>
+      <div class="arrow"></div>
+      <div class="step new">
+        <div class="n">03 &middot; new</div>
+        <h5>A private link is made</h5>
+        <p>One per recipient. We keep a scrambled fingerprint of it, never the link itself. Any
+           older live link to the same person is closed.</p>
+      </div>
+      <div class="arrow"></div>
+      <div class="step">
+        <div class="n">04</div>
+        <h5>The email goes out</h5>
+        <p>Administrator, or director of nursing. A count, a button, and how to get a code. No
+           patient data and no code in it.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="lane outside">
+    <div class="cross">
+      <span>the email leaves Salesforce</span>
+      <div class="bar"></div>
+    </div>
+    <div class="lanehead" style="margin-top:12px">
+      <span class="who">Outside &middot; the facility administrator, no login</span>
+      <span>the new part</span>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="n">05</div>
+        <h5>They click the link</h5>
+        <p>Our page shows the facility name, the report date, and the masked address the code
+           will go to. Nothing from the report.</p>
+      </div>
+      <div class="arrow"></div>
+      <div class="step new">
+        <div class="n">06 &middot; new</div>
+        <h5>They ask for a code</h5>
+        <p>One click. A six-digit code is emailed to the address on file. It works for 10
+           minutes.</p>
+      </div>
+      <div class="arrow"></div>
+      <div class="step new">
+        <div class="n">07 &middot; new</div>
+        <h5>They enter the code</h5>
+        <p>Right code, the report opens. Five wrong codes, or five codes requested, and the link
+           locks for good.</p>
+      </div>
+      <div class="arrow"></div>
+      <div class="step">
+        <div class="n">08</div>
+        <h5>The report opens</h5>
+        <p>The view is logged against that person. The PDF stays open for 10 minutes, then a new
+           code is needed.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    An expired link, a locked link, a used-up link and a made-up link all get the same page:
+    <i>This report is no longer available.</i> A guesser learns nothing from the wording. The
+    page and the email both say to reply to the email for a new link. Every step on a link, from
+    the code being sent to the report being opened or downloaded, is logged with the time, the IP
+    address and the browser, so a disclosure can be traced to a device as well as to a mailbox.
+  </div>
+</section>
+
+<section>
+  <h2>What was built</h2>
+  <div class="cards">
+    <div class="card">
+      <h5>One page on a Salesforce site</h5>
+      <code>Salesforce Sites, guest access, no login</code>
+      <p>A request button, a code box, then the report. No account for the facility to manage,
+         and no per-facility licence.</p>
+    </div>
+    <div class="card">
+      <h5>A private link per recipient</h5>
+      <code>the recipient record we already keep</code>
+      <p>Eight fields added: fingerprints of the link and the code, the timers, and the
+         counters. Nothing stores the link or the code in the clear.</p>
+    </div>
+    <div class="card">
+      <h5>A locked-down visitor profile</h5>
+      <code>page and code access only</code>
+      <p>The visitor can reach the page and the service behind it, and nothing else. No records,
+         no fields. Listed below.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>What a visitor to that site can reach</h2>
+  <table>
+    <tr><th>Thing</th><th>Access</th><th>Why</th></tr>
+    <tr><td>The recipient's link record</td><td class="yes">Through our page only</td>
+        <td>The page looks the row up by the link's fingerprint. The visitor never queries it, and
+            it carries no patient data.</td></tr>
+    <tr><td>The stored report</td><td class="yes">Through our page only</td>
+        <td>Streamed after a correct code, for 10 minutes. There is no public file link any
+            more.</td></tr>
+    <tr><td>Open, download and attempt counts</td><td class="yes">Written by our page</td>
+        <td>So the audit trail records who read it and when, as it happens.</td></tr>
+    <tr><td>Facilities, patients, admissions</td><td class="no">No access</td>
+        <td>The page never queries them. The report was built earlier, inside Salesforce.</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>For Chris</h2>
+  <table>
+    <tr><th>His concern</th><th>Answer</th></tr>
+    <tr><td>People guessing other facilities' links</td>
+        <td class="yes">Not possible. The link is 64 random characters, and there is no public
+            file link at all.</td></tr>
+    <tr><td>A link on its own is not enough</td>
+        <td class="yes">Agreed, and done. A link with no code opens nothing but a request
+            button. That covers browser history, a pasted chat message, a screenshot, a proxy
+            log.</td></tr>
+    <tr><td>A forwarded email</td>
+        <td class="yes">Covered. The code goes to the address the link was issued to, so someone
+            holding a forwarded email can only get in if they also control that mailbox. This
+            is the gap the earlier same-email PIN idea left open.</td></tr>
+    <tr><td>Someone tries codes until one works</td>
+        <td class="yes">Five wrong codes lock the link. A code has a million possibilities and
+            lasts 10 minutes.</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>Status and what is needed for production</h2>
+  <table>
+    <tr><th>Item</th><th>Detail</th></tr>
+    <tr><td>Build</td><td>Done. Live-tested in the sandbox on 15 September 2026, in a clean browser
+        with no Salesforce login: request screen, code email, resend limit, wrong code, correct
+        code, download, 10-minute window, lock after five wrong codes, view cap, expired link,
+        and the Resend button issuing a fresh link.</td></tr>
+    <tr><td>Licences</td><td>None. Guest access is included, no cost per facility.</td></tr>
+    <tr><td>From a Lumina admin</td><td>Register Salesforce Sites once in production (Setup, then
+        Sites, accept the terms, register the domain). Until that is done every page shows a
+        maintenance notice. Also allow the <i>tcm@luminacare.com</i> sender address for the site
+        visitor profile, so the code email comes from that address.</td></tr>
+    <tr><td>Deploy</td><td>A Propela engineer deploys after Lumina's go-ahead. The page address
+        changes from the sandbox one to the production one at that point.</td></tr>
+    <tr><td>From Chris</td><td>A look at this page and the technical one, and a yes in
+        writing.</td></tr>
+  </table>
+</section>
+
+</main>
+
+<footer>
+  <div><b>LMNA-581 phase two</b> &middot; built and tested in the sandbox &middot; not yet in production</div>
+  <div>Propela Tech</div>
+</footer>
+</div>
+</body></html>

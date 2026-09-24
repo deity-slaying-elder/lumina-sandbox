@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cc_Emails__c</fullName>
+    <externalId>false</externalId>
+    <inlineHelpText>The addresses Cc&apos;d on the message that carried this link, snapshotted from Global CC Emails when the link was issued. The report page offers these alongside the recipient when a one-time code is requested, so a Cc&apos;d reader can have the code sent to their own mailbox instead of the facility&apos;s. Held on the link rather than read from config at request time, so changing the config never widens a link that is already out.</inlineHelpText>
+    <label>CC Emails</label>
+    <length>255</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

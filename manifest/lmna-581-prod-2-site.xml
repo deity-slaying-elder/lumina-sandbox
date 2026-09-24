@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Stage 2. Only after Salesforce Sites is registered in Setup, and only after the
+     subdomain in the site file is changed to the production one. -->
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>TCM_Readmission_Portal</members>
+        <name>CustomSite</name>
+    </types>
+    <version>65.0</version>
+</Package>

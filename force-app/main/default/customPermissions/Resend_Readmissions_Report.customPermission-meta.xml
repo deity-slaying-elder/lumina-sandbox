@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomPermission xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Held by whoever may reissue a readmissions report from a Facility record. Exists so the Resend button can be hidden from everyone else on the Lightning record page, because a permission set alone blocks the click but still leaves the button on screen.</description>
+    <isLicensed>false</isLicensed>
+    <label>Resend Readmissions Report</label>
+</CustomPermission>

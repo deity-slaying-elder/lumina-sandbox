@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Event__c</fullName>
+    <label>Event</label>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Code sent</fullName>
+                <default>false</default>
+                <label>Code sent</label>
+            </value>
+            <value>
+                <fullName>Code throttled</fullName>
+                <default>false</default>
+                <label>Code throttled</label>
+            </value>
+            <value>
+                <fullName>Code refused</fullName>
+                <default>false</default>
+                <label>Code refused</label>
+            </value>
+            <value>
+                <fullName>Wrong code</fullName>
+                <default>false</default>
+                <label>Wrong code</label>
+            </value>
+            <value>
+                <fullName>Code expired</fullName>
+                <default>false</default>
+                <label>Code expired</label>
+            </value>
+            <value>
+                <fullName>Locked</fullName>
+                <default>false</default>
+                <label>Locked</label>
+            </value>
+            <value>
+                <fullName>Opened</fullName>
+                <default>false</default>
+                <label>Opened</label>
+            </value>
+            <value>
+                <fullName>View limit reached</fullName>
+                <default>false</default>
+                <label>View limit reached</label>
+            </value>
+            <value>
+                <fullName>PDF fetched</fullName>
+                <default>false</default>
+                <label>PDF fetched</label>
+            </value>
+            <value>
+                <fullName>Downloaded</fullName>
+                <default>false</default>
+                <label>Downloaded</label>
+            </value>
+            <value>
+                <fullName>Fetch refused</fullName>
+                <default>false</default>
+                <label>Fetch refused</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

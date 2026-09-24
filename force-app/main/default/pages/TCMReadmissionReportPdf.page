@@ -1,0 +1,60 @@
+<apex:page controller="TCMReadmissionReportPdfController" renderAs="pdf" applyBodyTag="false" applyHtmlTag="false" showHeader="false" sidebar="false" standardStylesheets="false">
+<html>
+<head>
+<style type="text/css">
+    @page { size: letter landscape; margin: 14mm 12mm; }
+    body { font-family: Arial, Helvetica, sans-serif; font-size: 10.5pt; color: #16232e; }
+    .bar { border-bottom: 3px solid #30385c; padding-bottom: 6px; margin-bottom: 10px; }
+    .brand { font-size: 9pt; letter-spacing: 1px; text-transform: uppercase; color: #5b6b7a; }
+    h1 { font-size: 17pt; margin: 4px 0 2px 0; color: #30385c; }
+    .sub { font-size: 10pt; color: #5b6b7a; margin: 0 0 12px 0; }
+    .count { font-size: 11pt; margin: 0 0 10px 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #30385c; color: #ffffff; text-align: left; padding: 6px 7px; font-size: 9pt; }
+    td { padding: 6px 7px; border-bottom: 1px solid #dbe2e8; font-size: 10pt; vertical-align: top; }
+    tr.alt td { background: #f4f6f8; }
+    .foot { margin-top: 14px; font-size: 8.5pt; color: #5b6b7a; border-top: 1px solid #dbe2e8; padding-top: 6px; }
+    .empty { padding: 20px 0; color: #5b6b7a; }
+</style>
+</head>
+<body>
+    <div class="bar">
+        <div class="brand">Lumina Care &middot; TCM Readmissions</div>
+        <h1><apex:outputText value="{!facilityName}"/></h1>
+        <p class="sub">Patients discharged home from this facility who were subsequently admitted to a hospital,&#160;<apex:outputText value="{!windowDescription}"/>.</p>
+    </div>
+
+    <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(problem))}">
+        <p class="count"><apex:outputText value="{!problem}"/></p>
+    </apex:outputPanel>
+
+    <p class="count"><strong><apex:outputText value="{!rowCount}"/></strong>
+        &#160;<apex:outputText value="{!IF(rowCount == 1, 'hospital admission', 'hospital admissions')}"/></p>
+
+    <apex:outputPanel layout="none" rendered="{!rowCount > 0}">
+    <table>
+        <thead>
+            <tr>
+                <apex:repeat value="{!headers}" var="h"><th><apex:outputText value="{!h}"/></th></apex:repeat>
+            </tr>
+        </thead>
+        <tbody>
+            <apex:variable var="i" value="{!0}"/>
+            <apex:repeat value="{!rows}" var="r">
+                <tr class="{!IF(MOD(i,2)==1,'alt','')}">
+                    <apex:repeat value="{!r}" var="c"><td><apex:outputText value="{!c}"/></td></apex:repeat>
+                </tr>
+                <apex:variable var="i" value="{!i+1}"/>
+            </apex:repeat>
+        </tbody>
+    </table>
+    </apex:outputPanel>
+    <apex:outputPanel layout="none" rendered="{!rowCount == 0}">
+        <p class="empty">No qualifying admissions in this window.</p>
+    </apex:outputPanel>
+
+    <p class="foot">Confidential. Contains protected health information intended only for the named facility.
+        Generated&#160;<apex:outputText value="{!generatedAt}"/>. Do not forward.</p>
+</body>
+</html>
+</apex:page>

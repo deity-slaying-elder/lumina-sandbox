@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Unlock_Session_Hash__c</fullName>
+    <description>SHA-256 of the browser session that entered the correct code. While set, the unlock window only serves that same browser, so the link alone cannot open the report from anywhere else. Cleared when the link is closed.</description>
+    <externalId>false</externalId>
+    <label>Unlock Session Hash</label>
+    <length>64</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
