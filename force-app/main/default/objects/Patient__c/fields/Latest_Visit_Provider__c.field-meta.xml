@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Latest_Visit_Provider__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Latest Visit Provider</label>
+    <referenceTo>Front_End_User__c</referenceTo>
+    <relationshipLabel>Patients (Latest Visit Provider)</relationshipLabel>
+    <relationshipName>Patients3</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

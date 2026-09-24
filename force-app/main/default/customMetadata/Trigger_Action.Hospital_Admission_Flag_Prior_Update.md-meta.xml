@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <label>Hosp Adm Flag Prior Discharge (Update)</label>
+    <protected>false</protected>
+    <values>
+        <field>Apex_Class_Name__c</field>
+        <value xsi:type="xsd:string">HospitalAdmissionFlagPriorDischarge</value>
+    </values>
+    <values>
+        <field>Bypass_Execution__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>Description__c</field>
+        <value xsi:type="xsd:string">Flags an admission that follows a discharge-home within 30 days. Ported from flow Hospital_Admissions_TF_On_C_U_Look_For_Prior_NH_Discharge_Home.</value>
+    </values>
+    <values>
+        <field>Order__c</field>
+        <value xsi:type="xsd:double">10</value>
+    </values>
+    <values>
+        <field>After_Update__c</field>
+        <value xsi:type="xsd:string">Hospital_Admission</value>
+    </values>
+</CustomMetadata>

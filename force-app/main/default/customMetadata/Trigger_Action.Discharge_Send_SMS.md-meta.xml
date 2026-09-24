@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <label>Discharge - Send SMS</label>
+    <protected>false</protected>
+    <values>
+        <field>Apex_Class_Name__c</field>
+        <value xsi:type="xsd:string">DischargeSendSms</value>
+    </values>
+    <values>
+        <field>Bypass_Execution__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>Description__c</field>
+        <value xsi:type="xsd:string">Texts a patient discharged home when their region is in scope, then stamps Last_SMS_Sent_Date__c. Ported from flow Discharge_TF_Send_SMS v10. Two known flow defects reproduced deliberately; see the class.</value>
+    </values>
+    <values>
+        <field>Order__c</field>
+        <value xsi:type="xsd:double">30</value>
+    </values>
+    <values>
+        <field>After_Insert__c</field>
+        <value xsi:type="xsd:string">Admission_Discharge</value>
+    </values>
+</CustomMetadata>

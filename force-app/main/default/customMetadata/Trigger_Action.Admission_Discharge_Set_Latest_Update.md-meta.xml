@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <label>A/D Set Latest on Patient (Update)</label>
+    <protected>false</protected>
+    <values><field>Apex_Class_Name__c</field><value xsi:type="xsd:string">AdmissionDischargeSetLatest</value></values>
+    <values><field>Bypass_Execution__c</field><value xsi:type="xsd:boolean">false</value></values>
+    <values><field>Description__c</field><value xsi:type="xsd:string">Names the record and points Patient Latest Admission or Latest Discharge at it. Ported from flow Admission_Discharge_TF_On_Create_Set_Latest_A_D_on_Patient.</value></values>
+    <values><field>Order__c</field><value xsi:type="xsd:double">10</value></values>
+    <values><field>After_Update__c</field><value xsi:type="xsd:string">Admission_Discharge</value></values>
+</CustomMetadata>

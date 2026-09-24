@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <label>Visit Fill Patient Visit Dates (Insert)</label>
+    <protected>false</protected>
+    <values>
+        <field>Apex_Class_Name__c</field>
+        <value xsi:type="xsd:string">VisitFillPatientVisitDates</value>
+    </values>
+    <values>
+        <field>Bypass_Execution__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>Description__c</field>
+        <value xsi:type="xsd:string">Copies visit date, provider and not-seen timestamp onto the Patient. Ported from flow Visit_TF_On_Create_Visit_Fill_Visit_Date_Fields_on_Patient.</value>
+    </values>
+    <values>
+        <field>Order__c</field>
+        <value xsi:type="xsd:double">10</value>
+    </values>
+    <values>
+        <field>After_Insert__c</field>
+        <value xsi:type="xsd:string">Visit</value>
+    </values>
+</CustomMetadata>

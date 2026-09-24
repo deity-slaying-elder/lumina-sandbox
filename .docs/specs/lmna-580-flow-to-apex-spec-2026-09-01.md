@@ -15,7 +15,7 @@ Update this block at every phase transition. It is the single answer to "where a
 | 2. Reconcile dev to prod | not started | blocked on Chana on ~6 flows |
 | 3. Re-audit | not started | blocked on phase 2 |
 | 4. Trigger foundation | **partly done** 2026-09-02 | step 13 (bypass infra) shipped to lumDev. Steps 12/14/15/16/17 are Patient/ThoroughCare and stay blocked |
-| 5. Convert the 14 TCM flows | **3 of 14 done** 2026-09-02 | Facility_Mapper, Hospital_Admission, Visit(1 of 2) live in lumDev, flows deactivated, 21 tests green |
+| 5. Convert the 12 TCM flows | **12 of 12 done** 2026-09-02 | All twelve are Apex in lumDev, all twelve flows deactivated with versions retained, 93 tests green plus live in-org QA. Count corrected from 14: the two `_TC_` flows are ThoroughCare integration, not TCM |
 | 6. Deferred items | not started | separate tickets |
 
 ### Phase 1 findings (2026-09-02, measured)
@@ -26,6 +26,95 @@ Update this block at every phase transition. It is the single answer to "where a
 - **18 flows drift on version**, in both directions. Prod ahead on 16, dev ahead on 2.
 - 26 flows active in prod were absent from the repo entirely.
 - No dev-ahead work was overwritten by the prod retrieve.
+
+### Corrections to this spec, measured against both orgs 2026-09-02
+
+Four findings below were wrong. All four came from reading metadata only - flow bodies,
+field definitions, the DLRS rollup config - without querying a single record. Queries
+against lumProd overturned them.
+
+**Finding 4 was wrong. `Community_Episode__c` is live, not dormant.** 34,779 records in
+production, every one created in the last 90 days, newest created and modified the same
+afternoon this was checked. The original reasoning - no tab, no trigger, no Apex
+reference, no start or end date, no CPT field - was all true and all irrelevant. The
+object is flow-maintained, and the flows about to be converted are what maintain it. "Not
+referenced by code" was mistaken for "not used". Both Community Episode flows are
+converted rather than deactivated.
+
+**Finding 8 was wrong. The 48-hour counter is not dead.** `Count_of_Calls__c` is non-zero
+on 39,117 patients, 24,223 of them modified in the last seven days. The DLRS rollup named
+`Count_of_Calls` is genuinely inactive in production as well as dev, but it was never the
+writer. Two flows write the field: `Community_TF_On_Update_Status_Call_Outcome_Update_Patient`
+sets it and `Intake_Form_2_SF_Create_Form_2` increments it. The mistake was checking the
+rollup, finding it disabled, and stopping instead of grepping for the field.
+
+**There is no Patient / Community Episode write cycle.** Only one flow writes the episode
+copy of `Last_SMS_Sent_Date__c`, in one direction. Patient is the source of truth: 8,411
+patients carry the field against 393 episodes, five flows read or write the Patient field
+against one that touches the episode, and the formula driving the four-day SMS cadence,
+`Patient__c.X4_Days_After_Last_SMS__c`, reads the Patient field. Nothing reads the episode
+copy at all. The conversion is a one-way mirror and needs no ownership decision.
+
+**`Patient_TF_On_Update_Set_Community_Status_For_Discharge` does not create a task.** Its
+production body has two decisions and one `recordUpdates`, no `recordCreates` anywhere.
+`Call30Days` is a formula, `today() - Latest_Call_Outcome__c > 30`, not a record. The
+hardcoded `OwnerId` is set on the **patient**, not on a task, which makes this a patient
+reclaim mechanism: 30 days with no call outcome and the patient is taken from whoever held
+it, reset to `New` and handed to the administrator account. It fires constantly - 47,610
+patients all time, 1,767 in the last seven days. It is also `RecordBeforeSave` in
+production, so it starts no second save pass and is not a phase 4 dependency.
+
+### Version drift matters, and the repo is trustworthy while the version stamps are not
+
+All seven then-unconverted flow bodies in the repo are byte-identical to production's
+active version, verified by a fresh retrieve and diff. A `Flow` retrieve returns the
+active version body, so the repo can be read with confidence.
+
+The `activeVersionNumber` values in the repo's `flowDefinitions/` files are stale and
+disagree with production by up to three versions. They are separate metadata that the
+retrieve did not refresh. Read the flow body, never the version stamp.
+
+Three of the seven differ between production and dev, so conversions target production:
+
+| Flow | lumProd | lumDev |
+|---|---|---|
+| `Discharge_TF_Send_SMS` | has the `Type__c = "Discharge"` gate and correct parentheses | has neither |
+| `Patient_TF_On_Update_Update_Count_Within_48_Hours` | `RecordBeforeSave` | `RecordAfterSave` |
+| `Patient_TF_On_Update_Set_Community_Status_For_Discharge` | Active, before-save, stamps the timestamp | Obsolete, after-save, no timestamp |
+
+**One of the three `Discharge_TF_Send_SMS` defects does not exist in production.** The
+`dischargedHome` formula is correct there: `NOT(OR(funeral, nursing, hospice))` is a
+proper third argument to the outer `AND`. The broken version, with the `NOT` nested inside
+the `OR`, is dev only. That defect is withdrawn. The other two stand and are live in
+production: `textLast2Days` is inverted, and `Deleware` is misspelled.
+
+### Round robin assignment is deliberately dead, not broken
+
+Five independent measurements, so `TF_Patient_Discharge_Home_Assign_To_IC` is converted as
+what it does - setting the community status - and the assignment is not restored:
+
+- the public group its `RoundRobin__c` config names, `TCM IC's`, does not exist in production
+- `IndexOfLastUsed__c` has been frozen at 5 since 1 October 2024, and the class writes it
+  on every assignment under a `FOR UPDATE` lock
+- no flow anywhere calls the invocable, across all 64 flows including the prod retrieve
+- 248,333 of 335,205 patients are owned by the administrator account, and 30,020 of the
+  last 30 days' patients against roughly 1,258 spread over ten named staff
+- the flow retains only a vestigial `patientIds` variable matching
+  `RoundRobinAssignmentWithPublicGroup.RoundRobinRequest.patientIds`
+
+Assignment moved to being human-driven in `Intake_Form_2_SF_Create_Form_2`, which sets
+`OwnerId` to the running user and offers a screen picklist of active users on the Intake
+Coordinator and Intake Coordinator Manager profiles.
+
+### Two findings for Chana that are not LMNA-580 work
+
+- `Patient__c.Latest_Community_Episode__c` has **zero `FieldPermissions` records** in
+  production. No profile, no permission set, not System Administrator. Flows write it in
+  system mode so the value lands on all 34,779 episodes, but it is invisible to every
+  user, report, list view and SOQL query. Same trap as `Latest_Visit_Provider__c`.
+- `Patient__c.X4_Days_After_Last_SMS__c` uses `DATEVALUE()` on a Datetime, which converts
+  in GMT. For a US org that moves the day boundary by up to five hours, so the four-day
+  SMS gate fires a day early or late for evening timestamps.
 
 ### Phase 5 blocker found during conversion
 
@@ -40,6 +129,220 @@ from James.** Deployed there: `Trigger_Bypass__c` + 4 fields, `TriggerContext`, 
 handler and test for Facility_Mapper, Hospital_Admission and Visit. Three flows deactivated
 (activeVersionNumber 0), versions retained so rollback is a checkbox. Nothing committed to the
 repo yet, and lumProd is untouched.
+
+## Where the conversion actually stands, 2026-09-02
+
+All twelve TCM flows are Apex in lumDev. Every replaced flow is deactivated with its
+version retained, so rollback per flow is re-activating it and ticking the action's
+bypass. 93 tests green across the conversion and permission suites; full local run 609
+pass / 34 fail with every failure in five classes that were already failing before this
+work (`BulkFacilityCreatorControllerTest`, `BulkOpportunityCreatorControllerTest`,
+`PatientIntakeWorklistControllerTest`, `ThoroughCareEmailQueueableTest`,
+`FacilityTriggerHandlerTest` - the Patient one proved pre-existing by reverting
+`PatientTrigger` and re-running).
+
+lumDev was synced to production first: prod's `Discharge_TF_Send_SMS` v10 and
+`Patient_TF_On_Update_Set_Community_Status_For_Discharge` v9 were deployed into dev, so
+the conversions target what production actually runs.
+
+| Object | Action class | Flow replaced |
+|---|---|---|
+| `Facility_Mapper__c` | `FacilityMapperDeleteFalseLeaks` | `Facility_Mapper_TF_Delete_False_Leaked_Admissions` |
+| `Hospital_Admission__c` | `HospitalAdmissionFlagPriorDischarge` | `Hospital_Admissions_TF_On_C_U_Look_For_Prior_NH_Discharge_Home` |
+| `Visit__c` | `VisitFillPatientVisitDates` | `Visit_TF_On_Create_Visit_Fill_Visit_Date_Fields_on_Patient` |
+| `Visit__c` | `VisitSetLatestVisitProvider` | `Flow` (Visit - Fill Latest Visit Provider) |
+| `Admission_Discharge__c` | `AdmissionDischargeSetLatest` | `Admission_Discharge_TF_On_Create_Set_Latest_A_D_on_Patient` |
+| `Admission_Discharge__c` | `AdmissionDischargeCreateEpisode` | `Admission_Discharge_TF_On_Create_Create_Community_Episode` |
+| `Community_Episode__c` | `CommunityEpisodeSetLatestOnPatient` | `Community_Episode_TF_On_Create_Set_Latest_On_Patient` |
+| `Patient__c` | `PatientSyncLastSmsToEpisode` | `Patient_TF_On_Update_Last_SMS_Update_Latest_Episode` |
+| `Patient__c` | `PatientCountCallsWithin48Hours` | `Patient_TF_On_Update_Update_Count_Within_48_Hours` |
+| `Patient__c` | `PatientDischargeHomeSetStatusNew` | `TF_Patient_Discharge_Home_Assign_To_IC` |
+| `Patient__c` | `PatientSetStatusOnNewDischarge` | `Patient_TF_On_Update_Set_Community_Status_For_Discharge` (before update) |
+| `Admission_Discharge__c` | `DischargeSendSms` + `DischargeSendSmsQueueable` | `Discharge_TF_Send_SMS` |
+
+### The ticket's own failure is now a passing test
+
+`AdmissionDischargeCreateEpisodeTest.sixtyDischargesForOnePatientDoNotHitTheDuplicateLimit`
+inserts sixty discharges for one patient in a single save. Under the flow that threw
+`DUPLICATE_VALUE`, "Maximum number of duplicate updates in one batch (12 allowed)", and
+rolled the whole insert back, because the flow updated the patient once per record.
+Sixty is five times that ceiling. The Apex collapses the patient writes to one row and
+the insert succeeds.
+
+### System mode is a deliberate decision, tested, not an omission
+
+Record-triggered flows run in system context. The first cut of these actions used
+`with sharing`, `WITH USER_MODE` and `Security.stripInaccessible`, which silently drops
+automated writes for lower-privilege profiles - measured concretely: production profile
+"Lumina Manager No Edit Access" can create discharges but has no edit on Patient__c, and
+`Patient__c.Latest_Community_Episode__c` carries zero FieldPermissions for anyone, so
+stripInaccessible would discard that write for every user in the org, System
+Administrator included. A silently dropped TCM timestamp is a billing defect nobody
+sees. All twelve actions now run `without sharing` with plain SOQL and DML, each with
+the rationale in its header. `TcmAutomationPermissionsTest` runs the whole discharge
+cascade as a Minimum Access user and asserts every write lands, including the zero-FLS
+lookup - reintroduce user-mode enforcement anywhere and that class fails.
+
+User-facing controllers (`FacilityEditorController`, the worklist) keep user-mode
+enforcement; the system-mode call is for trigger automation only.
+
+### The SMS port
+
+`DischargeSendSms` decides synchronously in the trigger, exactly where the flow decided;
+`DischargeSendSmsQueueable` delivers, because Apex cannot call out from a trigger's
+transaction. The Twilio entry point is the same invocable the flow called,
+`TwilioSF.TwilioSendSMS.sendSMSToNumber(List<SmsDetail>)`, one detail per message. The
+stamp on `Last_SMS_Sent_Date__c` lands only after a send that did not throw, matching
+the flow's connector order, and a send failure is rethrown after stamping the successes
+so the job shows failed in Apex Jobs instead of vanishing into a debug log.
+
+**One intended behaviour change, needs sign-off: delivery is asynchronous.** The
+message goes out seconds after the save instead of during it. Everything else is
+byte-faithful, including two reproduced defects: the inverted recency gate (patients
+texted in the last three days get texted again; patients quiet for longer are skipped)
+and the `Deleware` misspelling.
+
+**The state-list defects are milder than first reported.** `Patient__c.Facility_State__c`
+is `TEXT(Facility__r.Address__StateCode__s)`, which only ever yields two-letter codes.
+Every spelled-out name in the flow's state lists - 'New Jersey', 'Maryland',
+'Pennsylvania', 'Illinois' and the misspelled 'Deleware' - is a branch that can never
+match. So the misspelling costs nothing today; the whole spelled-out tier is dead
+weight, preserved in the port for fidelity and worth deleting in both places once
+parity is confirmed.
+
+### The reclaim port
+
+`PatientSetStatusOnNewDischarge` is a before-update action, matching prod's
+`RecordBeforeSave`: in-place field writes, no DML, no recursion. The flow's entry
+criteria is IsChanged on a formula field, which Apex before-triggers cannot read
+freshly, so the new value is derived the way the formula derives it - `Census_Date__c`
+through the `Latest_Discharge__c` lookup, converted with `formatGmt` because DATEVALUE
+works in GMT - and compared against Trigger.old's committed formula value.
+
+### Live QA, run in the org on 2026-09-02, records created and deleted
+
+- Single discharge for a stale-contact patient: full cascade correct in one save -
+  status New, outcome cleared, owner reclaimed to the real production owner, timestamp,
+  `Latest_Discharge__c`, episode created and linked on the patient. SMS correctly not
+  sent for a non-home discharge. ThoroughCare triggers evaluated and correctly idle.
+- **Twenty discharges for one patient in a single insert succeeded.** That exact
+  operation is what threw `DUPLICATE_VALUE (12 allowed)` under the flows and rolled the
+  whole batch back - the failure LMNA-580 was raised for.
+- 48-hour counter increments live; the SMS mirror lands on the latest episode live.
+- Found while testing: `Latest_Community_Episode__c` was invisible to anonymous Apex in
+  lumDev too - the zero-FLS condition exists in both orgs. Admin-profile FLS was granted
+  in lumDev so the value can be verified; production needs the same grant, plus a
+  decision on which other profiles should see it.
+
+### Dead code removed and dead code flagged
+
+Deleted from repo and lumDev (orphaned by the conversion, recoverable from git):
+`FacilityMapperTriggerHandler`, `HospitalAdmissionTriggerHandler`, `VisitTriggerHandler`
+and their three test classes.
+
+Flagged, not removed, because they are phase 4 / phase 6 scope: `SendPatientIdToThoroughCare`
+(only caller is an Obsolete flow), `roundRobinAssigner` + `roundRobinTests` (only caller
+is the Obsolete Testing_Round_Robin flow), `RoundRobinAssignmentWithPublicGroup` +
+its test (no caller anywhere; the public group it needs no longer exists).
+
+### The CMDT insert blocker is solved - it was a 40-character limit all along
+
+Metadata deploys of new `Trigger_Action__mdt` / `sObject_Trigger_Setting__mdt` records
+failed for two days with `UNKNOWN_EXCEPTION` and a support ErrorId. The Apex Metadata
+API (`Metadata.Operations.enqueueDeployment`) surfaced the real error the deploy path
+was swallowing: **CustomMetadata record fullName and MasterLabel are capped at 40
+characters**, and several record names and labels exceeded it. Shortened the offenders
+(`Facility_Mapper_Delete_False_Leaks`, `Hospital_Admission_Flag_Prior_Insert/_Update`,
+plus several labels), inserted everything through the Apex Metadata API, and the org now
+holds all 16 `Trigger_Action__mdt`, 6 `sObject_Trigger_Setting__mdt` and 6
+`Trigger_Bypass__mdt` records.
+
+Two facts worth keeping: record inserts through the *metadata deploy* path still return
+the useless UNKNOWN_EXCEPTION in this org even for valid records, while the Apex path
+both works and reports real errors - use the Apex path (`scratchpad md_settings/`
+`md_actions` pattern) for prod too. And destructive deploys of CMDT records work fine.
+
+**All six triggers now run `new MetadataTriggerHandler().run();`** behind the
+`TriggerContext` incident lever. Per-action activate/deactivate from Setup - the
+flow-like switching the ticket asked for - is live and verified: 93 conversion and
+permission tests green through the framework, plus a live in-org cascade smoke test
+(created and deleted). Ticking Bypass Execution on an action record now genuinely
+switches that behaviour off, no deploy.
+
+### The reclaim owner is no longer hardcoded in two places
+
+`TcmSettings.reclaimOwnerId()` holds the single Id both flows hardcoded, resolves it
+against `User` and returns null when the user is absent or inactive. Callers treat null as
+"leave the owner alone", because the alternative is `INVALID_CROSS_REFERENCE_KEY` rolling
+back a save that includes the episode the patient needs. This should become a Custom
+Metadata setting; it is a constant only because of the insert blocker above.
+
+## Expansion, 2026-09-03: Chayim's "convert them all"
+
+Chayim approved converting the remaining Patient flows and the name-formatting flows.
+Fourteen flows collapse into ten actions, same pattern as the twelve TCM conversions.
+
+| Action | Contexts | Replaces |
+|---|---|---|
+| `PatientSetName` | BI, BU | `Patient_TF_On_Create_Update_Name`, `Patient_TF_On_Update_Update_Name`, `Patient_TF_On_Update_of_First_or_Last_Name_Update_Name` |
+| `CommunityProviderSetName` | BI, BU | `Community_Provider_TF_On_Create_Update_Name`, `Community_Provider_TF_On_Update_Update_Name` |
+| `ProviderSetName` | BI | `Provider_TF_On_Create_Create_Provider_Name` |
+| `PatientInsuranceSetName` | BI | `Patient_Insurance_TF_On_Create_Update_Name` |
+| `ReportUserFacilitySetName` | BI, BU | `Report_User_Facility_TF_on_C_U_Update_Name` |
+| `ReportUserRegionSetName` | BI, BU | `Report_User_Region_TF_On_C_U_Update_Name` |
+| `CommunityEpisodeSetName` | BI, BU | `Community_Episode_TF_On_C_U_Update_Name` |
+| `PatientSetConsentDatetime` | BU | `Patient_TF_On_Update_Of_Consent_Set_DateTime`, `Patient_TF_On_update_of_consent_status_update_consent_datetime` |
+| `PatientSetProgramsOnEligible` | BU | `Patient_TF_On_Update_To_Program_Eligible_Update_Based_on_Facility` |
+| `PatientSetStateOnClosedWon` | BU | `Patient_TF_On_Update_Community_Status_Closed_Won_Check_State` |
+
+New triggers: CommunityProvider, Provider, PatientInsurance, ReportUserFacility,
+ReportUserRegion. CommunityEpisodeTrigger gains before insert / before update.
+PatientTrigger already declares every needed context.
+
+### Expansion status: shipped to lumDev 2026-09-03
+
+Ten actions deployed, five new triggers (CommunityProvider, Provider, PatientInsurance,
+ReportUserFacility, ReportUserRegion), CommunityEpisodeTrigger extended with before
+contexts. Fifteen new Trigger_Action__mdt records, five settings and five bypass records
+inserted through the Apex Metadata API. All fourteen replaced flows deactivated,
+versions retained.
+
+Verified: 17 new tests green (RecordNamingTest, PatientLifecycleFieldsTest), full local
+run 627 pass / 34 fail with the failure set byte-identical to the pre-conversion
+baseline (the same five pre-existing classes), and a live in-org smoke of the naming,
+consent and provider paths, cleaned up after.
+
+Running totals: 26 flows converted into 22 Apex actions across 11 objects, all
+switchable per action from Setup. Still flows on purpose:
+`Patient_TF_On_Update_Community_Status_Update_Community_Status_Updated_Date_Time`
+(phase 4, ThoroughCare-load-bearing) and the scheduled messaging flows (not
+record-triggered; separate conversion shape).
+
+### Five judgement calls in this expansion
+
+1. **The duplicate Patient name pair becomes one truncating action.** The two update
+   flows had identical entry criteria; one truncated to 80 and one did not, so a long
+   name made one of them throw STRING_TOO_LONG with undefined ordering. The surviving
+   behaviour is LEFT 80, the version that cannot fail and the one the create flow
+   always used.
+2. **After-save self-writes become before-save.** The name and consent flows spent an
+   extra save pass each to write fields on their own record. Before-save removes that
+   pass, which also stops it re-firing the rest of the Patient automation - a real but
+   benign change, and the direction production already took with its own Patient
+   self-write flows.
+3. **The consent pair cannot actually collide.** One fires when Consent_Status__c is
+   cleared to blank (and stamps the datetime then - odd, but preserved); the other
+   fires when a first real non-Pending status arrives and no datetime exists. Mutually
+   exclusive entry criteria. Converted as one action with both branches, so the
+   ordering question is closed permanently either way.
+4. **`Patient_TF_On_Update_Community_Status_Update_Community_Status_Updated_Date_Time`
+   is NOT converted.** Its unconditional after-save self-update is the second save pass
+   the ThoroughCare community callout depends on (finding 6). It converts in phase 4,
+   after the characterization tests, or community patients silently stop reaching the
+   vendor.
+5. **The five messaging flows are not in this batch.** They are scheduled flows or
+   inactive in this sandbox - not record-triggered, so they cannot be trigger actions.
+   Scheduled Apex is a separate conversion shape and a separate piece of work.
 
 ## Context
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <label>Patient - Count Calls Within 48 Hours</label>
+    <protected>false</protected>
+    <values>
+        <field>Apex_Class_Name__c</field>
+        <value xsi:type="xsd:string">PatientCountCallsWithin48Hours</value>
+    </values>
+    <values>
+        <field>Bypass_Execution__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>Description__c</field>
+        <value xsi:type="xsd:string">Increments Count_of_Calls_Within_48_Hours__c when a new call lands inside the post-discharge window. TCM billing evidence. Ported from flow Patient_TF_On_Update_Update_Count_Within_48_Hours.</value>
+    </values>
+    <values>
+        <field>Order__c</field>
+        <value xsi:type="xsd:double">20</value>
+    </values>
+    <values>
+        <field>After_Update__c</field>
+        <value xsi:type="xsd:string">Patient</value>
+    </values>
+</CustomMetadata>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <label>Visit Set Latest Provider (Insert)</label>
+    <protected>false</protected>
+    <values><field>Apex_Class_Name__c</field><value xsi:type="xsd:string">VisitSetLatestVisitProvider</value></values>
+    <values><field>Bypass_Execution__c</field><value xsi:type="xsd:boolean">false</value></values>
+    <values><field>Description__c</field><value xsi:type="xsd:string">Stamps Patient Latest Visit Provider from the visit. Ported from the prod-only flow with ApiName Flow, Visit - TF - Fill Latest Visit Provider.</value></values>
+    <values><field>Order__c</field><value xsi:type="xsd:double">20</value></values>
+    <values><field>After_Insert__c</field><value xsi:type="xsd:string">Visit</value></values>
+</CustomMetadata>

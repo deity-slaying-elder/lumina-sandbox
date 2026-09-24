@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <label>Patient - Discharge Home Set Status New</label>
+    <protected>false</protected>
+    <values>
+        <field>Apex_Class_Name__c</field>
+        <value xsi:type="xsd:string">PatientDischargeHomeSetStatusNew</value>
+    </values>
+    <values>
+        <field>Bypass_Execution__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>Description__c</field>
+        <value xsi:type="xsd:string">Sets Community_Status__c to New when a patient discharged home has no status yet. Ported from flow TF_Patient_Discharge_Home_Assign_To_IC, which no longer assigns an Intake Coordinator.</value>
+    </values>
+    <values>
+        <field>Order__c</field>
+        <value xsi:type="xsd:double">30</value>
+    </values>
+    <values>
+        <field>After_Update__c</field>
+        <value xsi:type="xsd:string">Patient</value>
+    </values>
+</CustomMetadata>
