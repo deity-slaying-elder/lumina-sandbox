@@ -1,0 +1,15 @@
+- [Jira output rules](jira-output-rules.md) — draft for approval first; comment or description append; NEVER reference local file paths in Jira.
+- [Local HTML, never Artifacts](local-html-never-artifacts.md) — deliverables go to .docs/ and get opened locally; never call the Artifact tool.
+- [Docs live in the project, not ~/.claude](docs-live-in-project-not-claude-dir.md) — .docs/specs/<jira-key>-<topic>-YYYY-MM-DD.md, ticket key first, always.
+- [Plan mode trial started 2026-09-01](plan-mode-trial-started.md) — first genuine use; no baseline to compare against yet, don't read trends into it.
+- [Atlassian MCP is connected](atlassian-mcp-is-connected.md) — the "Rovo needs auth" warning does NOT mean Jira is down; just call the tool.
+- [Propela Jira project keys](propela-jira-project-keys.md) — key → client → local repo map, and the MDCAP/LMNA numbering tell.
+- [LMNA-580 conversion state](lmna-580-conversion-state.md) — 26 flows to 22 trigger actions, committed 9d28595 2026-09-24; CMDT "insert bug" was a 40-char name/label cap — insert records via Apex Metadata API, never metadata deploy.
+- [LMNA-581 link delivery state](lmna-581-link-delivery-state.md) — phase two live in lumDev 2026-09-15: Site gate page + 10-minute code, no public link; prod untouched; Sites must be registered in Setup or every page 503s; cron lock; prod checklist in spec.
+- [Brevity and autonomy](feedback-brevity-and-autonomy.md) — TLDR first; once a decision is made, build, don't re-brainstorm.
+- [Rehearse scripts in a sandbox first](rehearse-scripts-in-sandbox-first.md) — never hand over a prod script unrun; execute the whole sequence against lumDev first.
+- [lumDev is Partial Copy](lumdev-is-partial-copy.md) — SandboxInfo says PARTIAL; deploy gate applies; real prod data sampled, PHI risk in browser QA.
+- [LMNA-630 scheduling state](lmna-630-scheduling-state.md) — shipped to main 6cf762a; DLRS rollups; back-fill unverified; two prod data gaps make it inert.
+- [LMNA-630 demo video state](lmna-630-demo-video-state.md) — Remotion film, local Kokoro only until final; the kit's 30fps and setup-assets bugs.
+- [lumDev tree is shared](lumdev-tree-is-shared.md) — other sessions' checkouts move your HEAD; use a worktree; check origin/main..main before pushing.
+- [Skills need a hook to fire](skills-need-a-hook-to-fire.md) — check ~/.claude/skills at task start; I cannot install the router myself.
