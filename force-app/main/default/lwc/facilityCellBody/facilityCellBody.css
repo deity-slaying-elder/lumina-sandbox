@@ -1,0 +1,41 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Padding takes the link to a 24px target without moving the text, since the
+   negative margin hands the space back to the row. */
+.name {
+  display: inline-block;
+  align-self: flex-start;
+  padding-block: 0.25rem;
+  margin-block: -0.25rem;
+  font-weight: var(--slds-g-font-weight-6, 600);
+  color: var(--slds-g-color-accent-2, #0176d3);
+  text-decoration: none;
+}
+
+.name:hover,
+.name:focus-visible {
+  text-decoration: underline;
+}
+
+.name:focus-visible {
+  outline: none;
+  box-shadow: var(
+    --slds-g-shadow-outset-focus-1,
+    0 0 0 2px #ffffff,
+    0 0 0 4px #0b5cab
+  );
+  border-radius: var(--slds-g-radius-border-1, 0.125rem);
+}
+
+.sub {
+  margin-top: 0.125rem;
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

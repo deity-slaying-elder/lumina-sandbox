@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebLink xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Bulk_Update_Facilities</fullName>
+    <availability>online</availability>
+    <description>Open the Facility Bulk Updater to upload an Excel/CSV file and update multiple Facilities at once.</description>
+    <displayType>massActionButton</displayType>
+    <encodingKey>UTF-8</encodingKey>
+    <height>600</height>
+    <linkType>url</linkType>
+    <masterLabel>Bulk Update Facilities</masterLabel>
+    <openType>sidebar</openType>
+    <protected>false</protected>
+    <requireRowSelection>false</requireRowSelection>
+    <url>/lightning/n/Facility_Bulk_Updater</url>
+</WebLink>

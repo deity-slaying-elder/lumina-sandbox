@@ -1,0 +1,424 @@
+@import "c/uiTokens";
+@import "c/schedulingTokens";
+
+.booking {
+  min-height: 6rem;
+}
+
+/* ------------------------------------------------- field groups
+   The dialog asks three separate questions (where, when, who), so each is its own
+   fieldset rather than one long ungrouped column of inputs. */
+.group {
+  border: 0;
+  padding: 0;
+  margin: 0 0 var(--slds-g-spacing-4, 1rem);
+}
+
+.group + .group {
+  padding-top: var(--slds-g-spacing-4, 1rem);
+  border-top: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+}
+
+.group__legend {
+  display: block;
+  margin-bottom: var(--slds-g-spacing-2, 0.5rem);
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  font-weight: var(--slds-g-font-weight-7, 700);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+.group__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--slds-g-spacing-2, 0.5rem);
+  margin-bottom: var(--slds-g-spacing-2, 0.5rem);
+}
+
+.group__head .group__legend {
+  margin-bottom: 0;
+}
+
+/* ------------------------------------------------- chosen facility */
+.chosen {
+  display: flex;
+  align-items: center;
+  gap: var(--slds-g-spacing-2, 0.5rem);
+  min-height: 2.25rem;
+  padding: var(--slds-g-spacing-1, 0.25rem) var(--slds-g-spacing-2, 0.5rem);
+  border: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+  background: var(--slds-g-color-surface-container-2, #f3f3f3);
+}
+
+.chosen__icon {
+  flex: none;
+}
+
+.chosen__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: var(--slds-g-font-weight-6, 600);
+  color: var(--slds-g-color-on-surface-3, #181818);
+}
+
+/* ------------------------------------------------- hints */
+.hint {
+  margin-top: var(--slds-g-spacing-1, 0.25rem);
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  line-height: var(--slds-g-font-line-height-2, 1.25);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+.hint_error {
+  color: var(--slds-g-color-palette-red-30, #8e030f);
+  font-weight: var(--slds-g-font-weight-6, 600);
+}
+
+.slot {
+  display: block;
+  margin-bottom: var(--slds-g-spacing-1, 0.25rem);
+}
+
+/* ------------------------------------------------- facility results */
+.results {
+  max-height: 12rem;
+  overflow-y: auto;
+  margin-top: var(--slds-g-spacing-1, 0.25rem);
+  border: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+  background: var(--slds-g-color-surface-1, #ffffff);
+}
+
+.results__item {
+  display: block;
+  width: 100%;
+  min-height: 2rem;
+  text-align: left;
+  padding: var(--slds-g-spacing-2, 0.5rem) var(--slds-g-spacing-3, 0.75rem);
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--slds-g-color-on-surface-3, #181818);
+  cursor: pointer;
+  transition: background-color var(--app-motion-fast, 100ms)
+    var(--app-ease-out, ease);
+}
+
+.results__item:hover {
+  background: var(--slds-g-color-surface-container-2, #f3f3f3);
+}
+
+.results__item:focus-visible {
+  outline: none;
+  box-shadow: var(--slds-g-shadow-inset-focus-1, inset 0 0 0 2px #0b5cab);
+}
+
+/* ------------------------------------------------- eligibility checks */
+.checks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--slds-g-spacing-1, 0.25rem);
+}
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--slds-g-spacing-2, 0.5rem);
+  padding: var(--slds-g-spacing-1, 0.25rem) var(--slds-g-spacing-2, 0.5rem);
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  line-height: var(--slds-g-font-line-height-2, 1.25);
+}
+
+.check__icon {
+  margin-top: 0.125rem;
+  flex: none;
+  --slds-c-icon-color-foreground-default: currentColor;
+}
+
+.check__text {
+  min-width: 0;
+}
+
+.check_ok {
+  background: var(--slds-g-color-palette-green-95, #ebf7e6);
+  color: var(--slds-g-color-palette-green-30, #194e31);
+}
+
+.check_warning {
+  background: var(--slds-g-color-palette-yellow-95, #fbf3e0);
+  color: var(--slds-g-color-palette-yellow-30, #6f3400);
+}
+
+.check_blocked {
+  background: var(--slds-g-color-palette-red-95, #fef1ee);
+  color: var(--slds-g-color-palette-red-30, #8e030f);
+  font-weight: var(--slds-g-font-weight-6, 600);
+}
+
+/* ------------------------------------------------- inline failure notice */
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--slds-g-spacing-2, 0.5rem);
+  margin-bottom: var(--slds-g-spacing-4, 1rem);
+  padding: var(--slds-g-spacing-3, 0.75rem);
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+}
+
+.notice_error {
+  background: var(--slds-g-color-palette-red-95, #fef1ee);
+  color: var(--slds-g-color-palette-red-30, #8e030f);
+}
+
+.notice__icon {
+  flex: none;
+  margin-top: 0.0625rem;
+  --slds-c-icon-color-foreground-default: currentColor;
+}
+
+.notice__title {
+  font-weight: var(--slds-g-font-weight-7, 700);
+}
+
+.notice__body {
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+}
+
+/* ------------------------------------------------- footer */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--slds-g-spacing-4, 1rem);
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.footer__why {
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+  text-align: left;
+  min-width: 0;
+}
+
+.footer__actions {
+  flex: none;
+  margin-left: auto;
+}
+
+@media (max-width: 30em) {
+  .footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .footer__actions {
+    margin-left: 0;
+    text-align: right;
+  }
+}
+
+/* ------------------------------------------------- patient counts
+   Three figures the person booking reads before deciding how many providers to
+   send, so they sit beside the facility rather than behind a closed dialog. */
+.counts {
+  display: flex;
+  gap: var(--slds-g-spacing-2, 0.5rem);
+  margin: 0;
+}
+
+.counts__cell {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: var(--slds-g-spacing-2, 0.5rem);
+  border: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+  background: var(--slds-g-color-surface-container-2, #f3f3f3);
+  text-align: center;
+}
+
+.counts__label {
+  font-size: var(--slds-g-font-scale-neg-2, 0.625rem);
+  font-weight: var(--slds-g-font-weight-6, 600);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+.counts__value {
+  margin: 0;
+  font-size: var(--slds-g-font-scale-3, 1.125rem);
+  font-weight: var(--slds-g-font-weight-7, 700);
+  font-variant-numeric: tabular-nums;
+  color: var(--slds-g-color-on-surface-3, #181818);
+}
+
+/* ------------------------------------------------- programme checklist
+   Programmes the facility does not run stay on the list, disabled, with the
+   reason beside them. Hiding them would leave a coordinator wondering whether
+   the programme exists at all. */
+.programs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--slds-g-spacing-2, 0.5rem) var(--slds-g-spacing-4, 1rem);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.programs__item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* The reason a programme is unavailable sits beside it, never behind a count. */
+/* Dot and label travel together; only the reason is pushed to the far side. */
+
+.programs__reason {
+  /* Under the label, not beside it. Beside it, the reason took the width the
+     programme name needed and every long name wrapped one word per line. */
+  margin-left: 1.5rem;
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+/* ------------------------------------------------- step one */
+.pick {
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: var(--slds-g-spacing-6, 2rem) 0;
+}
+
+.pick__title {
+  margin: 0 0 var(--slds-g-spacing-3, 0.75rem);
+  font-size: var(--slds-g-font-scale-2, 1rem);
+  font-weight: var(--slds-g-font-weight-7, 700);
+  color: var(--slds-g-color-on-surface-3, #181818);
+  text-align: center;
+}
+
+.programs__reason {
+  font-size: var(--slds-g-font-scale-neg-2, 0.625rem);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+  white-space: nowrap;
+}
+
+/* ============================================================ v2 layout
+   Two columns. The facility, its numbers and the eligibility verdict stay
+   pinned on the left while the form is worked on the right. In v1 all of
+   that scrolled off the top as soon as you reached the provider pickers. */
+.layout {
+  display: grid;
+  grid-template-columns: 17rem 1fr;
+  gap: var(--slds-g-spacing-4, 1rem);
+  align-items: start;
+}
+
+.rail {
+  position: sticky;
+  top: 0;
+  padding: var(--slds-g-spacing-3, 0.75rem);
+  border: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+  background: var(--slds-g-color-surface-container-1, #fafaf9);
+}
+
+.rail__name {
+  margin: 0;
+  font-size: var(--slds-g-font-scale-1, 0.875rem);
+  font-weight: var(--slds-g-font-weight-7, 700);
+  color: var(--slds-g-color-on-surface-3, #181818);
+}
+
+.rail__sub {
+  margin: 0.125rem 0 0;
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+.rail__change {
+  margin-top: var(--slds-g-spacing-1, 0.25rem);
+}
+
+.rail__sec {
+  margin-top: var(--slds-g-spacing-3, 0.75rem);
+  padding-top: var(--slds-g-spacing-3, 0.75rem);
+  border-top: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+}
+
+.rail__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--slds-g-spacing-2, 0.5rem);
+  margin-bottom: var(--slds-g-spacing-2, 0.5rem);
+}
+
+.rail__label {
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  font-weight: var(--slds-g-font-weight-7, 700);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+.form {
+  min-width: 0;
+}
+
+/* The programme list is one compact block beside the rail. */
+.programs__box {
+  min-width: 0;
+}
+
+.programs__item /* Providers as chips you add and remove. */
+.people {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--slds-g-spacing-1, 0.25rem);
+  margin: var(--slds-g-spacing-2, 0.5rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.person {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--slds-g-spacing-1, 0.25rem);
+  min-height: 1.75rem;
+  padding: 0 0.125rem 0 var(--slds-g-spacing-2, 0.5rem);
+  border: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-1, #c9c9c9);
+  border-radius: var(--slds-g-radius-border-pill, 15rem);
+  background: var(--slds-g-color-surface-1, #ffffff);
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+}
+
+.person__name {
+  color: var(--slds-g-color-on-surface-3, #181818);
+}
+
+@media (max-width: 60em) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .rail {
+    position: static;
+  }
+}
+
+/* Motion comes from c/uiTokens, which already collapses these under reduced motion.
+   Restated here so the rule holds when this file is read on its own. */
+@media (prefers-reduced-motion: reduce) {
+  :host {
+    --app-motion-fast: 0.01ms;
+    --app-motion-base: 0.01ms;
+    --app-motion-panel: 0.01ms;
+  }
+}

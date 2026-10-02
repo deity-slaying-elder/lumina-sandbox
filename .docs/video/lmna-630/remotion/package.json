@@ -1,0 +1,22 @@
+{
+  "name": "lmna-630-demo-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio --no-open --port=3123"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.508",
+    "@remotion/media-utils": "4.0.508",
+    "@remotion/motion-blur": "4.0.508",
+    "@remotion/noise": "4.0.508",
+    "@remotion/paths": "4.0.508",
+    "@remotion/rough-notation": "4.0.508",
+    "@remotion/shapes": "4.0.508",
+    "@remotion/transitions": "4.0.508",
+    "@salesforce-ux/design-system": "2.264.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "remotion": "4.0.508"
+  }
+}

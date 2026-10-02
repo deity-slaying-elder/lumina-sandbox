@@ -1,0 +1,44 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--slds-g-spacing-1, 0.25rem);
+  max-width: 12.5rem;
+  padding: 0.125rem var(--slds-g-spacing-2, 0.5rem);
+  border-radius: var(--slds-g-radius-border-pill, 15rem);
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  font-weight: var(--slds-g-font-weight-6, 600);
+  line-height: var(--slds-g-font-line-height-2, 1.25);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.chip__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chip__icon {
+  /* lightning-icon exposes no other colour seam, so this is the one place
+       a --slds-c hook is used instead of a --slds-g hook. */
+  --slds-c-icon-color-foreground-default: currentColor;
+  flex-shrink: 0;
+}
+.chip_success {
+  background: var(--slds-g-color-palette-green-95, #ebf7e6);
+  color: var(--slds-g-color-palette-green-30, #194e31);
+}
+.chip_warning {
+  background: var(--slds-g-color-palette-yellow-95, #fbf3e0);
+  color: var(--slds-g-color-palette-yellow-30, #6f3400);
+}
+.chip_error {
+  background: var(--slds-g-color-palette-red-95, #fef1ee);
+  color: var(--slds-g-color-palette-red-30, #8e030f);
+}
+.chip_info {
+  background: var(--slds-g-color-palette-blue-95, #eef4ff);
+  color: var(--slds-g-color-palette-blue-30, #014486);
+}
+.chip_neutral {
+  background: var(--slds-g-color-palette-neutral-95, #f3f3f3);
+  color: var(--slds-g-color-palette-neutral-30, #444444);
+  box-shadow: inset 0 0 0 1px var(--slds-g-color-border-1, #c9c9c9);
+}

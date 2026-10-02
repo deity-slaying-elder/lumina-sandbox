@@ -3,6 +3,7 @@
     <fullName>COCM__c</fullName>
     <defaultValue>false</defaultValue>
     <label>COCM</label>
+    <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

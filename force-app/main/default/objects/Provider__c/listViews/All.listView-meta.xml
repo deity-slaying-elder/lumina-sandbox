@@ -8,10 +8,5 @@
     <columns>Gehrimed_Name__c</columns>
     <columns>CREATED_DATE</columns>
     <filterScope>Everything</filterScope>
-    <filters>
-        <field>Last_Name__c</field>
-        <operation>equals</operation>
-        <value>Oliver</value>
-    </filters>
     <label>All</label>
 </ListView>

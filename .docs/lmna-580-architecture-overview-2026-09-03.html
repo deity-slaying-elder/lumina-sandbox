@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LMNA-580 Architecture</title>
+<style>
+  :root{
+    --ink:#1a2332; --muted:#5b6b80; --paper:#f7f8fa; --card:#ffffff;
+    --line:#d8dee8; --accent:#0c263b; --brand-yellow:#f5fd7e; --good:#0a7d4f; --bad:#b3261e; --warn:#9a6700;
+    --mono:'SF Mono',ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 -apple-system,'Segoe UI',Roboto,sans-serif;padding:0 0 80px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+  header{border-bottom:1px solid var(--line);background:var(--card);padding:34px 0 26px;margin-bottom:36px}
+  .kicker{font:600 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+  h1{margin:0 0 8px;font-size:30px;letter-spacing:-.02em}
+  .sub{color:var(--muted);margin:0;max-width:70ch}
+  h2{font-size:20px;margin:44px 0 6px;letter-spacing:-.01em}
+  h2 .n{color:var(--accent);font:600 14px var(--mono);margin-right:10px}
+  .lede{color:var(--muted);margin:0 0 18px;max-width:78ch}
+  .statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:22px 0 4px}
+  .stat{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--brand-yellow);border-radius:10px;padding:14px 16px}
+  .stat b{display:block;font-size:24px;letter-spacing:-.02em}
+  .stat span{font-size:12.5px;color:var(--muted)}
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch}
+  @media(max-width:860px){.duo{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;position:relative}
+  .panel h3{margin:0 0 4px;font-size:15px}
+  .panel .tag{position:absolute;top:-11px;left:16px;font:700 11px/1 var(--mono);letter-spacing:.1em;padding:5px 10px;border-radius:99px;color:#fff}
+  .tag.before{background:var(--bad)} .tag.after{background:var(--good)}
+  .flowbox{border:1.5px solid var(--line);border-radius:8px;padding:9px 12px;margin:8px 0;background:#fbfcfe;font-size:13.5px}
+  .flowbox b{font-family:var(--mono);font-size:12.5px}
+  .flowbox.sys{border-color:var(--accent);background:#eef3f8}
+  .flowbox.dead{border-style:dashed;color:var(--muted)}
+  .arrow{color:var(--muted);text-align:center;font-size:13px;margin:2px 0}
+  .note{font-size:12.5px;color:var(--muted);border-left:3px solid var(--line);padding:2px 0 2px 10px;margin:10px 0}
+  .note.bad{border-color:var(--bad);color:#8c2f2a}
+  .note.good{border-color:var(--good);color:#0a5c3d}
+  .callout{display:flex;gap:10px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:13px 16px;margin:10px 0;font-size:14px}
+  .callout .num{font:700 13px var(--mono);color:var(--accent);flex:none}
+  .lane{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:14px 0}
+  .lane h4{margin:0 0 10px;font-size:13px;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{border:1px solid var(--line);background:#fbfcfe;border-radius:7px;padding:6px 10px;font:12.5px var(--mono)}
+  .chip small{display:block;font:11px -apple-system,sans-serif;color:var(--muted)}
+  .chip.off{border-style:dashed;color:var(--muted);text-decoration:line-through}
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:13.5px}
+  th{font:600 11.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);background:#fbfcfe}
+  td{padding:9px 14px;border-bottom:1px solid #eef1f6;vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  .ok{color:var(--good);font-weight:600} .no{color:var(--bad);font-weight:600} .wa{color:var(--warn);font-weight:600}
+  .switchrow{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px}
+  .switch{flex:1;min-width:230px;border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--card)}
+  .switch b{font-size:13.5px} .switch p{font-size:12.5px;color:var(--muted);margin:6px 0 0}
+  .pill{display:inline-block;font:600 10.5px var(--mono);letter-spacing:.08em;border-radius:99px;padding:3px 9px;margin-left:6px;vertical-align:1px}
+  .pill.live{background:#e2f3ea;color:var(--good)} .pill.deploy{background:#fdf1d7;color:var(--warn)}
+  .inv td{font-size:12.5px}
+  .flowname{font:11.5px var(--mono);color:var(--muted);word-break:break-word}
+  .par{display:inline-block;font:700 9.5px var(--mono);letter-spacing:.08em;border-radius:99px;padding:3px 8px}
+  .par.same{background:#e2f3ea;color:var(--good)} .par.delta{background:#fdf1d7;color:var(--warn)}
+  .parnote{font-size:11.5px;color:var(--muted);margin-top:4px}
+  /* ---- interactive switchboard ---- */
+  .board{background:#0c263b;border-radius:14px;padding:24px 24px 20px;margin:22px 0}
+  .board h4{margin:0 0 4px;font:700 11px var(--mono);letter-spacing:.18em;color:var(--brand-yellow)}
+  .board .bh{color:#9fb0c2;font-size:12.5px;margin:0 0 16px;max-width:90ch}
+  .board .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+  .btn{border:0;border-radius:8px;padding:10px 16px;font:700 12.5px -apple-system,sans-serif;cursor:pointer}
+  .btn.run{background:var(--brand-yellow);color:#0c263b}
+  .btn.run:disabled{opacity:.45;cursor:default}
+  .btn.reset{background:#26476a;color:#cdd8e4}
+  .kswitch{display:flex;align-items:center;gap:8px;margin-left:auto;color:#cdd8e4;font-size:12.5px;cursor:pointer;user-select:none}
+  .kswitch .kdot{width:34px;height:19px;border-radius:99px;background:#26476a;position:relative;transition:.2s}
+  .kswitch .kdot::after{content:'';position:absolute;top:2.5px;left:3px;width:14px;height:14px;border-radius:99px;background:#9fb0c2;transition:.2s}
+  .kswitch.on .kdot{background:var(--bad)} .kswitch.on .kdot::after{left:17px;background:#fff}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:10px}
+  .ocard{background:#132f49;border:1px solid #26476a;border-radius:10px;padding:11px 12px;transition:border-color .25s, box-shadow .25s}
+  .ocard.hot{border-color:var(--brand-yellow);box-shadow:0 0 0 2px rgba(245,253,126,.22)}
+  .ocard.dead{opacity:.35}
+  .ocard h5{margin:0 0 1px;font:700 12.5px -apple-system,sans-serif;color:#fff}
+  .ocard .oname{font:10px var(--mono);color:#7e91a7;margin:0 0 8px;word-break:break-all}
+  .act{display:flex;align-items:center;gap:7px;background:#0e2438;border:1px solid #1f3d5c;border-radius:7px;padding:5px 8px;margin:4px 0;cursor:pointer;transition:.2s;user-select:none}
+  .act .sw{flex:none;width:24px;height:14px;border-radius:99px;background:var(--good);position:relative;transition:.2s}
+  .act .sw::after{content:'';position:absolute;top:2px;left:12px;width:10px;height:10px;border-radius:99px;background:#fff;transition:.2s}
+  .act.off .sw{background:#3a4a5d}.act.off .sw::after{left:2px}
+  .act .an{font:11px var(--mono);color:#cdd8e4;line-height:1.3;word-break:break-word}
+  .act .ao{font:9.5px var(--mono);color:#68embedded}
+  .act .ao{font:9.5px var(--mono);color:#6883a1}
+  .act.off .an{color:#5f7086;text-decoration:line-through}
+  .act.firing{border-color:var(--brand-yellow);background:#233d1c00;box-shadow:0 0 0 1.5px rgba(245,253,126,.5)}
+  .act.skipped{border-color:var(--bad);box-shadow:0 0 0 1.5px rgba(179,38,30,.45)}
+  .feed{background:#08192b;border:1px solid #1f3d5c;border-radius:10px;margin-top:14px;padding:12px 14px;min-height:64px;max-height:260px;overflow-y:auto}
+  .feed .fl{font:11.5px var(--mono);color:#cdd8e4;padding:3px 0;border-bottom:1px dashed #17324c;opacity:0;transform:translateY(4px);animation:feedIn .3s forwards}
+  .feed .fl:last-child{border-bottom:0}
+  .feed .fl.write{color:#8fe3b8} .feed .fl.skip{color:#ff9d96} .feed .fl.sys{color:var(--brand-yellow)}
+  @keyframes feedIn{to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.feed .fl{animation:none;opacity:1;transform:none}}
+  /* ---- node diagram ---- */
+  .dia{position:relative;background:#0a2136;border:1px solid #1f3d5c;border-radius:12px;margin-top:6px;overflow-x:auto}
+  .diaInner{position:relative;min-width:980px;height:560px}
+  svg.wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .wire{fill:none;stroke:#2a4a6e;stroke-width:1.6}
+  .wire.hotwire{stroke:var(--brand-yellow);stroke-width:2.2;filter:drop-shadow(0 0 4px rgba(245,253,126,.6))}
+  .wire.deadwire{stroke:#41332f;stroke-dasharray:4 5}
+  .pulse{fill:var(--brand-yellow);filter:drop-shadow(0 0 6px rgba(245,253,126,.9))}
+  .node{position:absolute;background:#132f49;border:1.5px solid #26476a;border-radius:9px;padding:8px 10px;width:172px;transition:border-color .2s, box-shadow .2s, opacity .2s}
+  .node h6{margin:0;font:700 11px -apple-system,sans-serif;color:#fff}
+  .node .nsub{font:9.5px var(--mono);color:#7e91a7;word-break:break-word;line-height:1.35;display:block;margin-top:2px}
+  .node.toggleable{cursor:pointer}
+  .node .nsw{position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:99px;background:var(--good);color:#fff;font:800 11px/22px var(--mono);text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+  .node.off{opacity:.5;border-style:dashed}
+  .node.off .nsw{background:#3a4a5d}
+  .node.off h6{text-decoration:line-through;color:#8b9bad}
+  .node.firing{border-color:var(--brand-yellow);box-shadow:0 0 0 2px rgba(245,253,126,.35)}
+  .node.skippedN{border-color:var(--bad);box-shadow:0 0 0 2px rgba(179,38,30,.4)}
+  .node.gate{background:#3b1d1b00;background:#132f49}
+  .reccard{position:absolute;background:#0e2438;border:1.5px solid #2a4a6e;border-radius:10px;padding:9px 11px;width:212px}
+  .reccard h6{margin:0 0 5px;font:700 11px -apple-system,sans-serif;color:var(--brand-yellow)}
+  .reccard .fld{font:10px var(--mono);color:#9fb0c2;padding:3px 0;border-bottom:1px dashed #1c3a57}
+  .reccard .fld>span:first-child{display:block;font-size:9px;letter-spacing:.04em;color:#6883a1}
+  .reccard .fld:last-child{border-bottom:0}
+  .reccard .fv{display:block;color:#e8edf5;text-align:left;font-size:10.5px;overflow-wrap:break-word;word-break:normal;line-height:1.35}
+  .reccard .fv.changed{color:#8fe3b8;animation:fvFlash 1.2s}
+  @keyframes fvFlash{0%{background:rgba(143,227,184,.35)}100%{background:transparent}}
+  .reccard.ghost{opacity:.35;border-style:dashed}
+  .reccard.hot{border-color:var(--brand-yellow);box-shadow:0 0 0 2px rgba(245,253,126,.3)}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11px;color:#9fb0c2}
+  .legend b{color:#cdd8e4;font-weight:600}
+
+  .board{border-radius:0;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);
+    padding:30px max(28px,calc(50vw - 760px)) 26px}
+  .boardgrid{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(max-width:1100px){.boardgrid{grid-template-columns:1fr}}
+  .term{background:#050f1a;border:1px solid #1f3d5c;border-radius:10px;display:flex;flex-direction:column;height:230px}
+  .term .tbar{display:flex;gap:6px;padding:9px 12px;border-bottom:1px solid #16324d}
+  .term .tbar i{width:10px;height:10px;border-radius:99px;background:#26476a;display:inline-block}
+  .term .tbar i:first-child{background:#b3261e}.term .tbar i:nth-child(2){background:#9a6700}.term .tbar i:nth-child(3){background:#0a7d4f}
+  .term .tbar span{margin-left:8px;font:10.5px var(--mono);color:#6883a1;letter-spacing:.08em}
+  .feed{flex:1;background:transparent;border:0;border-radius:0;margin:0;padding:10px 12px;min-height:0;max-height:none;overflow-y:auto}
+  .feed .fl{border-bottom:0;padding:2.5px 0}
+  .feed .fl::before{content:'$ ';color:#3d5f84}
+  .feed .fl.write::before{content:'Δ ';color:#8fe3b8}
+  .feed .fl.skip::before{content:'✕ ';color:#ff9d96}
+  .feed .fl.sys::before{content:'» ';color:var(--brand-yellow)}
+  .diffpop{position:absolute;z-index:9;background:#050f1a;border:1px solid var(--brand-yellow);border-radius:9px;
+    padding:8px 26px 8px 11px;width:250px;box-shadow:0 10px 30px rgba(0,0,0,.55);animation:popIn .18s ease-out;cursor:pointer}
+  .diffpop .dx{position:absolute;top:5px;right:8px;font:700 11px var(--mono);color:#6883a1}
+  .diffpop:hover .dx{color:#fff}
+  .diffpop h6{margin:0 0 5px;font:700 10px var(--mono);letter-spacing:.1em;color:var(--brand-yellow)}
+  .diffpop .dr{display:flex;flex-direction:column;font:10.5px var(--mono);padding:2.5px 0;border-bottom:1px dashed #17324c}
+  .diffpop .dr:last-child{border-bottom:0}
+  .diffpop .dr .df{color:#9fb0c2}
+  .diffpop .dr .dv{color:#cdd8e4}
+  .diffpop .dr .dv b{color:#ff9d96;font-weight:400;text-decoration:line-through}
+  .diffpop .dr .dv em{color:#8fe3b8;font-style:normal;font-weight:700}
+  @keyframes popIn{from{opacity:0;transform:translateY(6px) scale(.96)}to{opacity:1}}
+  .diffpop.fade{opacity:0;transition:opacity .5s}
+  .difflog{display:flex;gap:8px;flex-wrap:wrap;background:#08192b;border:1px solid #1f3d5c;border-radius:10px;padding:10px 12px;margin-top:10px;min-height:44px}
+  .difflog .dl-empty{font:11px var(--mono);color:#3d5f84;align-self:center}
+  .dchip{font:10.5px var(--mono);background:#0e2438;border:1px solid #1f3d5c;border-radius:7px;padding:5px 9px;color:#cdd8e4;animation:popIn .25s}
+  .dchip b{color:#ff9d96;font-weight:400;text-decoration:line-through}
+  .dchip em{color:#8fe3b8;font-style:normal;font-weight:700}
+  .dchip .dobj{color:var(--brand-yellow)}
+
+  .finale{position:absolute;z-index:20;left:50%;top:46%;transform:translate(-50%,-50%) scale(.9);
+    background:#050f1a;border:2px solid var(--brand-yellow);border-radius:14px;padding:22px 28px;width:340px;
+    box-shadow:0 24px 80px rgba(0,0,0,.7);opacity:0;transition:.35s cubic-bezier(.2,1.4,.4,1);cursor:pointer}
+  .finale.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  .finale h5{margin:0 0 2px;font:800 15px -apple-system,sans-serif;color:#fff;letter-spacing:.02em}
+  .finale .fsub{font:10.5px var(--mono);color:var(--brand-yellow);letter-spacing:.14em;margin:0 0 12px}
+  .finale .fstat{display:flex;justify-content:space-between;font:11.5px var(--mono);color:#9fb0c2;padding:4px 0;border-bottom:1px dashed #17324c}
+  .finale .fstat b{color:#8fe3b8;font-weight:700}
+  .finale .fstat b.warn{color:#ff9d96}
+  .finale .fhint{font:10px var(--mono);color:#3d5f84;margin:10px 0 0;text-align:center}
+
+  footer{margin-top:56px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padding-top:16px}
+  .bluf{background:#0c263b;color:#e8edf5;border-radius:14px;padding:22px 26px;margin:26px 0 8px}
+  .bluf .b-tag{font:800 11px var(--mono);letter-spacing:.2em;color:var(--brand-yellow);margin:0 0 8px}
+  .bluf p{margin:0;font-size:16.5px;line-height:1.5;font-weight:600;letter-spacing:-.01em}
+  .bluf ul{margin:12px 0 0;padding-left:18px;font-size:13.5px;color:#b9c4d4;font-weight:400}
+  .bluf li{margin:3px 0}
+  .bg{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin:14px 0 0;font-size:13.5px}
+  .bg dt{font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+  .bg dd{margin:0}
+</style>
+</head>
+<body>
+<div style="background:#0c263b;padding:14px 0;border-bottom:3px solid #f5fd7e">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between">
+    <div style="width:150px"><svg style="width:100%;height:auto;display:block" id="Layer_2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 530 128"><defs><clipPath id="clippath"><rect width="530" height="128" style="fill:none;"/></clipPath></defs><g id="Components"><g id="ac1c3380-4e8f-46d9-90f9-4d4e248a946c_7"><g style="clip-path:url(#clippath);"><path d="M98.3266,77.5319c-15.3952,25.3151-45.3348,38.9091-66.8476,30.3621-8.9535-3.582-15.0711-10.4193-18.0286-19.0069,1.7421,1.1802,3.6868,2.1977,5.753,3.0117,20.743,8.2622,49.7103-5.0874,64.7408-29.792,9.7233-15.9949,11.1818-32.8446,5.3884-44.973,19.7304,9.483,23.9034,35.9377,9.0345,60.3981h-.0405Z" style="fill:#f5fd7e;"/><path d="M89.2924,17.134c-.6888-.3256-1.3775-.6512-2.1067-.936-21.5533-8.5469-51.4929,5.006-66.8881,30.3618-8.9536,14.7739-11.0198,30.2804-6.8469,42.3275-15.7598-10.5819-18.1501-34.4318-4.659-56.6537C23.8223,7.529,52.7895-5.8205,73.5325,2.4415c7.2925,2.8897,12.5998,8.0992,15.7599,14.6925Z" style="fill:#f5fd7e;"/><path d="M189.644,12.2916c-5.105-2.1571-11.02-3.256-17.745-3.256h-30.183v.5291c1.661,2.1164,2.796,4.6805,3.363,7.6922.567,3.0118.851,7.0818.851,12.2099v51.4442c0,5.1281-.284,9.1981-.851,12.1692-.567,2.971-1.702,5.5758-3.363,7.7738v.529h22.121v-.529c-1.864-2.198-3.12-4.8435-3.849-7.8552-.689-3.0118-1.053-7.0411-1.053-12.0878v-17.0124h12.964c6.685,0,12.6-1.1396,17.745-3.3781,5.105-2.2791,9.075-5.4537,11.911-9.6458,2.836-4.1513,4.254-9.0352,4.254-14.6111s-1.418-10.5412-4.254-14.6111c-2.836-4.07-6.806-7.2038-11.911-9.3609ZM186.119,50.305c-3.93,3.0524-9.561,4.599-16.853,4.599h-10.331V17.9488h10.331c7.333,0,12.964,1.4652,16.853,4.4363,3.93,2.9711,5.875,7.6108,5.875,13.8785s-1.945,10.9482-5.875,14.0414Z" style="fill:#fff;"/><path d="M249.078,37.3616c-1.945-.3663-3.565-.5291-4.902-.5291-4.416,0-8.143,1.3838-11.182,4.1921-3.038,2.8082-5.388,7.1224-7.09,12.9424h-.648v-15.9542h-.405l-15.071,1.5873v.814c1.215,1.6687,2.106,3.5815,2.593,5.7386.486,2.1571.729,5.0874.729,8.9132v30.9723c0,3.9886-.162,7.0411-.527,9.1167-.364,2.0757-1.134,4.0293-2.39,5.7791v.529h18.393v-.529c-1.418-1.7905-2.309-3.6627-2.714-5.6977-.405-2.0349-.608-5.0874-.608-9.1574v-12.0877c0-5.4131.851-9.9714,2.593-13.7565,1.701-3.7443,4.011-6.5933,6.887-8.4248,2.877-1.8721,5.915-2.8082,9.197-2.8082,2.025,0,3.768.2035,5.145.6512v-12.2913Z" style="fill:#fff;"/><path d="M296.317,40.9845c-4.78-2.8082-10.088-4.192-16.003-4.192s-11.384,1.4245-16.205,4.2734c-4.821,2.849-8.589,6.7561-11.303,11.7622-2.715,5.006-4.092,10.6633-4.092,16.931s1.377,12.0878,4.092,17.1345c2.714,5.0467,6.522,8.9946,11.303,11.8436,4.821,2.8488,10.209,4.2328,16.205,4.2328s11.263-1.425,16.003-4.2328c4.74-2.8083,8.508-6.7969,11.263-11.8436,2.714-5.0467,4.092-10.7854,4.092-17.1345s-1.378-12.0878-4.092-17.0938c-2.755-5.006-6.482-8.9132-11.263-11.6808ZM296.155,82.7422c-1.499,3.663-3.606,6.4713-6.361,8.4248-2.754,1.9536-5.914,2.9304-9.52,2.9304-3.809,0-7.05-.9768-9.805-2.9711-2.754-1.9942-4.861-4.8025-6.36-8.4248-1.499-3.6222-2.269-7.9364-2.269-12.9017s.77-9.1167,2.269-12.7797c1.499-3.6222,3.646-6.4305,6.401-8.3841,2.795-1.9535,6.037-2.9303,9.723-2.9303s6.807.9768,9.521,2.9303c2.714,1.9536,4.862,4.7212,6.361,8.3027,1.499,3.5816,2.268,7.855,2.268,12.8204s-.769,9.2795-2.268,12.9831h.04Z" style="fill:#fff;"/><path d="M364.467,40.781c-4.092-2.6454-8.629-3.9885-13.572-3.9885-4.335,0-8.103.9361-11.384,2.8489-3.282,1.9129-6.037,4.6398-8.346,8.1807h-.527v-9.8493h-.405l-15.233,1.5872v.814c1.337,1.6687,2.188,3.5816,2.633,5.6573.446,2.0756.649,5.0467.649,8.8318v57.7119c0,4.07-.162,7.122-.527,9.117-.365,1.994-1.094,3.907-2.269,5.779v.529h18.11v-.529c-1.256-1.872-2.066-3.826-2.431-5.861-.405-2.035-.608-5.046-.608-9.035v-17.8264h.527c1.945,2.6455,4.456,4.6804,7.616,6.1054,3.12,1.424,6.402,2.116,9.845,2.116,5.308,0,10.169-1.384,14.626-4.1921,4.456-2.8083,8.021-6.7969,10.655-11.9657,2.633-5.1688,3.97-11.1517,3.97-17.8671,0-6.3898-1.215-12.0064-3.646-16.8903-2.431-4.8839-5.672-8.6283-9.804-11.3145l.121.0407ZM363.009,83.0678c-1.54,3.7444-3.687,6.5934-6.401,8.6283-2.755,2.035-5.915,3.0525-9.521,3.0525-3.363,0-6.28-.8547-8.751-2.5234-2.471-1.6687-4.376-4.1513-5.672-7.3666-1.297-3.2152-1.985-7.1631-1.985-11.7622v-7.3259c0-3.7443.729-7.041,2.269-9.9713,1.499-2.9304,3.524-5.2096,6.077-6.919,2.552-1.6686,5.388-2.5233,8.467-2.5233,5.469,0,9.804,2.157,13.045,6.5119,3.201,4.3548,4.822,10.1342,4.822,17.4194,0,4.8025-.77,9.0353-2.31,12.7796h-.04Z" style="fill:#fff;"/><path d="M427.142,91.1672c-2.917.9768-6.077,1.4652-9.521,1.4652-4.578,0-8.629-.9768-12.113-2.9711-3.485-1.9943-6.158-4.9246-8.063-8.8318-1.701-3.5002-2.592-7.7329-2.755-12.6168h42.013v-5.0468c0-5.5758-1.053-10.3377-3.16-14.2855-2.107-3.9479-5.064-6.9189-8.872-8.9539-3.809-2.035-8.103-3.0525-12.965-3.0525-5.55,0-10.574,1.4245-15.03,4.2735-4.457,2.8489-7.941,6.7561-10.453,11.6807-2.512,4.9654-3.768,10.5412-3.768,16.7682,0,6.6341,1.378,12.5355,4.173,17.6229,2.796,5.0875,6.604,9.0353,11.506,11.7622,4.902,2.7265,10.331,4.1105,16.327,4.1105,4.578,0,8.792-.814,12.559-2.442,3.809-1.6278,7.293-4.1105,10.453-7.3664l-1.459-6.512c-2.998,2.035-5.955,3.5409-8.872,4.5177v-.1221ZM402.064,47.4966c2.431-1.7094,5.348-2.6048,8.791-2.6048,2.998,0,5.591.814,7.739,2.4013,2.147,1.5873,3.767,3.8665,4.78,6.8375.648,1.8722.932,3.9479,1.013,6.1863h-29.291c.324-1.9128.81-3.7036,1.418-5.3316,1.296-3.2967,3.119-5.7793,5.55-7.5294v.0407Z" style="fill:#fff;"/><path d="M459.309,85.713V6.6338h-.405l-15.071,1.5873v.814c1.337,1.8721,2.188,3.6629,2.633,5.4537.446,1.7908.649,4.599.649,8.5062v62.7586c0,4.07-.162,7.1632-.527,9.3202-.365,2.1164-1.134,4.07-2.39,5.8612v.529h17.866v-.529c-1.134-1.7912-1.904-3.7041-2.269-5.8612-.364-2.1163-.526-5.2502-.526-9.3202l.04-.0406Z" style="fill:#fff;"/><path d="M526.116,93.5676c-1.499.6105-2.876.9361-4.092.9361-1.499,0-2.633-.4477-3.443-1.343-.811-.8954-1.175-2.3199-1.175-4.2328v-28.3269c0-5.3316-1.013-9.7678-3.039-13.3494-2.026-3.5816-4.78-6.227-8.265-7.8957-3.484-1.6687-7.495-2.5234-11.992-2.5234-4.254,0-8.346.814-12.356,2.4013-4.011,1.5873-7.617,3.785-10.777,6.5119l1.337,6.7968c6.442-4.0699,12.64-6.1049,18.677-6.1049,4.335,0,7.819,1.1396,10.452,3.3781,2.634,2.2384,3.971,5.7386,3.971,10.419v4.07l-13.248,3.5002c-7.495,1.9535-13.208,4.3955-17.057,7.3259-3.889,2.9303-5.834,6.9189-5.834,11.9656,0,4.5991,1.621,8.4248,4.903,11.4366,3.281,3.012,7.292,4.518,12.032,4.518,3.808,0,7.293-.896,10.453-2.727,3.16-1.8317,5.955-4.5993,8.345-8.3029h.527v.2849c.162,3.1745,1.378,5.7793,3.565,7.6922,2.188,1.9538,4.862,2.9308,7.941,2.9308,1.945,0,3.727-.285,5.348-.814,1.62-.53,3.2-1.344,4.699-2.4017l-.931-6.105-.041-.0407ZM503.104,85.6719c-1.499,2.6048-3.403,4.5991-5.753,5.9829-2.349,1.3838-4.659,2.0756-6.927,2.0756s-4.376-.7325-6.037-2.1977c-1.621-1.4652-2.431-3.4188-2.431-5.9015,0-1.8721.486-3.4187,1.54-4.7211,1.013-1.3024,2.471-2.4013,4.375-3.3374,1.904-.9361,4.416-1.9128,7.617-2.971l9.926-3.256v5.3724c0,3.378-.77,6.3491-2.269,8.9538h-.041Z" style="fill:#fff;"/></g></g></g></svg></div>
+    <div style="font:500 11px/1 var(--mono);letter-spacing:.12em;color:#9fb0c2">SALESFORCE ENGINEERING · HEALTHCARE</div>
+  </div>
+</div>
+<header><div class="wrap">
+  <p class="kicker">LMNA-580 · Solution Architecture · Prepared by Propela Tech for Lumina</p>
+  <h1>Flow-to-Apex: the TCM automation replatform</h1>
+  <p class="sub">26 record-triggered flows on the discharge, admission and Transitional Care Management path converted to Apex trigger actions on a metadata-driven framework. Fully tested in the dev sandbox; production deployment pending sign-off.</p>
+  <div class="statgrid">
+    <div class="stat"><b>26 → 22</b><span>flows converted into Apex actions</span></div>
+    <div class="stat"><b>11</b><span>objects, one trigger each</span></div>
+    <div class="stat"><b>130+</b><span>Apex tests, all green</span></div>
+    <div class="stat"><b>0</b><span>new failures vs pre-conversion baseline</span></div>
+    <div class="stat"><b>60×</b><span>records per patient per save, was capped at 12</span></div>
+  </div>
+</div></header>
+
+<div class="wrap">
+
+<div class="bluf">
+  <p class="b-tag">BLUF</p>
+  <p>The TCM automation that failed on bulk loads is now Apex, tested end to end, switchable from Setup like the flows were, and ready for production on your go.</p>
+  <ul>
+    <li>Root cause fixed and proven: loads that died at 13 records per patient now save at 60+</li>
+    <li>Zero new test failures against the pre-conversion baseline; full patient lifecycle verified live</li>
+    <li>One intended behaviour change (discharge SMS delivers seconds after the save) - needs sign-off</li>
+  </ul>
+</div>
+
+<dl class="bg">
+  <dt>Background</dt><dd>Lumina's discharge, admission and TCM automation lived in 26 record-triggered flows. Flow governor limits rolled back entire bulk loads, and logic could only change one flow version at a time.</dd>
+  <dt>Ask</dt><dd>Chose to convert all of it to Apex on a metadata-driven trigger framework, keeping the business's ability to switch any behaviour off without a deploy.</dd>
+  <dt>Status</dt><dd>Complete in the dev sandbox. Production deploy packaged with a validated rollback; blocked only on sign-offs (section 06).</dd>
+</dl>
+
+<h2><span class="n">01</span>Why: the failure that raised the ticket</h2>
+<p class="lede">Flows updated the patient once per record; Salesforce caps that at 12 per save. Record 13 threw <span style="font-family:var(--mono);font-size:13px">DUPLICATE_VALUE</span> and rolled back the whole load.</p>
+
+<div class="duo">
+  <div class="panel"><span class="tag before">BEFORE</span>
+    <h3>One flow interview per record</h3>
+    <div class="flowbox"><b>Insert 20 discharges</b> for one patient, single save</div>
+    <div class="arrow">▼ fires 20 flow interviews</div>
+    <div class="flowbox">Interview 1 → update Patient &nbsp;·&nbsp; Interview 2 → update Patient &nbsp;·&nbsp; … &nbsp;·&nbsp; Interview 13 → <b style="color:var(--bad)">✕ DUPLICATE_VALUE (12 allowed)</b></div>
+    <div class="note bad">Whole save rolls back. No partial success, no visibility into which record was "the problem" - there wasn't one.</div>
+  </div>
+  <div class="panel"><span class="tag after">AFTER</span>
+    <h3>One Apex pass, one write per patient</h3>
+    <div class="flowbox"><b>Insert 20 discharges</b> for one patient, single save</div>
+    <div class="arrow">▼ fires the trigger once, in bulk</div>
+    <div class="flowbox sys">Action collapses all patient writes into <b>one DML row</b> - the ceiling no longer applies</div>
+    <div class="note good">Verified live at 60 records for one patient and 200 mixed records across 20 patients. Zero governor errors.</div>
+  </div>
+</div>
+
+<h2><span class="n">02</span>The runtime: how a save flows through the new architecture</h2>
+<p class="lede">One trigger per object, zero logic in it. Behaviour is declared as ordered <b>Trigger Action</b> metadata records. Dispatch path for the busiest object:</p>
+
+<div class="lane">
+  <h4>Save path · Admission/Discharge record inserted</h4>
+  <div class="flowbox"><b>AdmissionDischargeTrigger</b> - the only trigger on the object</div>
+  <div class="arrow">▼ ① incident lever checked first</div>
+  <div class="flowbox sys"><b>TriggerContext.isBypassed</b> - org-wide kill switch (Trigger_Bypass records). One checkbox in Setup silences every converted trigger during an incident. No deploy.</div>
+  <div class="arrow">▼ ② framework reads the action registry</div>
+  <div class="flowbox sys"><b>MetadataTriggerHandler</b> - queries Trigger_Action__mdt for this object + context, honours per-action Bypass Execution, executes in Order__c sequence</div>
+  <div class="arrow">▼ ③ actions run in declared order, each bulk-safe</div>
+  <div class="chips">
+    <div class="chip">AdmissionDischargeSetLatest<small>Order 10 · stamps Latest Admission/Discharge on the patient</small></div>
+    <div class="chip">AdmissionDischargeCreateEpisode<small>Order 20 · opens a Community Episode, reclaims quiet patients</small></div>
+    <div class="chip">DischargeSendSms<small>Order 30 · decides who gets the discharge text</small></div>
+  </div>
+  <div class="arrow">▼ ④ side effects cascade through the same discipline</div>
+  <div class="chips">
+    <div class="chip">PatientTrigger (before update)<small>reclaim, consent stamp, program copy, name, state - ordered 1–5</small></div>
+    <div class="chip">CommunityEpisodeTrigger<small>names the episode, links it back to the patient</small></div>
+    <div class="chip">DischargeSendSmsQueueable<small>async Twilio delivery - callouts cannot run inside a save</small></div>
+  </div>
+</div>
+
+<div class="callout"><span class="num">A1</span><div><b>Actions run as the system, like the flows did.</b> User-mode enforcement silently drops writes for restricted profiles - a lost TCM timestamp is invisible lost billing evidence. A permission suite runs the cascade as the most restricted profile and fails if this regresses.</div></div>
+<div class="callout"><span class="num">A2</span><div><b>SMS delivery is async - the only intended behaviour change.</b> Salesforce forbids callouts inside a save. The decision stays in the save; delivery follows seconds later. Live testing showed Twilio deferred internally even under the flow, so the practical delta is near zero.</div></div>
+<div class="callout"><span class="num">A3</span><div><b>Fidelity over cleverness.</b> Two known flow defects were reproduced on purpose so the port is provably identical; each fix ships as its own reviewed change. One "improvement" that diverged from flow behaviour was caught by live testing and removed.</div></div>
+
+
+<h2><span class="n">03</span>The Apex inventory: every class and exactly what it writes</h2>
+<p class="lede">All 22 action classes, what fires each one, and every field it touches. Nothing runs anywhere else; if it is not in this table, the conversion does not do it.</p>
+
+<table class="inv">
+  <tr><th style="width:17%">Class</th><th style="width:15%">Fires on</th><th style="width:26%">Logic and writes</th><th style="width:24%">Converted from flow</th><th>Same logic?</th></tr>
+  <tr><td><b>PatientSetName</b></td><td>Patient · before insert/update</td><td>Name = "First Last", truncated at 80; update path only when a name field changed.</td><td class="flowname">Patient_TF_On_Create_Update_Name + Patient_TF_On_Update_Update_Name + Patient_TF_On_Update_of_First_or_Last_Name_Update_Name</td><td><span class="par delta">IDENTICAL + NOTED DELTA</span><div class="parnote">Identical output for names under 80 chars. The duplicate update pair disagreed above 80 (one threw); the truncating behaviour wins - documented delta.</div></td></tr>
+  <tr><td><b>PatientSetConsentDatetime</b></td><td>Patient · before update</td><td>Stamps Consent_Datetime__c when consent is cleared to blank, or when the first real non-Pending status arrives with no datetime.</td><td class="flowname">Patient_TF_On_Update_Of_Consent_Set_DateTime + Patient_TF_On_update_of_consent_status_update_consent_datetime</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical. The two flows' entry criteria are mutually exclusive, so merging them changes nothing.</div></td></tr>
+  <tr><td><b>PatientSetProgramsOnEligible</b></td><td>Patient · before update</td><td>Active + Eligible + initial visit + Approved consent: copies nine program flags from the facility (AHTH, APCM, BHI, CCM, COCM, PCM, RPM, TCM, Telepsych).</td><td class="flowname">Patient_TF_On_Update_To_Program_Eligible_Update_Based_on_Facility</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical.</div></td></tr>
+  <tr><td><b>PatientSetStateOnClosedWon</b></td><td>Patient · before update</td><td>Status changed to Closed Won and address state blank: fills state from the facility. Never overwrites.</td><td class="flowname">Patient_TF_On_Update_Community_Status_Closed_Won_Check_State</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical.</div></td></tr>
+  <tr><td><b>PatientSetStatusOnNewDischarge</b></td><td>Patient · before update</td><td>The 30-day reclaim: new discharge date + last call outcome over 30 days old sets status New, stamps the time, clears the outcome, reassigns to the reclaim owner.</td><td class="flowname">Patient_TF_On_Update_Set_Community_Status_For_Discharge (production v9)</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical, including running before-save exactly as production's version does.</div></td></tr>
+  <tr><td><b>PatientSyncLastSmsToEpisode</b></td><td>Patient · after update</td><td>Mirrors Last_SMS_Sent_Date__c onto the latest Community Episode. One-way.</td><td class="flowname">Patient_TF_On_Update_Last_SMS_Update_Latest_Episode</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical.</div></td></tr>
+  <tr><td><b>PatientCountCallsWithin48Hours</b></td><td>Patient · after update</td><td>Call count rose and discharge within the 2-day window: increments the 48-hour counter.</td><td class="flowname">Patient_TF_On_Update_Update_Count_Within_48_Hours</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical, including two preserved quirks (a future discharge date counts; the window is whole days, not hours) - flagged as flow defects to fix separately.</div></td></tr>
+  <tr><td><b>PatientDischargeHomeSetStatusNew</b></td><td>Patient · after update</td><td>New discharge, status blank, discharged to home: sets status New.</td><td class="flowname">TF_Patient_Discharge_Home_Assign_To_IC</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical to the flow's actual behaviour. The flow's name lies: its coordinator assignment was removed long ago and is deliberately not resurrected.</div></td></tr>
+  <tr><td><b>AdmissionDischargeSetLatest</b></td><td>Admission/Discharge · after insert/update</td><td>Renames the record and points the patient's Latest Admission / Latest Discharge at the newest census date.</td><td class="flowname">Admission_Discharge_TF_On_Create_Set_Latest_A_D_on_Patient</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical outcome; internally collapses to one patient write per save, which is the governor-limit fix.</div></td></tr>
+  <tr><td><b>AdmissionDischargeCreateEpisode</b></td><td>Admission/Discharge · after insert</td><td>Discharge + no outcome or one over 30 days old: creates a Community Episode and resets the patient to New under the reclaim owner.</td><td class="flowname">Admission_Discharge_TF_On_Create_Create_Community_Episode</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical outcome; patient resets collapse to one row per patient.</div></td></tr>
+  <tr><td><b>DischargeSendSms + Queueable</b></td><td>Admission/Discharge · after insert</td><td>Discharge text: home + texts allowed + recency gate + region by parent company + six-field phone cascade; queueable delivers via Twilio and stamps the patient.</td><td class="flowname">Discharge_TF_Send_SMS (production v10)</td><td><span class="par delta">IDENTICAL + NOTED DELTA</span><div class="parnote">Same decisions, same message, same stamp. One approved delta: delivery is asynchronous, seconds after the save. Two flow defects reproduced on purpose (inverted recency gate, dead state-name entries).</div></td></tr>
+  <tr><td><b>CommunityEpisodeSetLatestOnPatient</b></td><td>Community Episode · after insert</td><td>Points the patient at its newest episode; last in a batch wins.</td><td class="flowname">Community_Episode_TF_On_Create_Set_Latest_On_Patient</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical.</div></td></tr>
+  <tr><td><b>CommunityEpisodeSetName</b></td><td>Community Episode · before insert/update</td><td>Name = "CE - Patient - yyyy-MM-dd" with the census day computed in GMT.</td><td class="flowname">Community_Episode_TF_On_C_U_Update_Name</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical, including the GMT day boundary the flow's DATEVALUE used.</div></td></tr>
+  <tr><td><b>VisitFillPatientVisitDates</b></td><td>Visit · after insert/update</td><td>Not-seen stamps only the not-seen time; first visit stamps initial fields; later visits advance the latest time.</td><td class="flowname">Visit_TF_On_Create_Visit_Fill_Visit_Date_Fields_on_Patient</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical, including batch ordering: two visits in one save set the initial fields once.</div></td></tr>
+  <tr><td><b>VisitSetLatestVisitProvider</b></td><td>Visit · after insert/update</td><td>Latest_Visit_Provider__c = the visit's front end user; not-seen visits skipped.</td><td class="flowname">"Flow" - the production-only flow whose API name was literally Flow</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical.</div></td></tr>
+  <tr><td><b>HospitalAdmissionFlagPriorDischarge</b></td><td>Hospital Admission · after insert/update</td><td>Flags the admission when a discharged-home record exists in the prior 30 days.</td><td class="flowname">Hospital_Admissions_TF_On_C_U_Look_For_Prior_NH_Discharge_Home</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical.</div></td></tr>
+  <tr><td><b>FacilityMapperDeleteFalseLeaks</b></td><td>Facility Mapper · after update</td><td>Deletes leaked-admission records matching the newly mapped facility's parent company.</td><td class="flowname">Facility_Mapper_TF_Delete_False_Leaked_Admissions</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical.</div></td></tr>
+  <tr><td><b>CommunityProviderSetName</b></td><td>Community Provider · before insert/update</td><td>Name = "First Last", truncated at 80.</td><td class="flowname">Community_Provider_TF_On_Create_Update_Name + Community_Provider_TF_On_Update_Update_Name</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical.</div></td></tr>
+  <tr><td><b>ProviderSetName</b></td><td>Provider · before insert</td><td>Name = "Last, First", truncated at 80.</td><td class="flowname">Provider_TF_On_Create_Create_Provider_Name</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical.</div></td></tr>
+  <tr><td><b>PatientInsuranceSetName</b></td><td>Patient Insurance · before insert</td><td>Name = "Patient - Insurance", truncated at 80.</td><td class="flowname">Patient_Insurance_TF_On_Create_Update_Name</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical.</div></td></tr>
+  <tr><td><b>ReportUserFacilitySetName</b></td><td>Report User Facility · before insert/update</td><td>Name = report user (47) + " - " + facility (30); recomputed on every save.</td><td class="flowname">Report_User_Facility_TF_on_C_U_Update_Name</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical, including overwriting hand edits on any save, as the flow did.</div></td></tr>
+  <tr><td><b>ReportUserRegionSetName</b></td><td>Report User Region · before insert/update</td><td>Same shape with the region name.</td><td class="flowname">Report_User_Region_TF_On_C_U_Update_Name</td><td><span class="par same">IDENTICAL</span><div class="parnote">Identical.</div></td></tr>
+</table>
+
+<div class="lane" style="margin-top:16px">
+  <h4>Supporting classes</h4>
+  <div class="chips">
+    <div class="chip">TriggerContext<small>org-wide kill switch + per-trigger bypass, reads Trigger_Bypass records; runtime override for tests and batch jobs</small></div>
+    <div class="chip">TcmSettings<small>the reclaim owner account, resolved and validated in one place instead of hardcoded in two flows</small></div>
+    <div class="chip">MetadataTriggerHandler + framework<small>dispatch, ordering, per-action and per-object bypass (17 vendored classes, Apache-2.0)</small></div>
+    <div class="chip">18 test classes<small>unit, boundary, bulk, permission and profile-matrix coverage; 130+ methods</small></div>
+  </div>
+</div>
+
+
+<div class="board" id="board">
+  <h4>THE LIVE WIRE DIAGRAM · EVERY CONVERTED PATH</h4>
+  <p class="bh">The whole converted org on one board - four entry triggers, the shared gate and dispatcher, every Apex action as a bypassable node, live sample records on the right. Pick a scenario: a cause card appears at the trigger explaining exactly what was saved to make it fire, the pulse walks the wires, and every field an action writes lands green on the record cards and in the change ledger below.</p>
+  <div class="controls" style="gap:8px">
+    <button class="btn run scn" onclick="runScenario('discharge')">▶ Discharge home</button>
+    <button class="btn run scn" onclick="runScenario('visit')">▶ First visit</button>
+    <button class="btn run scn" onclick="runScenario('calls')">▶ Two outreach calls</button>
+    <button class="btn run scn" onclick="runScenario('consent')">▶ Consent + eligible</button>
+    <button class="btn run scn" onclick="runScenario('closedwon')">▶ Close the deal</button>
+    <button class="btn run scn" onclick="runScenario('readmit')">▶ Hospital readmission</button>
+    <button class="btn run scn" onclick="runScenario('bulk')">▶ Bulk: 20 discharges</button>
+    <button class="btn reset" onclick="resetBoard()">Reset</button>
+    <label class="kswitch" id="ks" onclick="toggleKill(event)"><span class="kdot"></span> All_Triggers</label>
+  </div>
+  <div class="boardgrid">
+    <div>
+      <div class="dia"><div class="diaInner" id="diaInner" style="min-width:1270px;height:880px">
+        <svg class="wires" id="wires"></svg>
+      </div></div>
+      <div class="legend"><span><b>yellow pulse</b> the save travelling</span><span><b>dashed node</b> bypassed in Setup</span><span><b>red flash</b> skipped at runtime</span><span><b>diff popup</b> what the action wrote</span></div>
+      <div class="difflog" id="difflog"><span class="dl-empty">record changes will land here as the save runs…</span></div>
+    </div>
+  </div>
+</div>
+<script>
+const NODES = {
+  save:  {x:12,  y:390, t:'SAVE · scenario input', sub:'pick a scenario above', w:148},
+  adTrig:{x:196, y:80,  t:'AdmissionDischargeTrigger', sub:'Admission_Discharge__c'},
+  viTrig:{x:196, y:320, t:'VisitTrigger', sub:'Visit__c'},
+  haTrig:{x:196, y:520, t:'HospitalAdmissionTrigger', sub:'Hospital_Admission__c'},
+  ptTrig:{x:196, y:700, t:'PatientTrigger', sub:'Patient__c · direct updates'},
+  gate:  {x:396, y:320, t:'Kill switch gate', sub:'TriggerContext · Trigger_Bypass__mdt'},
+  disp:  {x:396, y:450, t:'MetadataTriggerHandler', sub:'Trigger_Action__mdt · Order__c'},
+  setL:  {x:600, y:14,  t:'AdmissionDischargeSetLatest', sub:'A/D · after · 10', tog:1},
+  crEp:  {x:600, y:120, t:'AdmissionDischargeCreateEpisode', sub:'A/D · after · 20', tog:1},
+  sms:   {x:600, y:226, t:'DischargeSendSms', sub:'A/D · after · 30', tog:1},
+  viDates:{x:600,y:340, t:'VisitFillPatientVisitDates', sub:'Visit · after · 10', tog:1},
+  viProv:{x:600, y:446, t:'VisitSetLatestVisitProvider', sub:'Visit · after · 20', tog:1},
+  haFlag:{x:600, y:560, t:'HospitalAdmissionFlagPriorDischarge', sub:'Hosp Adm · after · 10', tog:1},
+  reclaim:{x:806,y:14,  t:'PatientSetStatusOnNewDischarge', sub:'Patient · before · 5', tog:1},
+  ceAct: {x:806, y:120, t:'CE: SetName + LinkPatient', sub:'CommunityEpisodeTrigger', tog:1},
+  queue: {x:806, y:226, t:'DischargeSendSmsQueueable', sub:'async · Twilio · stamp', tog:1},
+  ptCount:{x:806,y:446, t:'PatientCountCallsWithin48Hours', sub:'Patient · after · 20', tog:1},
+  ptCons:{x:806, y:560, t:'PatientSetConsentDatetime', sub:'Patient · before · 2', tog:1},
+  ptProg:{x:806, y:666, t:'PatientSetProgramsOnEligible', sub:'Patient · before · 3', tog:1},
+  ptState:{x:806,y:772, t:'PatientSetStateOnClosedWon', sub:'Patient · before · 4', tog:1},
+};
+const EDGES = [
+ ['save','adTrig'],['save','viTrig'],['save','haTrig'],['save','ptTrig'],
+ ['adTrig','gate'],['viTrig','gate'],['haTrig','gate'],['ptTrig','gate'],['gate','disp'],
+ ['disp','setL'],['disp','crEp'],['disp','sms'],['disp','viDates'],['disp','viProv'],['disp','haFlag'],
+ ['disp','ptCount'],['disp','ptCons'],['disp','ptProg'],['disp','ptState'],
+ ['setL','reclaim'],['setL','PAT'],['reclaim','PAT'],
+ ['crEp','ceAct'],['crEp','EPI'],['ceAct','EPI'],['ceAct','PAT'],
+ ['sms','queue'],['queue','PAT'],
+ ['viDates','PAT'],['viProv','PAT'],['haFlag','HOS'],
+ ['ptCount','PAT'],['ptCons','PAT'],['ptProg','PAT'],['ptState','PAT'],
+];
+const PATFIELDS=[['Name','Pat Sample'],['Community_Status__c','Working'],['OwnerId','Kelvin E.'],
+ ['Call_Outcome__c','Left Voicemail'],['Latest_Call_Outcome__c','45 days ago'],['Latest_Discharge__c','—'],
+ ['Latest_Community_Episode__c','—'],['Last_SMS_Sent_Date__c','—'],['Initial_Visit_Date__c','—'],
+ ['Latest_Visit_Provider__c','—'],['Count_48_Hours__c','—'],['Consent_Status__c','—'],
+ ['Consent_Datetime__c','—'],['Programs (TCM/CCM)','—'],['Address State','—']];
+const off=new Set(); let kill=false, running=false;
+let stats={fired:0,skipped:0,writes:0,recs:new Set(),name:''};
+const el=id=>document.getElementById(id);
+function render(){
+  const inner=el('diaInner');
+  inner.querySelectorAll('.node,.reccard,.diffpop').forEach(e=>e.remove());
+  let h='';
+  for(const [id,n] of Object.entries(NODES)){
+    const tg=n.tog?`<span class="nsw">${off.has(id)?'✕':'✓'}</span>`:'';
+    h+=`<div class="node ${n.tog?'toggleable':''} ${off.has(id)?'off':''}" id="nd-${id}" style="left:${n.x}px;top:${n.y}px;width:${n.w||168}px" ${n.tog?`onclick="toggleAct('${id}')"`:''}>${tg}<h6>${n.t}</h6><span class="nsub">${n.sub}${n.tog&&off.has(id)?'<br><b style=color:#ff9d96>BYPASSED</b>':''}</span></div>`;
+  }
+  h+=`<div class="reccard" id="rec-PAT" style="left:1002px;top:12px;width:238px"><h6>Patient__c (live)</h6>${PATFIELDS.map(f=>`<div class="fld"><span>${f[0].replace('__c','')}</span><span class="fv" id="pf-${f[0]}">${f[1]}</span></div>`).join('')}</div>
+  <div class="reccard ghost" id="rec-EPI" style="left:1002px;top:582px;width:238px"><h6>Community_Episode__c</h6>
+    <div class="fld"><span>record</span><span class="fv" id="ef-rec">not created</span></div>
+    <div class="fld"><span>Name</span><span class="fv" id="ef-name">—</span></div>
+    <div class="fld"><span>Last_SMS_Sent</span><span class="fv" id="ef-sms">—</span></div></div>
+  <div class="reccard ghost" id="rec-HOS" style="left:1002px;top:742px;width:238px"><h6>Hospital_Admission__c</h6>
+    <div class="fld"><span>record</span><span class="fv" id="hf-rec">not created</span></div>
+    <div class="fld"><span>Was_Discharged_Home</span><span class="fv" id="hf-flag">—</span></div></div>`;
+  inner.insertAdjacentHTML('beforeend',h);
+  const svg=el('wires'); svg.innerHTML='';
+  const host=inner.getBoundingClientRect();
+  const ctr=id=>{const e=el('nd-'+id)||el('rec-'+id); const r=e.getBoundingClientRect();
+    return {x:r.left-host.left, y:r.top-host.top, w:r.width, h:r.height};};
+  for(const [a,b] of EDGES){
+    const A=ctr(a),B=ctr(b);
+    const x1=A.x+A.w-2, y1=A.y+A.h/2, x2=B.x+2, y2=B.y+B.h/2, mx=(x1+x2)/2;
+    const ph=document.createElementNS('http://www.w3.org/2000/svg','path');
+    ph.setAttribute('d',`M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`);
+    ph.setAttribute('class','wire'); ph.id=`w-${a}-${b}`;
+    if(off.has(a)||off.has(b)||(kill&&a!=='save')) ph.classList.add('deadwire');
+    svg.appendChild(ph);
+  }
+}
+function log(m,c){const f=el('feed'); if(!f)return; const d=document.createElement('div');d.className='fl '+(c||'');d.textContent=m;f.appendChild(d);f.scrollTop=99999;}
+function toggleAct(id){if(running)return;off.has(id)?off.delete(id):off.add(id);render();
+  log(off.has(id)?`Bypass Execution ticked on ${NODES[id].t}`:`Bypass cleared on ${NODES[id].t}`,off.has(id)?'skip':'sys');}
+function toggleKill(){if(running)return;kill=!kill;el('ks').classList.toggle('on',kill);render();
+  log(kill?'All_Triggers = ON. The gate is shut for every object.':'All_Triggers = OFF.',kill?'skip':'sys');}
+function resetBoard(){off.clear();kill=false;running=false;el('ks').classList.remove('on');
+  document.querySelectorAll('.btn.scn').forEach(b=>b.disabled=false);render();
+  el('difflog').innerHTML='<span class="dl-empty">record changes will land here as the save runs…</span>';
+}
+function hot(id,cls){const e=el('nd-'+id)||el('rec-'+id);if(!e)return;const c=cls==='hot'?'hot':cls;e.classList.add(c);setTimeout(()=>e.classList.remove(c),1500);}
+const step=ms=>new Promise(r=>setTimeout(r,ms));
+async function pulse(a,b,ms=520){
+  const path=el(`w-${a}-${b}`); if(!path)return;
+  path.classList.add('hotwire');
+  const svg=el('wires'),dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  dot.setAttribute('r','5');dot.setAttribute('class','pulse');svg.appendChild(dot);
+  const len=path.getTotalLength(),t0=performance.now();
+  await new Promise(res=>{(function f(t){const k=Math.min(1,(t-t0)/ms);const pt=path.getPointAtLength(len*k);
+    dot.setAttribute('cx',pt.x);dot.setAttribute('cy',pt.y);k<1?requestAnimationFrame(f):res();})(t0)});
+  dot.remove();setTimeout(()=>path.classList.remove('hotwire'),600);
+}
+// A record write: updates the live card, pops a diff at the node, chips the ledger, logs the terminal.
+function recWrite(nodeId, objLabel, rows){
+  const diffs=[];
+  for(const [fid,label,nv] of rows){
+    const e=el(fid); const ov=e?e.textContent:'—';
+    if(e){e.textContent=nv;e.classList.remove('changed');void e.offsetWidth;e.classList.add('changed');}
+    diffs.push([label,ov,nv]); stats.writes++; stats.recs.add(objLabel);
+    const chip=document.createElement('span');chip.className='dchip';
+    chip.innerHTML=`<span class="dobj">${objLabel}</span>.${label}: <b>${ov}</b> → <em>${nv}</em>`;
+    const dl=el('difflog'); dl.querySelector('.dl-empty')?.remove(); dl.appendChild(chip);
+    log(`${objLabel}.${label}: ${ov} → ${nv}`,'write');
+  }
+  // Field changes land on the live record cards, the change ledger and the terminal.
+  // The only popup on the board is the cause card at the trigger.
+}
+function causePop(trig, rows){
+  const n=NODES[trig];
+  const pop=document.createElement('div');pop.className='diffpop';
+  pop.style.left=(n.x+((n.w||168)+12))+'px'; pop.style.top=Math.max(4,n.y-10)+'px';
+  pop.innerHTML=`<span class="dx">✕</span><h6>WHY THIS TRIGGER FIRED</h6>`
+    + rows.map(r=>`<div class="dr"><span class="df">${r[0]}</span><span class="dv"><em>${r[1]}</em></span></div>`).join('');
+  pop.onclick=()=>pop.remove();
+  el('diaInner').appendChild(pop);
+}
+async function enter(trig,inputText,cause){
+  el('nd-save').querySelector('.nsub').innerHTML=inputText;
+  hot('save','firing'); await pulse('save',trig); hot(trig,'firing');
+  if(cause) causePop(trig,cause);
+  await pulse(trig,'gate');
+  if(kill){hot('gate','skippedN');log('Gate: All_Triggers bypassed → nothing runs.','skip');return false;}
+  hot('gate','firing'); await pulse('gate','disp'); hot('disp','firing'); return true;
+}
+async function act(id,onFire,skipMsg){
+  await pulse('disp',id);
+  if(off.has(id)){hot(id,'skippedN');log('SKIPPED - '+skipMsg,'skip');stats.skipped++;return false;}
+  hot(id,'firing'); stats.fired++; await onFire(); return true;
+}
+function done(){
+  log('■ Save complete. The popups on the board are the exact Salesforce changes - click one to dismiss it.','sys');
+  running=false;document.querySelectorAll('.btn.scn').forEach(b=>b.disabled=false);
+}
+async function begin(){if(running)return false;running=true;document.querySelectorAll('.btn.scn').forEach(b=>b.disabled=true);render();return true;}
+const SCN_LABELS={discharge:'Discharge home',visit:'First visit',calls:'Two outreach calls',consent:'Consent + eligible',closedwon:'Close the deal',readmit:'Hospital readmission',bulk:'Bulk: 20 discharges'};
+async function runScenario(name){ if(!await begin())return; stats={fired:0,skipped:0,writes:0,recs:new Set(),name:SCN_LABELS[name]||name}; await SCN[name](); done(); }
+const SCN={
+ async discharge(){
+  log('INSERT Admission_Discharge__c AD-0042 · Type=Discharge · To/From=Home · Pat Sample, quiet 45 days','sys');
+  if(!await enter('adTrig','AD-0042 · Discharge · Home',[['DML','INSERT Admission_Discharge__c'],['record','AD-0042'],['Type__c','Discharge'],['To_From_Type__c','Home'],['patient','Pat Sample · quiet 45 days']]))return;
+  const l=await act('setL',async()=>{await pulse('setL','PAT',420);hot('PAT','hot');
+    recWrite('setL','Patient',[['pf-Latest_Discharge__c','Latest_Discharge__c','AD-0042']]);},
+    'SetLatest: the lookup never moves, the reclaim never sees a discharge');
+  if(l){await pulse('setL','reclaim',420);
+    if(off.has('reclaim')){hot('reclaim','skippedN');log('SKIPPED reclaim - Pat keeps owner Kelvin, status Working','skip');}
+    else{hot('reclaim','firing');await pulse('reclaim','PAT',420);
+      recWrite('reclaim','Patient',[['pf-Community_Status__c','Community_Status__c','New'],
+        ['pf-OwnerId','OwnerId','Steven F. (reclaim)'],['pf-Call_Outcome__c','Call_Outcome__c','—']]);}}
+  const e=await act('crEp',async()=>{await pulse('crEp','EPI',420);el('rec-EPI').classList.remove('ghost');hot('EPI','hot');
+    recWrite('crEp','Community_Episode',[['ef-rec','record','CE-0107 created']]);
+    await pulse('crEp','ceAct',380);
+    if(off.has('ceAct')){hot('ceAct','skippedN');log('SKIPPED CE actions - unnamed episode, old patient link kept','skip');}
+    else{hot('ceAct','firing');await pulse('ceAct','EPI',380);
+      recWrite('ceAct','Community_Episode',[['ef-name','Name','CE - Pat Sample - 2026-09-03']]);
+      await pulse('ceAct','PAT',380);
+      recWrite('ceAct','Patient',[['pf-Latest_Community_Episode__c','Latest_Community_Episode__c','CE-0107']]);}},
+    'CreateEpisode: no episode, patient never enters the community queue');
+  await act('sms',async()=>{log('SendSms gates: home ✓ texts ✓ GHC/MD ✓ phone ✓','sys');
+    await pulse('sms','queue',420);
+    if(off.has('queue')){hot('queue','skippedN');log('SKIPPED queueable - decided but never delivered','skip');return;}
+    hot('queue','firing');log('…async, seconds later: Twilio accepts','sys');await pulse('queue','PAT',450);
+    recWrite('queue','Patient',[['pf-Last_SMS_Sent_Date__c','Last_SMS_Sent_Date__c','today 17:12']]);
+    if(e&&!off.has('ceAct')){recWrite('queue','Community_Episode',[['ef-sms','Last_SMS_Sent_Date__c','today 17:12']]);}},
+    'DischargeSendSms: no text, no stamp');
+ },
+ async visit(){
+  log('INSERT Visit__c · Pat Sample seen today by FE user Sam','sys');
+  if(!await enter('viTrig','Visit · today · FE user Sam',[['DML','INSERT Visit__c'],['Visit_DateTime__c','today'],['Front_End_User__c','FE user Sam'],['patient','Pat Sample · first ever visit']]))return;
+  await act('viDates',async()=>{await pulse('viDates','PAT',420);
+    recWrite('viDates','Patient',[['pf-Initial_Visit_Date__c','Initial_Visit_Date__c','2026-09-03']]);},
+    'FillVisitDates: TCM visit evidence never lands');
+  await act('viProv',async()=>{await pulse('viProv','PAT',420);
+    recWrite('viProv','Patient',[['pf-Latest_Visit_Provider__c','Latest_Visit_Provider__c','FE user Sam']]);},
+    'SetLatestProvider: provider stays unknown');
+ },
+ async calls(){
+  log('UPDATE Patient__c ×2 · outreach logs two calls, discharge was yesterday','sys');
+  if(!await enter('ptTrig','Count_of_Calls 1→2→3',[['DML','UPDATE Patient__c ×2'],['Count_of_Calls__c','1 → 2, then 2 → 3'],['context','discharge was yesterday, inside the 2-day window']]))return;
+  for(let i=1;i<=2;i++){
+    const ran=await act('ptCount',async()=>{await pulse('ptCount','PAT',420);
+      recWrite('ptCount','Patient',[['pf-Count_48_Hours__c','Count_of_Calls_Within_48_Hours__c',String(i)]]);
+      log(`call ${i} counted - billing evidence for CPT 99495/99496`,'sys');},
+      'Counter off: the call is logged but never counted');
+    if(!ran)break;
+  }
+ },
+ async consent(){
+  log('UPDATE Patient__c · consent Approved, then payer marks Eligible','sys');
+  if(!await enter('ptTrig','Consent → Approved · then Eligible',[['DML','UPDATE Patient__c'],['Consent_Status__c','— → Approved'],['then','Payer_Eligibility_Status__c → Eligible']]))return;
+  await act('ptCons',async()=>{await pulse('ptCons','PAT',420);
+    recWrite('ptCons','Patient',[['pf-Consent_Status__c','Consent_Status__c','Approved'],
+      ['pf-Consent_Datetime__c','Consent_Datetime__c','today 17:12']]);},
+    'ConsentDatetime off: approval saved with no timestamp');
+  await act('ptProg',async()=>{await pulse('ptProg','PAT',420);
+    recWrite('ptProg','Patient',[['pf-Programs (TCM/CCM)','TCM__c / CCM__c','✓ / ✓ (from facility)']]);},
+    'ProgramsOnEligible off: eligible patient enrolled in nothing');
+ },
+ async closedwon(){
+  log('UPDATE Patient__c · Community_Status__c → Closed Won (DOB + gender on file)','sys');
+  if(!await enter('ptTrig','Community_Status__c → Closed Won',[['DML','UPDATE Patient__c'],['Community_Status__c','Working → Closed Won'],['context','DOB + gender on file, state blank']]))return;
+  await act('ptState',async()=>{await pulse('ptState','PAT',420);
+    recWrite('ptState','Patient',[['pf-Address State','Address__StateCode__s','MD (from facility)'],
+      ['pf-Community_Status__c','Community_Status__c','Closed Won']]);},
+    'StateOnClosedWon off: Closed Won patient has no state');
+  log('note: the status timestamp comes from the one flow deliberately kept live (ThoroughCare dependency)','sys');
+ },
+ async readmit(){
+  log('INSERT Hospital_Admission__c · two weeks after the home discharge','sys');
+  if(!await enter('haTrig','Hospital admission · today',[['DML','INSERT Hospital_Admission__c'],['Admit_DateTime__c','today'],['context','discharged home 14 days ago']]))return;
+  await act('haFlag',async()=>{await pulse('haFlag','HOS',420);el('rec-HOS').classList.remove('ghost');hot('HOS','hot');
+    recWrite('haFlag','Hospital_Admission',[['hf-rec','record','HA-0009 created'],
+      ['hf-flag','Was_Discharged_Home_From_SNF__c','TRUE']]);
+    log('readmission signal: discharged home within 30 days','sys');},
+    'FlagPriorDischarge off: the readmission pattern goes unnoticed');
+ },
+ async bulk(){
+  log('BULK INSERT · 20 Discharge records for Pat Sample in ONE save - the load that used to die at record 13','sys');
+  if(!await enter('adTrig','20 × Discharge · one save',[['DML','INSERT Admission_Discharge__c ×20'],['records','AD-0042 … AD-0061, one API call'],['context','the load that killed the flow at record 13']]))return;
+  await act('setL',async()=>{await pulse('setL','PAT',420);
+    recWrite('setL','Patient',[['pf-Latest_Discharge__c','Latest_Discharge__c','AD-0061 (newest of 20)']]);
+    log('20 records evaluated in ONE pass · Patient rows written: 1','sys');
+    log('the flow wrote the patient 20× and threw DUPLICATE_VALUE at write 13, rolling back everything','skip');},
+    'SetLatest off');
+  await act('crEp',async()=>{await pulse('crEp','EPI',420);el('rec-EPI').classList.remove('ghost');
+    recWrite('crEp','Community_Episode',[['ef-rec','records','20 created']]);
+    log('20 episodes, one insert · patient reset written ONCE','sys');},
+    'CreateEpisode off');
+  log('governor math: flow = 20 duplicate updates (cap 12, save dies) · Apex = 1 write (no ceiling)','sys');
+ },
+};
+render();
+window.addEventListener('resize',render);
+</script>
+
+<h2><span class="n">04</span>The control plane: flow-like switching, kept</h2>
+<p class="lede">The real requirement was keeping flow-style on/off control. Three levers, all verified live both directions:</p>
+<div class="switchrow">
+  <div class="switch"><b>Per action</b><span class="pill live">SETUP, LIVE</span><p>Bypass Execution checkbox on any Trigger Action record. One behaviour off, everything else untouched. The flow-deactivation equivalent.</p></div>
+  <div class="switch"><b>Per object</b><span class="pill live">SETUP, LIVE</span><p>Bypass on the object's Trigger Setting record silences all actions for that object.</p></div>
+  <div class="switch"><b>Org-wide kill switch</b><span class="pill live">SETUP, LIVE</span><p>All_Triggers bypass halts every converted trigger at once. The incident lever, checked before anything runs.</p></div>
+</div>
+<p class="note">Rollback per behaviour: re-activate the retained flow version, tick the action's bypass. Two checkboxes, no deploy.</p>
+
+<h2><span class="n">05</span>Evidence</h2>
+<table>
+  <tr><th>Verification</th><th>Result</th></tr>
+  <tr><td>Apex test suite for the conversion (unit, bulk, boundary, permission, profile matrix)</td><td class="ok">130+ green</td></tr>
+  <tr><td>Full org test run vs pre-conversion baseline</td><td class="ok">Zero new failures (same 34 pre-existing, unrelated)</td></tr>
+  <tr><td>Live client lifecycle in sandbox: intake → visit → discharge → SMS → calls → consent → eligibility → Closed Won → readmission → 30-day reclaim, each step its own save</td><td class="ok">All steps pass</td></tr>
+  <tr><td>The original failure: 60 discharges, one patient, one save</td><td class="ok">Saves clean (flow ceiling was 12)</td></tr>
+  <tr><td>Restricted-profile cascade (Minimum Access + every business profile)</td><td class="ok">Identical behaviour for all</td></tr>
+  <tr><td>Twilio delivery to a real number</td><td class="wa">Path proven to Twilio's API; sandbox credentials are dead (auth 20003), so live delivery is provable only in production - by design for a sandbox</td></tr>
+</table>
+
+<h2><span class="n">06</span>Deliberately out of scope, and why</h2>
+<table>
+  <tr><th>Item</th><th>Reason</th></tr>
+  <tr><td>Community Status timestamp flow</td><td>Its second save pass is what fires the ThoroughCare community-patient callout. Converting it before characterization tests exist silently breaks a vendor integration. Next phase.</td></tr>
+  <tr><td>Scheduled messaging flows</td><td>Not record-triggered - a scheduled-Apex conversion, separate shape, separate effort.</td></tr>
+  <tr><td>The three legacy ThoroughCare triggers on Patient</td><td>@future callouts in loops with load-bearing recursion. Highest-risk piece; needs its own characterization-first phase.</td></tr>
+</table>
+
+<h2><span class="n">07</span>Path to production</h2>
+<div class="callout"><span class="num">P1</span><div>Deploy package prepped: classes, triggers, framework, metadata types, field + admin permissions, flow deactivations. Custom metadata <em>records</em> go in through the Apex Metadata API - standard record deploys of these types fail with an unhelpful platform error (root cause found: a 40-character name limit reported as UNKNOWN_EXCEPTION).</div></div>
+<div class="callout"><span class="num">P2</span><div>Rollback validated in advance: per-behaviour rollback is two checkboxes; full rollback is the pre-validated revert package with a Quick Deploy id.</div></div>
+<div class="callout"><span class="num">P3</span><div>Open sign-offs: async SMS delivery (business), field visibility for two currently-invisible patient fields (business), deploy window (engineering).</div></div>
+
+
+<h2><span class="n">08</span>Change request</h2>
+<table>
+  <tr><th style="width:26%">Field</th><th>Detail</th></tr>
+  <tr><td>Classification</td><td>Normal change. Not emergency, not standard/pre-approved. First production deployment of this architecture.</td></tr>
+  <tr><td>Proposed window</td><td>To be set at review. Recommended: an off-hours weekday evening, never a Friday. Deployment is metadata only - no data migration, no downtime; users can stay logged in.</td></tr>
+  <tr><td>Expected duration</td><td>Roughly 60 to 90 minutes end to end: deploy with full test run, custom metadata records through the Apex Metadata API, flow deactivations, then post-deploy verification.</td></tr>
+  <tr><td>Executed by</td><td>A human runs every production command; the package, exact commands and order are prepared. Propela engineering on standby for the first business day.</td></tr>
+  <tr><td>Blast radius if wrong</td><td>Everyone who saves patients, visits, admissions/discharges or episodes - intake, outreach, providers, managers. Failure mode is automation not firing or firing wrong, not data loss: every replaced flow still exists, deactivated, one checkbox from live.</td></tr>
+  <tr><td>Backout</td><td>Per behaviour: re-activate the flow, tick the action's bypass - minutes, no deploy. Full backout: pre-validated revert package with a Quick Deploy id, about two minutes to execute. The org-wide kill switch pauses all converted automation instantly while deciding.</td></tr>
+  <tr><td>Post-deploy verification</td><td>First hour: create and delete one test patient through the discharge cascade; confirm the discharge SMS job completes and the Twilio message log shows a real send; confirm the full org test run matches the sandbox baseline; spot-check one record per naming object.</td></tr>
+  <tr><td>Open approvals needed</td><td>Async SMS delivery (business), field visibility for the two invisible patient fields (business), deploy window (engineering), and this board's go.</td></tr>
+</table>
+
+<footer style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+  <span style="display:flex;align-items:center;gap:12px"><span style="width:96px;display:inline-block"><svg style="width:100%;height:auto;display:block" id="Layer_2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 530 128"><defs><clipPath id="clippath"><rect width="530" height="128" style="fill:none;"/></clipPath></defs><g id="Components"><g id="ac1c3380-4e8f-46d9-90f9-4d4e248a946c_1"><g style="clip-path:url(#clippath);"><path d="M98.3266,77.5319c-15.3952,25.3151-45.3348,38.9091-66.8476,30.3621-8.9535-3.582-15.0711-10.4193-18.0286-19.0069,1.7421,1.1802,3.6868,2.1977,5.753,3.0117,20.743,8.2622,49.7103-5.0874,64.7408-29.792,9.7233-15.9949,11.1818-32.8446,5.3884-44.973,19.7304,9.483,23.9034,35.9377,9.0345,60.3981h-.0405Z" style="fill:#0c263b;"/><path d="M89.2924,17.134c-.6888-.3256-1.3775-.6512-2.1067-.936-21.5533-8.5469-51.4929,5.006-66.8881,30.3618-8.9536,14.7739-11.0198,30.2804-6.8469,42.3275-15.7598-10.5819-18.1501-34.4318-4.659-56.6537C23.8223,7.529,52.7895-5.8205,73.5325,2.4415c7.2925,2.8897,12.5998,8.0992,15.7599,14.6925Z" style="fill:#0c263b;"/><path d="M189.644,12.2916c-5.105-2.1571-11.02-3.256-17.745-3.256h-30.183v.5291c1.661,2.1164,2.796,4.6805,3.363,7.6922.567,3.0118.851,7.0818.851,12.2099v51.4442c0,5.1281-.284,9.1981-.851,12.1692-.567,2.971-1.702,5.5758-3.363,7.7738v.529h22.121v-.529c-1.864-2.198-3.12-4.8435-3.849-7.8552-.689-3.0118-1.053-7.0411-1.053-12.0878v-17.0124h12.964c6.685,0,12.6-1.1396,17.745-3.3781,5.105-2.2791,9.075-5.4537,11.911-9.6458,2.836-4.1513,4.254-9.0352,4.254-14.6111s-1.418-10.5412-4.254-14.6111c-2.836-4.07-6.806-7.2038-11.911-9.3609ZM186.119,50.305c-3.93,3.0524-9.561,4.599-16.853,4.599h-10.331V17.9488h10.331c7.333,0,12.964,1.4652,16.853,4.4363,3.93,2.9711,5.875,7.6108,5.875,13.8785s-1.945,10.9482-5.875,14.0414Z" style="fill:#0c263b;"/><path d="M249.078,37.3616c-1.945-.3663-3.565-.5291-4.902-.5291-4.416,0-8.143,1.3838-11.182,4.1921-3.038,2.8082-5.388,7.1224-7.09,12.9424h-.648v-15.9542h-.405l-15.071,1.5873v.814c1.215,1.6687,2.106,3.5815,2.593,5.7386.486,2.1571.729,5.0874.729,8.9132v30.9723c0,3.9886-.162,7.0411-.527,9.1167-.364,2.0757-1.134,4.0293-2.39,5.7791v.529h18.393v-.529c-1.418-1.7905-2.309-3.6627-2.714-5.6977-.405-2.0349-.608-5.0874-.608-9.1574v-12.0877c0-5.4131.851-9.9714,2.593-13.7565,1.701-3.7443,4.011-6.5933,6.887-8.4248,2.877-1.8721,5.915-2.8082,9.197-2.8082,2.025,0,3.768.2035,5.145.6512v-12.2913Z" style="fill:#0c263b;"/><path d="M296.317,40.9845c-4.78-2.8082-10.088-4.192-16.003-4.192s-11.384,1.4245-16.205,4.2734c-4.821,2.849-8.589,6.7561-11.303,11.7622-2.715,5.006-4.092,10.6633-4.092,16.931s1.377,12.0878,4.092,17.1345c2.714,5.0467,6.522,8.9946,11.303,11.8436,4.821,2.8488,10.209,4.2328,16.205,4.2328s11.263-1.425,16.003-4.2328c4.74-2.8083,8.508-6.7969,11.263-11.8436,2.714-5.0467,4.092-10.7854,4.092-17.1345s-1.378-12.0878-4.092-17.0938c-2.755-5.006-6.482-8.9132-11.263-11.6808ZM296.155,82.7422c-1.499,3.663-3.606,6.4713-6.361,8.4248-2.754,1.9536-5.914,2.9304-9.52,2.9304-3.809,0-7.05-.9768-9.805-2.9711-2.754-1.9942-4.861-4.8025-6.36-8.4248-1.499-3.6222-2.269-7.9364-2.269-12.9017s.77-9.1167,2.269-12.7797c1.499-3.6222,3.646-6.4305,6.401-8.3841,2.795-1.9535,6.037-2.9303,9.723-2.9303s6.807.9768,9.521,2.9303c2.714,1.9536,4.862,4.7212,6.361,8.3027,1.499,3.5816,2.268,7.855,2.268,12.8204s-.769,9.2795-2.268,12.9831h.04Z" style="fill:#0c263b;"/><path d="M364.467,40.781c-4.092-2.6454-8.629-3.9885-13.572-3.9885-4.335,0-8.103.9361-11.384,2.8489-3.282,1.9129-6.037,4.6398-8.346,8.1807h-.527v-9.8493h-.405l-15.233,1.5872v.814c1.337,1.6687,2.188,3.5816,2.633,5.6573.446,2.0756.649,5.0467.649,8.8318v57.7119c0,4.07-.162,7.122-.527,9.117-.365,1.994-1.094,3.907-2.269,5.779v.529h18.11v-.529c-1.256-1.872-2.066-3.826-2.431-5.861-.405-2.035-.608-5.046-.608-9.035v-17.8264h.527c1.945,2.6455,4.456,4.6804,7.616,6.1054,3.12,1.424,6.402,2.116,9.845,2.116,5.308,0,10.169-1.384,14.626-4.1921,4.456-2.8083,8.021-6.7969,10.655-11.9657,2.633-5.1688,3.97-11.1517,3.97-17.8671,0-6.3898-1.215-12.0064-3.646-16.8903-2.431-4.8839-5.672-8.6283-9.804-11.3145l.121.0407ZM363.009,83.0678c-1.54,3.7444-3.687,6.5934-6.401,8.6283-2.755,2.035-5.915,3.0525-9.521,3.0525-3.363,0-6.28-.8547-8.751-2.5234-2.471-1.6687-4.376-4.1513-5.672-7.3666-1.297-3.2152-1.985-7.1631-1.985-11.7622v-7.3259c0-3.7443.729-7.041,2.269-9.9713,1.499-2.9304,3.524-5.2096,6.077-6.919,2.552-1.6686,5.388-2.5233,8.467-2.5233,5.469,0,9.804,2.157,13.045,6.5119,3.201,4.3548,4.822,10.1342,4.822,17.4194,0,4.8025-.77,9.0353-2.31,12.7796h-.04Z" style="fill:#0c263b;"/><path d="M427.142,91.1672c-2.917.9768-6.077,1.4652-9.521,1.4652-4.578,0-8.629-.9768-12.113-2.9711-3.485-1.9943-6.158-4.9246-8.063-8.8318-1.701-3.5002-2.592-7.7329-2.755-12.6168h42.013v-5.0468c0-5.5758-1.053-10.3377-3.16-14.2855-2.107-3.9479-5.064-6.9189-8.872-8.9539-3.809-2.035-8.103-3.0525-12.965-3.0525-5.55,0-10.574,1.4245-15.03,4.2735-4.457,2.8489-7.941,6.7561-10.453,11.6807-2.512,4.9654-3.768,10.5412-3.768,16.7682,0,6.6341,1.378,12.5355,4.173,17.6229,2.796,5.0875,6.604,9.0353,11.506,11.7622,4.902,2.7265,10.331,4.1105,16.327,4.1105,4.578,0,8.792-.814,12.559-2.442,3.809-1.6278,7.293-4.1105,10.453-7.3664l-1.459-6.512c-2.998,2.035-5.955,3.5409-8.872,4.5177v-.1221ZM402.064,47.4966c2.431-1.7094,5.348-2.6048,8.791-2.6048,2.998,0,5.591.814,7.739,2.4013,2.147,1.5873,3.767,3.8665,4.78,6.8375.648,1.8722.932,3.9479,1.013,6.1863h-29.291c.324-1.9128.81-3.7036,1.418-5.3316,1.296-3.2967,3.119-5.7793,5.55-7.5294v.0407Z" style="fill:#0c263b;"/><path d="M459.309,85.713V6.6338h-.405l-15.071,1.5873v.814c1.337,1.8721,2.188,3.6629,2.633,5.4537.446,1.7908.649,4.599.649,8.5062v62.7586c0,4.07-.162,7.1632-.527,9.3202-.365,2.1164-1.134,4.07-2.39,5.8612v.529h17.866v-.529c-1.134-1.7912-1.904-3.7041-2.269-5.8612-.364-2.1163-.526-5.2502-.526-9.3202l.04-.0406Z" style="fill:#0c263b;"/><path d="M526.116,93.5676c-1.499.6105-2.876.9361-4.092.9361-1.499,0-2.633-.4477-3.443-1.343-.811-.8954-1.175-2.3199-1.175-4.2328v-28.3269c0-5.3316-1.013-9.7678-3.039-13.3494-2.026-3.5816-4.78-6.227-8.265-7.8957-3.484-1.6687-7.495-2.5234-11.992-2.5234-4.254,0-8.346.814-12.356,2.4013-4.011,1.5873-7.617,3.785-10.777,6.5119l1.337,6.7968c6.442-4.0699,12.64-6.1049,18.677-6.1049,4.335,0,7.819,1.1396,10.452,3.3781,2.634,2.2384,3.971,5.7386,3.971,10.419v4.07l-13.248,3.5002c-7.495,1.9535-13.208,4.3955-17.057,7.3259-3.889,2.9303-5.834,6.9189-5.834,11.9656,0,4.5991,1.621,8.4248,4.903,11.4366,3.281,3.012,7.292,4.518,12.032,4.518,3.808,0,7.293-.896,10.453-2.727,3.16-1.8317,5.955-4.5993,8.345-8.3029h.527v.2849c.162,3.1745,1.378,5.7793,3.565,7.6922,2.188,1.9538,4.862,2.9308,7.941,2.9308,1.945,0,3.727-.285,5.348-.814,1.62-.53,3.2-1.344,4.699-2.4017l-.931-6.105-.041-.0407ZM503.104,85.6719c-1.499,2.6048-3.403,4.5991-5.753,5.9829-2.349,1.3838-4.659,2.0756-6.927,2.0756s-4.376-.7325-6.037-2.1977c-1.621-1.4652-2.431-3.4188-2.431-5.9015,0-1.8721.486-3.4187,1.54-4.7211,1.013-1.3024,2.471-2.4013,4.375-3.3374,1.904-.9361,4.416-1.9128,7.617-2.971l9.926-3.256v5.3724c0,3.378-.77,6.3491-2.269,8.9538h-.041Z" style="fill:#0c263b;"/></g></g></g></svg></span> LMNA-580 · prepared for Daniel, VP Engineering · 3 September 2026</span>
+  <span>Confidential - Lumina client engagement</span>
+</footer>
+</div>
+</body>
+</html>

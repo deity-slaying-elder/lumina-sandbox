@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Programs__c</fullName>
+    <description>Which programs this provider may be scheduled for. Scheduling filters the provider picker on this.</description>
+    <inlineHelpText>Select every program this provider is approved to deliver.</inlineHelpText>
+    <label>Programs</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>TCM</fullName>
+                <default>false</default>
+                <label>TCM</label>
+            </value>
+            <value>
+                <fullName>CCM</fullName>
+                <default>false</default>
+                <label>CCM</label>
+            </value>
+            <value>
+                <fullName>BHI</fullName>
+                <default>false</default>
+                <label>BHI</label>
+            </value>
+            <value>
+                <fullName>CoCM</fullName>
+                <default>false</default>
+                <label>CoCM</label>
+            </value>
+            <value>
+                <fullName>RPM</fullName>
+                <default>false</default>
+                <label>RPM</label>
+            </value>
+            <value>
+                <fullName>APCM</fullName>
+                <default>false</default>
+                <label>APCM</label>
+            </value>
+            <value>
+                <fullName>Telepsych</fullName>
+                <default>false</default>
+                <label>Telepsych</label>
+            </value>
+            <value>
+                <fullName>After Hours Telehealth</fullName>
+                <default>false</default>
+                <label>After Hours Telehealth</label>
+            </value>
+            <value>
+                <fullName>Community Full-Time</fullName>
+                <default>false</default>
+                <label>Community Full-Time</label>
+            </value>
+            <value>
+                <fullName>IPV Onboarding</fullName>
+                <default>false</default>
+                <label>IPV Onboarding</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <visibleLines>4</visibleLines>
+</CustomField>

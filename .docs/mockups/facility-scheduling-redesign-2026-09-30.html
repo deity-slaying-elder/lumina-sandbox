@@ -1,0 +1,904 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Facility Scheduling redesign</title>
+<style>
+/* ============================================================
+   Classic SLDS values, read live from lumDev on 2026-09-30 with
+   getComputedStyle: on-surface-1 #757575, surface-1 #fff,
+   radius-border-2 0.25rem, spacing-4 1rem, shadow-2 0 2px 3px #00000027.
+   The org has Cosmos switched off, so every value below is the classic
+   one. In the LWC these are all --slds-g-* hooks with these as fallbacks,
+   which means the same markup picks up Cosmos values if it is ever
+   switched on, with no code change.
+   ============================================================ */
+:root {
+  --surface-1: #ffffff;
+  --surface-2: #f3f3f3;
+  --border-1: #c9c9c9;
+  --border-soft: #e5e5e5;
+  --on-1: #757575;
+  --on-2: #2e2e2e;
+  --on-3: #181818;
+  --accent: #0176d3;
+  --accent-deep: #014486;
+  --radius: 0.25rem;
+  --radius-pill: 15rem;
+
+  --green-95: #ebf7e6; --green-30: #194e31;
+  --yellow-95: #fbf3e0; --yellow-30: #6f3400;
+  --red-95: #fef1ee;   --red-30: #8e030f;
+  --blue-95: #eef4ff;  --blue-30: #014486;
+  --neutral-95: #f3f3f3; --neutral-30: #444444;
+
+  /* Programme hues. Same eight families as before, tints pulled back so a
+     full week reads calm. The dot keeps the hue legible at 8px; the tint
+     only has to separate one chip from its neighbour. */
+  --p-tcm: #2b4bb8;       --p-tcm-t: #f2f4fc;
+  --p-ccm: #6b3fa0;       --p-ccm-t: #f6f2fb;
+  --p-bhi: #1a7a5a;       --p-bhi-t: #f0f8f5;
+  --p-cocm: #3f8f3f;      --p-cocm-t: #f2f9f2;
+  --p-telepsych: #b5453f; --p-telepsych-t: #fdf3f2;
+  --p-ahth: #8a6a35;      --p-ahth-t: #faf6ef;
+  --p-community: #a8478c; --p-community-t: #fcf3f9;
+  --p-ipv: #8a4a5c;       --p-ipv-t: #fbf3f5;
+  --p-none: #5a6b7c;      --p-none-t: #f4f6f8;
+  --p-cancelled: #939393; --p-cancelled-t: #f5f5f5;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Salesforce Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  font-size: 0.8125rem;
+  color: var(--on-2);
+  background: #b0c4de1f;
+}
+.page { padding: 1rem; max-width: 1400px; margin: 0 auto; }
+.note {
+  margin: 0 0 1rem; padding: 0.5rem 0.75rem; font-size: 0.75rem;
+  background: var(--blue-95); color: var(--blue-30); border-radius: var(--radius);
+}
+h1.mock-h { font-size: 0.875rem; margin: 1.5rem 0 0.5rem; color: var(--on-1); font-weight: 600; }
+
+/* ============================================================ card
+   ONE bordered container per section. Nothing inside it draws its own box. */
+.card {
+  background: var(--surface-1);
+  border: 1px solid var(--border-1);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.card__head {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+.card__icon {
+  flex: none; width: 1.75rem; height: 1.75rem; border-radius: var(--radius);
+  background: var(--accent); color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.card__icon svg { width: 1rem; height: 1rem; fill: currentColor; }
+.card__titles { flex: 1 1 60%; min-width: 0; }
+.card__title { margin: 0; font-size: 1rem; font-weight: 700; color: var(--on-3); line-height: 1.25; }
+/* The count sits under the title as quiet meta, not as a floating paragraph
+   between the controls and the table. */
+.card__meta {
+  margin: 0.25rem 0 0; font-size: 0.75rem; color: var(--on-1);
+  display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+}
+.card__actions { flex: none; display: flex; align-items: center; gap: 0.5rem; }
+
+/* ============================================================ view switch */
+.seg { display: inline-flex; border: 1px solid var(--border-1); border-radius: var(--radius); overflow: hidden; }
+.seg button {
+  all: unset; box-sizing: border-box; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  height: 1.875rem; padding: 0 0.625rem;
+  font-size: 0.75rem; font-weight: 600; color: var(--on-2);
+  background: var(--surface-1);
+}
+.seg button + button { border-left: 1px solid var(--border-1); }
+.seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--accent-deep); }
+.seg button:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
+.seg svg { width: 0.75rem; height: 0.75rem; fill: currentColor; }
+
+.btn {
+  all: unset; box-sizing: border-box; cursor: pointer; white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem;
+  height: 1.875rem; padding: 0 0.75rem; border-radius: var(--radius);
+  font-size: 0.75rem; font-weight: 600;
+  border: 1px solid var(--border-1); background: var(--surface-1); color: var(--on-2);
+}
+.btn:hover { background: var(--surface-2); }
+.btn:focus-visible { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent); }
+.btn_brand { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn_brand:hover { background: #014486; }
+.btn_icon { width: 1.875rem; padding: 0; }
+.btn svg { width: 0.875rem; height: 0.875rem; fill: currentColor; }
+.btn_bare { border-color: transparent; background: transparent; color: var(--accent); }
+.btn_bare:hover { background: var(--surface-2); }
+
+/* ============================================================ filters
+   Three promoted controls, nothing else on screen until it is earned. */
+.filters {
+  display: flex; align-items: flex-end; flex-wrap: wrap; gap: 0.75rem;
+  padding: 0 1rem 0.75rem;
+}
+.f { display: flex; flex-direction: column; gap: 0.125rem; }
+.f .hint { margin-top: 0.125rem; }
+.f label { font-size: 0.75rem; color: var(--on-2); }
+.f select, .f input {
+  height: 1.875rem; padding: 0 0.5rem; font: inherit; font-size: 0.8125rem;
+  border: 1px solid var(--border-1); border-radius: var(--radius);
+  background: var(--surface-1); color: var(--on-3); width: 9.5rem;
+}
+.f.search input { width: 16rem; }
+.f select:focus-visible, .f input:focus-visible { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent); }
+/* Pills only carry filters that have NO visible control. The Date range and
+   Program dropdowns are on screen, so they never get a pill of their own. */
+.applied { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; padding: 0 1rem 0.75rem; }
+.pill {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  height: 1.75rem; padding: 0 0.125rem 0 0.5rem;
+  border: 1px solid var(--border-1); border-radius: var(--radius-pill);
+  font-size: 0.75rem; color: var(--on-2); background: var(--surface-1);
+}
+.pill button {
+  all: unset; cursor: pointer; width: 1.5rem; height: 1.5rem; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center; color: var(--on-1);
+}
+.pill button:focus-visible { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent); }
+.pill button:hover { background: var(--surface-2); }
+.pill svg { width: 0.625rem; height: 0.625rem; fill: currentColor; }
+
+/* ============================================================ table
+   Sits flush in the card. No container of its own, no second border. */
+.scroller {
+  overflow: auto; border-top: 1px solid var(--border-soft);
+  max-height: 32rem;
+  /* so a focused row never lands underneath the sticky header */
+  scroll-padding-top: 2.25rem;
+}
+table.q { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.8125rem; }
+table.q th, table.q td {
+  padding: 0.5rem 0.75rem; text-align: left; white-space: nowrap;
+  border-bottom: 1px solid var(--border-soft);
+}
+table.q thead th {
+  height: 2.25rem; padding-block: 0;
+  background: var(--surface-2); color: var(--on-2);
+  font-size: 0.8125rem; font-weight: 600;
+  position: sticky; top: 0; z-index: 1;
+  box-shadow: inset 0 -1px 0 var(--border-1);
+}
+table.q tbody tr:last-child td { border-bottom: 0; }
+table.q tbody tr:hover td { background: var(--surface-2); }
+table.q td { color: var(--on-2); }
+
+/* Facility takes the remainder; everything else is fixed and narrow, so there
+   is no dead gap in the middle of the row. */
+table.q th.c-facility, table.q td.c-facility { width: auto; min-width: 14rem; white-space: normal; }
+.c-state    { width: 4.5rem; }
+.c-rollout  { width: 7.5rem; }
+.c-status   { width: 8.5rem; }
+.c-num      { width: 5.5rem; }
+.c-sched    { width: 11rem; }
+.c-menu     { width: 3rem; }
+
+/* Numbers and their headers align together. This was the "right-aligned numbers
+   under left-aligned headers" defect. Selectors are qualified with table.q so they
+   outrank the `table.q th, table.q td { text-align: left }` rule above; the plain
+   `.num` version lost on specificity and left everything ranged left. */
+table.q th.num, table.q td.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.q td.date { font-variant-numeric: tabular-nums; }
+
+/* Sortable headers. A worklist with a rollout date and no way to sort by it is
+   half a tool, and the house table standard asks for a real button per header. */
+.th-btn {
+  all: unset; box-sizing: border-box; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  min-height: 1.5rem; padding: 0 0.25rem; margin: 0 -0.25rem;
+  border-radius: var(--radius); font-weight: 600;
+}
+.th-btn:hover { color: var(--accent-deep); }
+.th-btn:focus-visible { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent); }
+.th-btn svg { width: 0.625rem; height: 0.625rem; fill: currentColor; opacity: 0.3; }
+th[aria-sort="ascending"] .th-btn svg,
+th[aria-sort="descending"] .th-btn svg { opacity: 1; color: var(--accent-deep); }
+th[aria-sort="descending"] .th-btn svg { transform: rotate(180deg); }
+th.num .th-btn { justify-content: flex-end; }
+
+/* The facility cell carries its parent company on a second line. That kills a
+   12rem column that was blank on most rows and gives the width back to the name. */
+/* Padding takes the link to a 24px target without changing where the text sits,
+   since the negative margin gives the space back to the row. */
+.fac-name {
+  color: var(--on-3); font-weight: 600; text-decoration: none;
+  display: inline-block; padding-block: 0.25rem; margin-block: -0.25rem;
+}
+a.fac-name:hover { text-decoration: underline; color: var(--accent-deep); }
+a.fac-name:focus-visible { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent); border-radius: 2px; }
+.fac-sub { display: block; margin-top: 0.0625rem; font-size: 0.75rem; color: var(--on-1); }
+
+/* The one thing this screen exists for, made clickable. Scanning six rows is easy;
+   scanning two hundred is not, so the count doubles as the filter. */
+.quick {
+  all: unset; box-sizing: border-box; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  height: 1.5rem; padding: 0 0.5rem; border-radius: var(--radius-pill);
+  font-size: 0.75rem; font-weight: 600;
+  background: var(--yellow-95); color: var(--yellow-30);
+}
+.quick:hover { box-shadow: inset 0 0 0 1px currentColor; }
+.quick:focus-visible { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent); }
+.quick[aria-pressed="true"] { box-shadow: inset 0 0 0 1px currentColor; }
+.quick svg { width: 0.75rem; height: 0.75rem; fill: currentColor; }
+
+/* Says when the list is capped, so 200 of 900 never silently reads as 200. */
+.tablefoot {
+  padding: 0.5rem 1rem; font-size: 0.75rem; color: var(--on-1);
+  border-top: 1px solid var(--border-soft);
+}
+/* Assistive text: the actions column needs a name for screen readers, not on screen. */
+.sr {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.muted { color: var(--on-1); }
+
+/* ============================================================ chips
+   One tinted chip per row at most. The Scheduled column is quiet text with a
+   dot, and only the exception ("None yet") is tinted, so the thing this screen
+   exists to surface is the only thing that colours. */
+.chip {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  max-width: 12.5rem; padding: 0.125rem 0.5rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem; font-weight: 600; line-height: 1.25;
+}
+.chip svg { width: 0.75rem; height: 0.75rem; fill: currentColor; flex: none; }
+.chip_info { background: var(--blue-95); color: var(--blue-30); }
+.chip_warning { background: var(--yellow-95); color: var(--yellow-30); }
+.chip_success { background: var(--green-95); color: var(--green-30); }
+.chip_neutral { background: var(--neutral-95); color: var(--neutral-30); box-shadow: inset 0 0 0 1px var(--border-1); }
+
+.sched { display: inline-flex; align-items: baseline; gap: 0.375rem; flex-wrap: wrap; }
+/* A count with no date makes you open the row to find out whether the next visit
+   is tomorrow or three weeks out. */
+.sched__next { font-size: 0.75rem; color: var(--on-1); white-space: nowrap; }
+.dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; flex: none; background: var(--on-1); }
+.dot_ok { background: #2e844a; }
+
+.menu-btn {
+  all: unset; cursor: pointer; width: 1.5rem; height: 1.5rem; border-radius: var(--radius);
+  display: inline-flex; align-items: center; justify-content: center; color: var(--on-1);
+  border: 1px solid var(--border-1); background: var(--surface-1);
+}
+.menu-btn:hover { background: var(--surface-2); }
+.menu-btn svg { width: 0.75rem; height: 0.75rem; fill: currentColor; }
+
+/* ============================================================ calendar */
+.weeknav {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 0.75rem; flex-wrap: wrap; padding: 0 1rem 0.75rem;
+}
+.cal {
+  display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-top: 1px solid var(--border-soft);
+}
+/* A single-pixel divider, not a border around every column. */
+.cal__col { padding: 0.5rem; min-height: 9rem; }
+.cal__col + .cal__col { border-left: 1px solid var(--border-soft); }
+
+.cal__head {
+  display: flex; align-items: center; gap: 0.375rem;
+  margin: 0 0 0.5rem; font-size: 0.75rem; font-weight: 600; color: var(--on-1);
+}
+.cal__add {
+  all: unset; box-sizing: border-box; cursor: pointer; margin-left: auto;
+  width: 1.5rem; height: 1.5rem; border-radius: var(--radius);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--on-1); opacity: 0;
+}
+.cal__col:hover .cal__add, .cal__add:focus-visible { opacity: 1; }
+.cal__add:hover { background: var(--surface-2); color: var(--accent-deep); }
+.cal__add:focus-visible { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent); }
+.cal__add svg { width: 0.875rem; height: 0.875rem; fill: currentColor; }
+.today-chip + .cal__add { margin-left: 0; }
+.cal__date { font-size: 0.8125rem; font-weight: 700; color: var(--on-3); font-variant-numeric: tabular-nums; }
+/* Today is marked in the header only. No ring around the whole column. */
+.cal__head_today { color: var(--accent-deep); }
+.cal__head_today .cal__date { color: var(--accent-deep); }
+.today-chip {
+  margin-left: auto; padding: 0 0.375rem; border-radius: var(--radius-pill);
+  background: var(--blue-95); color: var(--blue-30); font-size: 0.75rem; font-weight: 600;
+}
+
+/* One colour treatment per event: a pale tint plus an 8px dot. No coloured
+   left border, no full-strength outline. */
+.ev {
+  all: unset; box-sizing: border-box; cursor: pointer; display: block; width: 100%;
+  padding: 0.375rem 0.5rem; margin-bottom: 0.375rem;
+  border-radius: var(--radius);
+  background: var(--p-none-t);
+  border: 1px solid transparent;
+}
+.ev:hover { border-color: var(--border-1); }
+.ev:focus-visible { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent); }
+.ev__title {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  font-size: 0.8125rem; font-weight: 600; color: var(--on-3); line-height: 1.25;
+  overflow: hidden;
+}
+.ev__row { display: flex; align-items: center; gap: 0.375rem; margin-top: 0.125rem; }
+.ev__dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; flex: none; background: var(--p-none); }
+/* Nothing below 12px anywhere in the calendar. */
+.ev__meta { font-size: 0.75rem; color: var(--on-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.ev_tcm { background: var(--p-tcm-t); } .ev_tcm .ev__dot { background: var(--p-tcm); }
+.ev_ccm { background: var(--p-ccm-t); } .ev_ccm .ev__dot { background: var(--p-ccm); }
+.ev_bhi { background: var(--p-bhi-t); } .ev_bhi .ev__dot { background: var(--p-bhi); }
+.ev_cocm { background: var(--p-cocm-t); } .ev_cocm .ev__dot { background: var(--p-cocm); }
+.ev_telepsych { background: var(--p-telepsych-t); } .ev_telepsych .ev__dot { background: var(--p-telepsych); }
+.ev_ahth { background: var(--p-ahth-t); } .ev_ahth .ev__dot { background: var(--p-ahth); }
+.ev_community { background: var(--p-community-t); } .ev_community .ev__dot { background: var(--p-community); }
+.ev_ipv { background: var(--p-ipv-t); } .ev_ipv .ev__dot { background: var(--p-ipv); }
+.ev_cancelled { background: var(--p-cancelled-t); }
+.ev_cancelled .ev__dot { background: var(--p-cancelled); }
+.ev_cancelled .ev__title { text-decoration: line-through; color: var(--on-1); }
+
+.cal__empty { font-size: 0.75rem; color: var(--on-1); padding-top: 0.5rem; }
+
+/* One line of dots. No bordered box. */
+.legend {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.875rem;
+  padding: 0.625rem 1rem; border-top: 1px solid var(--border-soft);
+  font-size: 0.75rem; color: var(--on-2);
+}
+.legend b { font-weight: 600; color: var(--on-1); font-size: 0.75rem; }
+.legend span { display: inline-flex; align-items: center; gap: 0.3125rem; }
+.legend i { width: 0.5rem; height: 0.5rem; border-radius: 50%; display: inline-block; }
+
+/* ============================================================ narrow */
+@media (max-width: 48rem) {
+  .page { padding: 0.5rem; }
+  .card__head { flex-wrap: wrap; }
+  /* basis 0, so the titles take the space left beside the icon instead of being
+     pushed onto their own line by their own content width. */
+  .card__titles { flex: 1 1 0; min-width: 0; }
+  .card__actions { width: 100%; }
+  /* There is no hover on a touch screen, so the per-day add button is always
+     visible at this width rather than being unreachable. */
+  .cal__add { opacity: 1; }
+  .seg { flex: 1 1 auto; }
+  .seg button { flex: 1 1 auto; justify-content: center; }
+  .f select, .f input, .f { width: 100%; }
+  .f { flex: 1 1 100%; }
+  .cal { grid-template-columns: 1fr; }
+  .cal__col { min-height: 0; border-left: 0; }
+  .cal__col + .cal__col { border-left: 0; border-top: 1px solid var(--border-soft); }
+  /* On a phone the job is "which facility has nothing booked", so the table keeps
+     Facility, Rollout and Scheduled and drops the rest rather than making the user
+     drag a 1000px table sideways. The full set is one rotation away. */
+  .c-state, .c-status, .c-num { display: none; }
+  /* Fixed layout so the facility name wraps into the space left over instead of
+     stretching the table past the card. The remaining columns shrink first, so the
+     name keeps the majority of the width rather than being squeezed to a sliver. */
+  table.q { table-layout: fixed; }
+  table.q th.c-facility, table.q td.c-facility { width: auto; min-width: 0; }
+  .c-rollout { width: 5.75rem; }
+  .c-sched { width: 5.75rem; }
+  .c-menu { width: 2.25rem; }
+  table.q th, table.q td { padding-inline: 0.5rem; }
+}
+
+/* ============================================================ booking dialog
+   Same language as the two views: one bordered container, 13px body, chips on
+   palette tints, nothing under 12px. Rendered here as a static panel; in the
+   component it is a LightningModal, which supplies the focus trap and Escape. */
+.modal {
+  width: min(44rem, 100%);
+  background: var(--surface-1);
+  border: 1px solid var(--border-1);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 3px 0 #00000027;
+  overflow: hidden;
+}
+.modal__head {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-soft);
+}
+.modal__title { margin: 0; font-size: 1rem; font-weight: 700; color: var(--on-3); flex: 1 1 auto; }
+.modal__body { padding: 0 1rem; max-height: none; }
+.modal__foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  flex-wrap: wrap; padding: 0.75rem 1rem; border-top: 1px solid var(--border-soft);
+  background: var(--surface-2);
+}
+.modal__why { font-size: 0.75rem; color: var(--on-2); margin: 0; }
+.modal__acts { display: flex; gap: 0.5rem; margin-left: auto; }
+
+.group { border: 0; padding: 1rem 0; margin: 0; }
+.group + .group { border-top: 1px solid var(--border-soft); }
+.group__legend {
+  display: block; margin: 0 0 0.5rem; padding: 0;
+  font-size: 0.75rem; font-weight: 700; color: var(--on-2);
+}
+.group__head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.5rem; }
+.group__head .group__legend { margin: 0; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.75rem; }
+
+.chosen {
+  display: flex; align-items: center; gap: 0.5rem; min-height: 2rem;
+  padding: 0.25rem 0.5rem; border: 1px solid var(--border-1);
+  border-radius: var(--radius); background: var(--surface-2);
+}
+.chosen__name { flex: 1 1 auto; min-width: 0; font-weight: 600; color: var(--on-3); }
+
+/* The three numbers the person booking uses to decide how many providers to send,
+   in the dialog rather than one screen back. */
+.counts { display: flex; gap: 0.5rem; margin: 0; }
+.counts__cell {
+  flex: 1 1 0; min-width: 0; text-align: center;
+  padding: 0.375rem 0.5rem; border: 1px solid var(--border-soft);
+  border-radius: var(--radius); background: var(--surface-2);
+}
+.counts__label { font-size: 0.75rem; font-weight: 600; color: var(--on-2); }
+.counts__value { margin: 0; font-size: 1.125rem; font-weight: 700; color: var(--on-3); font-variant-numeric: tabular-nums; }
+
+/* Programmes the facility does not run stay on the list, disabled, with the
+   reason beside them. Hiding them leaves you wondering if they exist. */
+/* Two columns, not three. At three, "Community Full-Time" wrapped and collided
+   with the reason text beside it. */
+.progs { display: grid; grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr)); gap: 0.25rem 1.5rem; list-style: none; margin: 0; padding: 0; }
+.progs li { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; min-height: 1.75rem; }
+.progs input { width: 1rem; height: 1rem; margin: 0; accent-color: var(--accent); }
+.progs .prog {
+  display: flex; align-items: center; gap: 0.5rem; flex: 1 1 auto;
+  min-height: 1.75rem; font-size: 0.8125rem; color: var(--on-3); cursor: pointer;
+}
+.progs .prog:focus-within { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent); border-radius: var(--radius); }
+.progs li.off .prog { cursor: not-allowed; }
+.progs li.off .prog { color: var(--on-1); }
+.progs .why { font-size: 0.75rem; color: var(--on-1); white-space: nowrap; }
+.pdot { width: 0.5rem; height: 0.5rem; border-radius: 50%; display: inline-block; flex: none; }
+
+.field { display: flex; flex-direction: column; gap: 0.125rem; }
+.field label { font-size: 0.75rem; color: var(--on-2); }
+.field input, .field select {
+  height: 1.875rem; padding: 0 0.5rem; font: inherit; font-size: 0.8125rem;
+  border: 1px solid var(--border-1); border-radius: var(--radius);
+  background: var(--surface-1); color: var(--on-3); width: 100%;
+}
+.hint { margin: 0.25rem 0 0; font-size: 0.75rem; color: var(--on-2); }
+
+.checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.25rem; }
+.check {
+  display: flex; align-items: flex-start; gap: 0.5rem;
+  padding: 0.25rem 0.5rem; border-radius: var(--radius); font-size: 0.75rem; line-height: 1.25;
+}
+.check svg { width: 0.75rem; height: 0.75rem; fill: currentColor; flex: none; margin-top: 0.125rem; }
+.check_ok { background: var(--green-95); color: var(--green-30); }
+.check_warn { background: var(--yellow-95); color: var(--yellow-30); }
+.check_blocked { background: var(--red-95); color: var(--red-30); font-weight: 600; }
+
+/* ============================================================ states */
+.states { display: grid; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); gap: 1rem; }
+.skel { height: 2.5rem; border-radius: var(--radius); background: var(--surface-2); margin-bottom: 0.25rem; }
+.empty { text-align: center; padding: 2rem 1rem; }
+.empty__icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2.5rem; height: 2.5rem; border-radius: 50%; margin-bottom: 0.5rem;
+  background: var(--surface-2); color: var(--on-1);
+}
+.empty_failed .empty__icon { background: var(--red-95); color: var(--red-30); }
+.empty__icon svg { width: 1.25rem; height: 1.25rem; fill: currentColor; }
+.empty__title { margin: 0; font-size: 1rem; font-weight: 600; color: var(--on-3); }
+.empty__body { max-width: 45ch; margin: 0.25rem auto 0.75rem; color: var(--on-2); }
+.empty__ref { margin-top: 0.5rem; font-size: 0.75rem; color: var(--on-1); }
+
+</style>
+</head>
+<body>
+<div class="page">
+
+<p class="note">
+  Mock only. Synthetic data, no real facility, provider or patient records. Classic SLDS values,
+  matching lumDev as measured on 30 Sep 2026. In the component every value here is a
+  <code>--slds-g-*</code> hook with the classic value as its fallback.
+</p>
+
+<!-- ===================================================== LIST -->
+<h1 class="mock-h">List view</h1>
+<div class="card">
+  <div class="card__head">
+    <span class="card__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V3a1 1 0 0 1 1-1zm12 7H5v10h14V9z"/></svg>
+    </span>
+    <div class="card__titles">
+      <h2 class="card__title">Onboarding worklist</h2>
+      <p class="card__meta">
+        <span role="status">6 facilities in the next 30 days</span>
+        <button type="button" class="quick" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.6 3.5 2-1 1.7L11 13V6h2z"/></svg>
+          2 need scheduling
+        </button>
+      </p>
+    </div>
+    <div class="card__actions">
+      <span class="seg" role="group" aria-label="View">
+        <button type="button" aria-pressed="true">
+          <svg viewBox="0 0 24 24"><path d="M3 5h18v2H3zm0 6h18v2H3zm0 6h18v2H3z"/></svg>List</button>
+        <button type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24"><path d="M7 2v2h10V2h2v2h1a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V2h2zm13 8H4v9h16v-9z"/></svg>Calendar</button>
+      </span>
+      <button type="button" class="btn btn_icon" aria-label="Refresh the list">
+        <svg viewBox="0 0 24 24"><path d="M12 5V2L8 6l4 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
+      </button>
+      <button type="button" class="btn btn_brand">
+        <svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>Schedule event
+      </button>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="f search">
+      <label for="q">Search facilities</label>
+      <input id="q" type="search" placeholder="Facility or parent company"
+             aria-describedby="q-scope">
+      <span id="q-scope" class="hint">Searches facilities awaiting onboarding</span>
+    </div>
+    <div class="f">
+      <label for="dr">Date range</label>
+      <select id="dr"><option>Next 30 days</option><option>This month</option><option>All dates</option><option>Custom range</option></select>
+    </div>
+    <div class="f">
+      <label for="pg">Program</label>
+      <select id="pg"><option>TCM</option><option>All programs</option></select>
+    </div>
+  </div>
+
+  <!-- Only filters WITHOUT a visible control get a pill. Date range and Program
+       are both on screen above, so neither is pilled. This row is hidden
+       entirely when nothing differs from the defaults. -->
+  <div class="applied">
+    <span class="pill">Rollout status: Scheduled
+      <button type="button" aria-label="Remove filter Rollout status: Scheduled">
+        <svg viewBox="0 0 24 24"><path d="M6 5.6 12 11.6l6-6L19.4 7l-6 6 6 6L18 20.4l-6-6-6 6L4.6 19l6-6-6-6z"/></svg>
+      </button>
+    </span>
+    <button type="button" class="btn btn_bare">Clear filters</button>
+  </div>
+
+  <div class="scroller">
+    <table class="q" aria-label="Facilities awaiting onboarding">
+      <thead>
+        <tr>
+          <th scope="col" class="c-facility" aria-sort="none">
+            <button type="button" class="th-btn">Facility <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16 5 9l1.4-1.4L12 13.2l5.6-5.6L19 9z"/></svg></button></th>
+          <th scope="col" class="c-state">State</th>
+          <th scope="col" class="c-rollout" aria-sort="ascending">
+            <button type="button" class="th-btn">Rollout <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16 5 9l1.4-1.4L12 13.2l5.6-5.6L19 9z"/></svg></button></th>
+          <th scope="col" class="c-status">Status</th>
+          <th scope="col" class="c-num num" aria-sort="none">
+            <button type="button" class="th-btn">Census <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16 5 9l1.4-1.4L12 13.2l5.6-5.6L19 9z"/></svg></button></th>
+          <th scope="col" class="c-num num" aria-sort="none">
+            <button type="button" class="th-btn">Seen <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16 5 9l1.4-1.4L12 13.2l5.6-5.6L19 9z"/></svg></button></th>
+          <th scope="col" class="c-num num" aria-sort="none">
+            <button type="button" class="th-btn">Consented <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16 5 9l1.4-1.4L12 13.2l5.6-5.6L19 9z"/></svg></button></th>
+          <th scope="col" class="c-sched">Scheduled</th>
+          <th scope="col" class="c-menu"><span class="sr">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="c-facility"><a class="fac-name" href="#">ZZ TEST &ndash; Cedar Ridge SNF</a><span class="fac-sub">ZZ TEST Cedar Group</span></td>
+          
+          <td class="c-state">PA</td>
+          <td class="c-rollout date">4 Oct 2026</td>
+          <td class="c-status"><span class="chip chip_info"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2zm0-8h-2V7h2z"/></svg>Onboarding</span></td>
+          <td class="c-num num">128</td>
+          <td class="c-num num">64</td>
+          <td class="c-num num">41</td>
+          <td class="c-sched"><span class="sched"><i class="dot dot_ok"></i>2 events<span class="sched__next">next 4 Oct</span></span></td>
+          <td class="c-menu"><button class="menu-btn" type="button" aria-label="Actions for ZZ TEST Cedar Ridge SNF"><svg viewBox="0 0 24 24"><path d="M12 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg></button></td>
+        </tr>
+        <tr>
+          <td class="c-facility"><a class="fac-name" href="#">ZZ TEST &ndash; Stateless Manor</a><span class="fac-sub">No parent company on record</span></td>
+          
+          <td class="c-state muted">&mdash;</td>
+          <td class="c-rollout date">8 Oct 2026</td>
+          <td class="c-status"><span class="chip chip_info"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2zm0-8h-2V7h2z"/></svg>Onboarding</span></td>
+          <td class="c-num num">54</td>
+          <td class="c-num num">0</td>
+          <td class="c-num num">0</td>
+          <td class="c-sched"><span class="chip chip_warning"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.6 3.5 2-1 1.7L11 13V6h2z"/></svg>None yet</span></td>
+          <td class="c-menu"><button class="menu-btn" type="button" aria-label="Actions for ZZ TEST Stateless Manor"><svg viewBox="0 0 24 24"><path d="M12 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg></button></td>
+        </tr>
+        <tr>
+          <td class="c-facility"><a class="fac-name" href="#">ZZ TEST &ndash; Harbour Point Rehabilitation and Nursing Center</a><span class="fac-sub">ZZ TEST Harbour Holdings</span></td>
+          
+          <td class="c-state">NJ</td>
+          <td class="c-rollout date">12 Oct 2026</td>
+          <td class="c-status"><span class="chip chip_warning"><svg viewBox="0 0 24 24"><path d="M12 2 1 21h22zm1 15h-2v-2h2zm0-4h-2V9h2z"/></svg>Opportunity</span></td>
+          <td class="c-num num">96</td>
+          <td class="c-num num">12</td>
+          <td class="c-num num">9</td>
+          <td class="c-sched"><span class="sched"><i class="dot dot_ok"></i>1 event<span class="sched__next">next 13 Oct</span></span></td>
+          <td class="c-menu"><button class="menu-btn" type="button" aria-label="Actions for ZZ TEST Harbour Point"><svg viewBox="0 0 24 24"><path d="M12 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg></button></td>
+        </tr>
+        <tr>
+          <td class="c-facility"><a class="fac-name" href="#">ZZ TEST &ndash; Willow Bend Care</a><span class="fac-sub">ZZ TEST Cedar Group</span></td>
+          
+          <td class="c-state">PA</td>
+          <td class="c-rollout date">15 Oct 2026</td>
+          <td class="c-status"><span class="chip chip_info"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2zm0-8h-2V7h2z"/></svg>Onboarding</span></td>
+          <td class="c-num num">212</td>
+          <td class="c-num num">188</td>
+          <td class="c-num num">154</td>
+          <td class="c-sched"><span class="sched"><i class="dot dot_ok"></i>3 events<span class="sched__next">next 16 Oct</span></span></td>
+          <td class="c-menu"><button class="menu-btn" type="button" aria-label="Actions for ZZ TEST Willow Bend Care"><svg viewBox="0 0 24 24"><path d="M12 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg></button></td>
+        </tr>
+        <tr>
+          <td class="c-facility"><a class="fac-name" href="#">ZZ TEST &ndash; Quarry Lane Skilled Nursing</a><span class="fac-sub">ZZ TEST Quarry Partners</span></td>
+          
+          <td class="c-state">OH</td>
+          <td class="c-rollout date">19 Oct 2026</td>
+          <td class="c-status"><span class="chip chip_info"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2zm0-8h-2V7h2z"/></svg>Onboarding</span></td>
+          <td class="c-num num">73</td>
+          <td class="c-num num">31</td>
+          <td class="c-num num">28</td>
+          <td class="c-sched"><span class="chip chip_warning"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.6 3.5 2-1 1.7L11 13V6h2z"/></svg>None yet</span></td>
+          <td class="c-menu"><button class="menu-btn" type="button" aria-label="Actions for ZZ TEST Quarry Lane"><svg viewBox="0 0 24 24"><path d="M12 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg></button></td>
+        </tr>
+        <tr>
+          <td class="c-facility"><a class="fac-name" href="#">ZZ TEST &ndash; Foxglove Court</a><span class="fac-sub">ZZ TEST Harbour Holdings</span></td>
+          
+          <td class="c-state">NJ</td>
+          <td class="c-rollout date">23 Oct 2026</td>
+          <td class="c-status"><span class="chip chip_info"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2zm0-8h-2V7h2z"/></svg>Onboarding</span></td>
+          <td class="c-num num">41</td>
+          <td class="c-num num">40</td>
+          <td class="c-num num">38</td>
+          <td class="c-sched"><span class="sched"><i class="dot dot_ok"></i>1 event<span class="sched__next">next 24 Oct</span></span></td>
+          <td class="c-menu"><button class="menu-btn" type="button" aria-label="Actions for ZZ TEST Foxglove Court"><svg viewBox="0 0 24 24"><path d="M12 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg></button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="tablefoot" role="status">Showing all 6 facilities. The list caps at 200; narrow the dates if you hit it.</p>
+</div>
+
+<!-- ===================================================== CALENDAR -->
+<h1 class="mock-h">Calendar view</h1>
+<div class="card">
+  <div class="card__head">
+    <span class="card__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V3a1 1 0 0 1 1-1zm12 7H5v10h14V9z"/></svg>
+    </span>
+    <div class="card__titles">
+      <h2 class="card__title">Week of 28 Sep to 4 Oct</h2>
+      <p class="card__meta" role="status">5 events this week &middot; choose one to edit it</p>
+    </div>
+    <div class="card__actions">
+      <span class="seg" role="group" aria-label="View">
+        <button type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24"><path d="M3 5h18v2H3zm0 6h18v2H3zm0 6h18v2H3z"/></svg>List</button>
+        <button type="button" aria-pressed="true">
+          <svg viewBox="0 0 24 24"><path d="M7 2v2h10V2h2v2h1a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V2h2zm13 8H4v9h16v-9z"/></svg>Calendar</button>
+      </span>
+      <button type="button" class="btn btn_icon" aria-label="Refresh the calendar">
+        <svg viewBox="0 0 24 24"><path d="M12 5V2L8 6l4 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
+      </button>
+      <button type="button" class="btn btn_brand">
+        <svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>Schedule event
+      </button>
+    </div>
+  </div>
+
+  <div class="weeknav">
+    <span class="seg" role="group" aria-label="Week">
+      <button type="button">Previous</button>
+      <button type="button">This week</button>
+      <button type="button">Next</button>
+    </span>
+    <div class="f" style="flex-direction:row;align-items:center;gap:.5rem">
+      <label for="pg2" style="white-space:nowrap">Program</label>
+      <select id="pg2"><option>All programs</option></select>
+    </div>
+  </div>
+
+  <div class="cal">
+    <section class="cal__col">
+      <h3 class="cal__head"><span>Sun</span><span class="cal__date">28</span><button type="button" class="cal__add" aria-label="Schedule an event on Sun 28"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></button></h3>
+      <p class="cal__empty">Nothing booked</p>
+    </section>
+    <section class="cal__col">
+      <h3 class="cal__head cal__head_today"><span>Mon</span><span class="cal__date">29</span><span class="today-chip">Today</span><button type="button" class="cal__add" aria-label="Schedule an event on Mon 29"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></button></h3>
+      <button class="ev ev_tcm" type="button">
+        <span class="ev__title">ZZ TEST &ndash; Cedar Ridge SNF</span>
+        <span class="ev__row"><i class="ev__dot"></i><span class="ev__meta">TCM, BHI</span></span>
+        <span class="ev__row"><span class="ev__meta">10:00 to 12:00 &middot; A. Rowe +1</span></span>
+      </button>
+      <button class="ev ev_cocm" type="button">
+        <span class="ev__title">ZZ TEST &ndash; Willow Bend Care</span>
+        <span class="ev__row"><i class="ev__dot"></i><span class="ev__meta">CoCM</span></span>
+        <span class="ev__row"><span class="ev__meta">14:00 to 15:30 &middot; B. Ilo</span></span>
+      </button>
+    </section>
+    <section class="cal__col">
+      <h3 class="cal__head"><span>Tue</span><span class="cal__date">30</span><button type="button" class="cal__add" aria-label="Schedule an event on Tue 30"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></button></h3>
+      <button class="ev ev_bhi" type="button">
+        <span class="ev__title">ZZ TEST &ndash; Harbour Point Rehabilitation</span>
+        <span class="ev__row"><i class="ev__dot"></i><span class="ev__meta">BHI</span></span>
+        <span class="ev__row"><span class="ev__meta">09:00 to 11:00 &middot; C. Nkemdi</span></span>
+      </button>
+    </section>
+    <section class="cal__col">
+      <h3 class="cal__head"><span>Wed</span><span class="cal__date">1</span><button type="button" class="cal__add" aria-label="Schedule an event on Wed 1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></button></h3>
+      <p class="cal__empty">Nothing booked</p>
+    </section>
+    <section class="cal__col">
+      <h3 class="cal__head"><span>Thu</span><span class="cal__date">2</span><button type="button" class="cal__add" aria-label="Schedule an event on Thu 2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></button></h3>
+      <button class="ev ev_ahth" type="button">
+        <span class="ev__title">ZZ TEST &ndash; Foxglove Court</span>
+        <span class="ev__row"><i class="ev__dot"></i><span class="ev__meta">After Hours Telehealth</span></span>
+        <span class="ev__row"><span class="ev__meta">18:00 to 20:00 &middot; D. Farr</span></span>
+      </button>
+    </section>
+    <section class="cal__col">
+      <h3 class="cal__head"><span>Fri</span><span class="cal__date">3</span><button type="button" class="cal__add" aria-label="Schedule an event on Fri 3"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></button></h3>
+      <button class="ev ev_cancelled" type="button">
+        <span class="ev__title">ZZ TEST &ndash; Quarry Lane Skilled Nursing</span>
+        <span class="ev__row"><i class="ev__dot"></i><span class="ev__meta">Cancelled &middot; CCM</span></span>
+        <span class="ev__row"><span class="ev__meta">11:00 to 12:00 &middot; Unassigned</span></span>
+      </button>
+    </section>
+    <section class="cal__col">
+      <h3 class="cal__head"><span>Sat</span><span class="cal__date">4</span><button type="button" class="cal__add" aria-label="Schedule an event on Sat 4"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></button></h3>
+      <p class="cal__empty">Nothing booked</p>
+    </section>
+  </div>
+
+  <div class="empty" role="status" style="display:none" data-empty-week>
+    <span class="empty__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2v2h10V2h2v2h1a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V2h2zm13 8H4v9h16v-9z"/></svg></span>
+    <h2 class="empty__title">Nothing booked this week</h2>
+    <p class="empty__body">Pick a facility from the list, or use the plus on a day to book into it.</p>
+    <button type="button" class="btn">Schedule event</button>
+  </div>
+
+  <div class="legend">
+    <b>Programs</b>
+    <span><i style="background:var(--p-tcm)"></i>TCM</span>
+    <span><i style="background:var(--p-ccm)"></i>CCM</span>
+    <span><i style="background:var(--p-bhi)"></i>BHI</span>
+    <span><i style="background:var(--p-cocm)"></i>CoCM</span>
+    <span><i style="background:var(--p-telepsych)"></i>Telepsych</span>
+    <span><i style="background:var(--p-ahth)"></i>AHTH</span>
+    <span><i style="background:var(--p-community)"></i>Community FT</span>
+    <span><i style="background:var(--p-ipv)"></i>IPV</span>
+    <span><i style="background:var(--p-cancelled)"></i>Cancelled</span>
+  </div>
+</div>
+
+
+<h1 class="mock-h">Booking dialog</h1>
+<div class="modal">
+  <div class="modal__head">
+    <h2 class="modal__title">Schedule facility onboarding</h2>
+    <button type="button" class="btn btn_icon" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5.6 12 11.6l6-6L19.4 7l-6 6 6 6L18 20.4l-6-6-6 6L4.6 19l6-6-6-6z"/></svg></button>
+  </div>
+  <div class="modal__body">
+
+    <fieldset class="group">
+      <legend class="group__legend">Facility</legend>
+      <div class="grid2">
+        <div>
+          <div class="chosen">
+            <span class="chosen__name">ZZ TEST &ndash; Cedar Ridge SNF</span>
+            <button type="button" class="btn btn_icon" aria-label="Change facility"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5.6 12 11.6l6-6L19.4 7l-6 6 6 6L18 20.4l-6-6-6 6L4.6 19l6-6-6-6z"/></svg></button>
+          </div>
+          <p class="hint">Pennsylvania &middot; rollout 4 Oct 2026</p>
+        </div>
+        <div>
+          <dl class="counts">
+            <div class="counts__cell"><dt class="counts__label">Census</dt><dd class="counts__value">128</dd></div>
+            <div class="counts__cell"><dt class="counts__label">Seen</dt><dd class="counts__value">64</dd></div>
+            <div class="counts__cell"><dt class="counts__label">Consented</dt><dd class="counts__value">41</dd></div>
+          </dl>
+          <p class="hint">Active patients at this facility, as of now.</p>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="group">
+      <legend class="group__legend">Programs on this visit</legend>
+      <ul class="progs"><li><label class="prog"><input type="checkbox" checked><i class="pdot" style="background:var(--p-tcm)"></i><span>TCM</span></label></li><li><label class="prog"><input type="checkbox"><i class="pdot" style="background:var(--p-ccm)"></i><span>CCM</span></label></li><li><label class="prog"><input type="checkbox" checked><i class="pdot" style="background:var(--p-bhi)"></i><span>BHI</span></label></li><li class="off"><label class="prog"><input type="checkbox" disabled><i class="pdot" style="background:var(--p-cocm)"></i><span>CoCM</span></label><span class="why">Not active here</span></li><li class="off"><label class="prog"><input type="checkbox" disabled><i class="pdot" style="background:var(--p-telepsych)"></i><span>Telepsych</span></label><span class="why">Not active here</span></li><li><label class="prog"><input type="checkbox"><i class="pdot" style="background:var(--p-ahth)"></i><span>After Hours Telehealth</span></label></li><li><label class="prog"><input type="checkbox"><i class="pdot" style="background:var(--p-community)"></i><span>Community Full-Time</span></label><span class="why">Not tracked</span></li><li><label class="prog"><input type="checkbox"><i class="pdot" style="background:var(--p-ipv)"></i><span>IPV Onboarding</span></label><span class="why">Not tracked</span></li></ul>
+      <p class="hint" role="status">2 programs on this visit: TCM, BHI. Providers must be approved for both.</p>
+    </fieldset>
+
+    <fieldset class="group">
+      <legend class="group__legend">When</legend>
+      <div class="grid2">
+        <div class="field"><label for="st">Start</label><input id="st" type="text" value="5 Oct 2026, 10:00"></div>
+        <div class="field"><label for="en">End</label><input id="en" type="text" value="5 Oct 2026, 12:00"></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="group">
+      <legend class="group__legend">Who</legend>
+      <div class="grid2">
+        <div>
+          <div class="field"><label for="fa">Facilitator</label>
+            <select id="fa"><option>Fay Facilitator</option></select></div>
+          <p class="hint">Free in this window. 1 hidden because they are already booked.</p>
+        </div>
+        <div>
+          <div class="field"><label for="p1">Provider 1</label>
+            <select id="p1"><option>Ada Rowe</option></select></div>
+          <div class="field" style="margin-top:.25rem"><label for="p2">Provider 2 (optional)</label>
+            <select id="p2"><option>Ben Ilo</option></select></div>
+          <div class="field" style="margin-top:.25rem"><label for="p3">Provider 3 (optional)</label>
+            <select id="p3"><option>Select a provider</option></select></div>
+          <p class="hint">Showing providers licensed in Pennsylvania and approved for TCM and BHI. 3 hidden: 2 not approved for every program, 1 already booked.</p>
+        </div>
+      </div>
+    </fieldset>
+
+    <section class="group" aria-label="Eligibility checks">
+      <div class="group__head">
+        <span class="group__legend">Eligibility</span>
+        <span class="chip chip_warning"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 1 21h22zm1 15h-2v-2h2zm0-4h-2V9h2z"/></svg> 1 warning</span>
+      </div>
+      <ul class="checks">
+        <li class="check check_ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg><span><strong>TCM approved in Pennsylvania</strong></span></li>
+        <li class="check check_ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg><span><strong>BHI approved in Pennsylvania</strong></span></li>
+        <li class="check check_ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg><span><strong>No scheduling conflict</strong></span></li>
+        <li class="check check_warn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 1 21h22zm1 15h-2v-2h2zm0-4h-2V9h2z"/></svg><span><strong>DEA not on record</strong> No DEA entry for Pennsylvania.</span></li>
+      </ul>
+    </section>
+  </div>
+  <div class="modal__foot">
+    <p class="modal__why" role="status">Ready to save.</p>
+    <div class="modal__acts">
+      <button type="button" class="btn">Cancel</button>
+      <button type="button" class="btn btn_brand">Schedule event</button>
+    </div>
+  </div>
+</div>
+
+<h1 class="mock-h">Loading, empty and failed</h1>
+<div class="states">
+  <div class="card">
+    <div class="card__head"><div class="card__titles"><h2 class="card__title">First load</h2>
+      <p class="card__meta">Nothing for the first 300ms, then rows at the real height</p></div></div>
+    <div style="padding:0 1rem 1rem">
+      <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+      <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="empty" role="status">
+      <span class="empty__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg></span>
+      <h2 class="empty__title">No facilities match these filters</h2>
+      <p class="empty__body">Nothing matches TCM in the next 30 days. Widen the dates, or clear the program.</p>
+      <button type="button" class="btn">Clear filters</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="empty empty_failed" role="alert">
+      <span class="empty__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-2h2zm0-4h-2V7h2z"/></svg></span>
+      <h2 class="empty__title">The list didn't load</h2>
+      <p class="empty__body">The request timed out. The filters are kept.</p>
+      <button type="button" class="btn">Try again</button>
+      <p class="empty__ref">Reference 4821. Quote this if you ask for help.</p>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

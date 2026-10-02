@@ -1,0 +1,187 @@
+[
+ {
+  "scene": "01-problem",
+  "lines": [
+   {
+    "id": "01-problem-00",
+    "caption": "Twenty seven facilities are waiting to be onboarded.",
+    "secs": 2.993
+   },
+   {
+    "id": "01-problem-01",
+    "caption": "Fifteen of them have nothing booked.",
+    "secs": 2.012
+   },
+   {
+    "id": "01-problem-02",
+    "caption": "Until now that lived in a spreadsheet.",
+    "secs": 2.012
+   },
+   {
+    "id": "01-problem-03",
+    "caption": "Who is going, which programs, whether they are even licensed for it.",
+    "secs": 3.591
+   },
+   {
+    "id": "01-problem-04",
+    "caption": "All of it checked by hand.",
+    "secs": 1.692
+   }
+  ]
+ },
+ {
+  "scene": "02-built",
+  "lines": [
+   {
+    "id": "02-built-00",
+    "caption": "So we built one screen for it.",
+    "secs": 1.841
+   },
+   {
+    "id": "02-built-01",
+    "caption": "A worklist of every facility still waiting.",
+    "secs": 2.46
+   },
+   {
+    "id": "02-built-02",
+    "caption": "And the same thing as a calendar.",
+    "secs": 1.735
+   },
+   {
+    "id": "02-built-03",
+    "caption": "An onboarding coordinator works from this and nothing else.",
+    "secs": 3.036
+   }
+  ]
+ },
+ {
+  "scene": "03-programs",
+  "lines": [
+   {
+    "id": "03-programs-00",
+    "caption": "A visit used to carry one program.",
+    "secs": 2.225
+   },
+   {
+    "id": "03-programs-01",
+    "caption": "Now it carries as many as the visit really covers.",
+    "secs": 2.609
+   },
+   {
+    "id": "03-programs-02",
+    "caption": "Open a facility and the programs tick themselves.",
+    "secs": 2.78
+   },
+   {
+    "id": "03-programs-03",
+    "caption": "Read straight off the facility record.",
+    "secs": 2.161
+   },
+   {
+    "id": "03-programs-04",
+    "caption": "A program that facility does not run says so.",
+    "secs": 2.481
+   },
+   {
+    "id": "03-programs-05",
+    "caption": "Rather than sitting there blank.",
+    "secs": 1.671
+   }
+  ]
+ },
+ {
+  "scene": "04-providers",
+  "lines": [
+   {
+    "id": "04-providers-00",
+    "caption": "Then the question that used to take a phone call.",
+    "secs": 2.609
+   },
+   {
+    "id": "04-providers-01",
+    "caption": "Who can actually go.",
+    "secs": 1.457
+   },
+   {
+    "id": "04-providers-02",
+    "caption": "This facility is in Ohio, and the visit covers two programs.",
+    "secs": 3.441
+   },
+   {
+    "id": "04-providers-03",
+    "caption": "Of three hundred and twenty three providers, two qualify.",
+    "secs": 3.143
+   },
+   {
+    "id": "04-providers-04",
+    "caption": "They hold a current Ohio licence.",
+    "secs": 2.076
+   },
+   {
+    "id": "04-providers-05",
+    "caption": "And they are approved for every program on the visit.",
+    "secs": 2.524
+   },
+   {
+    "id": "04-providers-06",
+    "caption": "Not one of them. All of them.",
+    "secs": 1.713
+   }
+  ]
+ },
+ {
+  "scene": "05-counts",
+  "lines": [
+   {
+    "id": "05-counts-00",
+    "caption": "The numbers come from the facility itself.",
+    "secs": 2.204
+   },
+   {
+    "id": "05-counts-01",
+    "caption": "Census, seen, and consented.",
+    "secs": 2.012
+   },
+   {
+    "id": "05-counts-02",
+    "caption": "Counted live, every time the screen opens.",
+    "secs": 2.609
+   },
+   {
+    "id": "05-counts-03",
+    "caption": "So they are never stale.",
+    "secs": 1.479
+   }
+  ]
+ },
+ {
+  "scene": "06-guardrails",
+  "lines": [
+   {
+    "id": "06-guardrails-00",
+    "caption": "Change any of this and the people on the visit hear about it.",
+    "secs": 2.972
+   },
+   {
+    "id": "06-guardrails-01",
+    "caption": "The facilitator, and every provider going.",
+    "secs": 2.524
+   },
+   {
+    "id": "06-guardrails-02",
+    "caption": "Move it, cancel it, or take someone off it.",
+    "secs": 2.439
+   },
+   {
+    "id": "06-guardrails-03",
+    "caption": "An expired licence never counts.",
+    "secs": 2.119
+   },
+   {
+    "id": "06-guardrails-04",
+    "caption": "And no patient information goes in the email.",
+    "secs": 2.737
+   }
+  ]
+ }
+]

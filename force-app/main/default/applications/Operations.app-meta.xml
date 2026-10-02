@@ -13,6 +13,7 @@
     <label>Operations</label>
     <navType>Console</navType>
     <tabs>standard-home</tabs>
+    <tabs>Facility_Scheduling_Page</tabs>
     <tabs>standard-Account</tabs>
     <tabs>Patient__c</tabs>
     <tabs>Patient_ICD_10__c</tabs>
@@ -41,6 +42,8 @@
     <tabs>Facility_Mapper__c</tabs>
     <tabs>Leaked_Admission__c</tabs>
     <tabs>Facility_Alias__c</tabs>
+    <tabs>Document_Template__c</tabs>
+    <tabs>Document_Template_Facility__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>Operations_UtilityBar</utilityBar>
     <workspaceConfig>
@@ -58,6 +61,12 @@
         </mappings>
         <mappings>
             <tab>Credential__c</tab>
+        </mappings>
+        <mappings>
+            <tab>Document_Template_Facility__c</tab>
+        </mappings>
+        <mappings>
+            <tab>Document_Template__c</tab>
         </mappings>
         <mappings>
             <tab>Encounter_Diagnosis__c</tab>
@@ -82,6 +91,9 @@
         </mappings>
         <mappings>
             <tab>Facility_Mapper__c</tab>
+        </mappings>
+        <mappings>
+            <tab>Facility_Scheduling_Page</tab>
         </mappings>
         <mappings>
             <tab>Hospice__c</tab>

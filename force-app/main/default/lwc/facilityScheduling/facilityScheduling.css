@@ -1,0 +1,1040 @@
+@import "c/uiTokens";
+@import "c/schedulingTokens";
+
+/* ------------------------------------------------- one container per surface
+   The card is the only border. Nothing inside draws its own box: no scoped
+   tabset, no second frame around the table. */
+:host {
+  display: block;
+}
+
+/* The card fills what is left of the viewport and the scrolling happens inside it,
+   so the page behind never scrolls. Height is set in JS, since the chrome above the
+   component differs between a console app and a standard one. */
+.card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--slds-g-color-surface-1, #ffffff);
+  border: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-1, #c9c9c9);
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+  /* No overflow clipping here. It cut every dropdown that escapes the card: the
+     date range list rendered three of nine options and the row menus were
+     truncated. */
+}
+
+.card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--slds-g-spacing-3, 0.75rem);
+  padding: var(--slds-g-spacing-3, 0.75rem) var(--slds-g-spacing-4, 1rem);
+}
+
+.card__icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+  background: var(--slds-g-color-accent-container-1, #0176d3);
+}
+
+.card__titles {
+  flex: 1 1 60%;
+  min-width: 0;
+}
+
+.card__title {
+  margin: 0;
+  font-size: var(--slds-g-font-scale-2, 1rem);
+  font-weight: var(--slds-g-font-weight-7, 700);
+  color: var(--slds-g-color-on-surface-3, #181818);
+  line-height: var(--slds-g-font-line-height-2, 1.25);
+}
+
+/* The count is meta under the title, not a paragraph floating above the table. */
+.card__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--slds-g-spacing-2, 0.5rem);
+  margin: var(--slds-g-spacing-1, 0.25rem) 0 0;
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+.card__actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--slds-g-spacing-2, 0.5rem);
+}
+
+/* The count that names the screen's whole purpose, made clickable. Scanning six
+   rows is easy; scanning two hundred is not. */
+.quick {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--slds-g-spacing-1, 0.25rem);
+  min-height: 1.5rem;
+  padding: 0 var(--slds-g-spacing-2, 0.5rem);
+  border-radius: var(--slds-g-radius-border-pill, 15rem);
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  font-weight: var(--slds-g-font-weight-6, 600);
+  background: var(--slds-g-color-palette-yellow-95, #fbf3e0);
+  color: var(--slds-g-color-palette-yellow-30, #6f3400);
+}
+
+.quick:hover,
+.quick[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.quick:focus-visible {
+  outline: none;
+  box-shadow: var(
+    --slds-g-shadow-outset-focus-1,
+    0 0 0 2px #ffffff,
+    0 0 0 4px #0b5cab
+  );
+}
+
+.quick__icon {
+  --slds-c-icon-color-foreground-default: currentColor;
+}
+
+/* ------------------------------------------------- filters */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--slds-g-spacing-3, 0.75rem);
+  padding: var(--slds-g-spacing-3, 0.75rem) var(--slds-g-spacing-4, 1rem);
+  border-top: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+  background: var(--slds-g-color-surface-container-1, #fafaf9);
+}
+
+/* Sort and Clear sit at the far end, away from the narrowing controls. The group
+   never shrinks, so Clear keeps its natural width instead of breaking across two
+   lines; the controls before it wrap first. */
+.filters__right {
+  margin-left: auto;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--slds-g-spacing-3, 0.75rem);
+}
+
+.filters__search {
+  flex: 1 1 16rem;
+  max-width: 22rem;
+}
+
+.filters__field {
+  flex: 0 1 11rem;
+  min-width: 9rem;
+}
+
+.filters__pills {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--slds-g-spacing-2, 0.5rem);
+  margin-top: var(--slds-g-spacing-2, 0.5rem);
+}
+
+/* ------------------------------------------------- table footer */
+.tablefoot {
+  padding: var(--slds-g-spacing-2, 0.5rem) var(--slds-g-spacing-4, 1rem);
+  border-top: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+/* ------------------------------------------------- first-load skeleton
+   Real row height, so nothing jumps when the data lands. No shimmer: a static
+   block is enough and does not animate for anyone who asked motion to stop. */
+.skeleton {
+  padding: 0 var(--slds-g-spacing-4, 1rem) var(--slds-g-spacing-4, 1rem);
+}
+
+.skeleton__row {
+  height: 2.5rem;
+  margin-bottom: var(--slds-g-spacing-1, 0.25rem);
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+  background: var(--slds-g-color-surface-container-2, #f3f3f3);
+}
+
+/* ------------------------------------------------- calendar
+   Month, week and day share one set of rules. Month is the default: a week of a
+   rollout plan says almost nothing on its own. */
+.calbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--slds-g-spacing-3, 0.75rem);
+  padding: var(--slds-g-spacing-3, 0.75rem) var(--slds-g-spacing-4, 1rem);
+  border-top: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+}
+
+.cal {
+  border-top: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+}
+
+.cal__heads {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  background: var(--slds-g-color-surface-container-2, #f3f3f3);
+}
+
+.cal__head {
+  padding: var(--slds-g-spacing-1, 0.25rem) var(--slds-g-spacing-2, 0.5rem);
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  font-weight: var(--slds-g-font-weight-6, 600);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+.cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+/* Six rows of seven for a month, one row for a week. A month is taller than the
+   calendar area and scrolls; a week is a single row, so it stretches to fill the
+   area instead of leaving a band of empty white under a fixed-height row. */
+.cal__grid_month .cal__cell {
+  min-height: 6.5rem;
+}
+
+.cal__grid_week .cal__cell {
+  min-height: 0;
+}
+
+.cal__cell {
+  display: flex;
+  flex-direction: column;
+  padding: var(--slds-g-spacing-1, 0.25rem);
+  border-top: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+  border-left: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+}
+
+.cal__cell:nth-child(7n + 1) {
+  border-left: 0;
+}
+
+/* Days from the neighbouring months are dimmed, not hidden, so weeks stay whole. */
+.cal__cell_outside {
+  background: var(--slds-g-color-surface-container-1, #fafaf9);
+}
+
+.cal__cell_outside .cal__daynum {
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+.cal__cellhead {
+  display: flex;
+  align-items: center;
+  gap: var(--slds-g-spacing-1, 0.25rem);
+  margin: 0 0 var(--slds-g-spacing-1, 0.25rem);
+}
+
+.cal__daynum {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  padding: 0 var(--slds-g-spacing-1, 0.25rem);
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  font-weight: var(--slds-g-font-weight-7, 700);
+  font-variant-numeric: tabular-nums;
+  color: var(--slds-g-color-on-surface-3, #181818);
+}
+
+.cal__daynum:hover {
+  background: var(--slds-g-color-surface-container-2, #f3f3f3);
+}
+
+.cal__daynum:focus-visible {
+  outline: none;
+  box-shadow: var(
+    --slds-g-shadow-outset-focus-1,
+    0 0 0 2px #ffffff,
+    0 0 0 4px #0b5cab
+  );
+}
+
+.cal__cellhead_today .cal__daynum {
+  background: var(--slds-g-color-palette-blue-30, #014486);
+  color: var(--slds-g-color-surface-1, #ffffff);
+}
+
+.today-chip {
+  padding: 0 var(--slds-g-spacing-1, 0.25rem);
+  border-radius: var(--slds-g-radius-border-pill, 15rem);
+  background: var(--slds-g-color-palette-blue-95, #eef4ff);
+  color: var(--slds-g-color-palette-blue-30, #014486);
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  font-weight: var(--slds-g-font-weight-6, 600);
+}
+
+.cal__add {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  margin-left: auto;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+  opacity: 0;
+  transition: opacity var(--app-motion-fast, 100ms) var(--app-ease-out, ease);
+}
+
+.cal__cell:hover .cal__add,
+.cal__add:focus-visible {
+  opacity: 1;
+}
+
+.cal__add:hover {
+  background: var(--slds-g-color-surface-container-2, #f3f3f3);
+}
+
+.cal__add:focus-visible {
+  outline: none;
+  box-shadow: var(
+    --slds-g-shadow-outset-focus-1,
+    0 0 0 2px #ffffff,
+    0 0 0 4px #0b5cab
+  );
+}
+
+.cal__more {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  min-height: 1.5rem;
+  padding: 0 var(--slds-g-spacing-1, 0.25rem);
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  font-weight: var(--slds-g-font-weight-6, 600);
+  color: var(--slds-g-color-accent-2, #0176d3);
+}
+
+.cal__more:hover {
+  background: var(--slds-g-color-surface-container-2, #f3f3f3);
+}
+
+.cal__more:focus-visible {
+  outline: none;
+  box-shadow: var(
+    --slds-g-shadow-outset-focus-1,
+    0 0 0 2px #ffffff,
+    0 0 0 4px #0b5cab
+  );
+}
+
+/* One colour treatment per event: a pale tint plus one dot, nothing under 12px. */
+.ev {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  padding: 0.125rem var(--slds-g-spacing-1, 0.25rem);
+  margin-bottom: 0.125rem;
+  border: var(--slds-g-sizing-border-1, 1px) solid transparent;
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+  background: var(--app-prog-none-tint);
+  transition: border-color var(--app-motion-fast, 100ms)
+    var(--app-ease-out, ease);
+}
+
+.ev:hover {
+  border-color: var(--slds-g-color-border-1, #c9c9c9);
+}
+
+.ev:focus-visible {
+  outline: none;
+  box-shadow: var(
+    --slds-g-shadow-outset-focus-1,
+    0 0 0 2px #ffffff,
+    0 0 0 4px #0b5cab
+  );
+}
+
+.ev__title {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  font-weight: var(--slds-g-font-weight-6, 600);
+  color: var(--slds-g-color-on-surface-3, #181818);
+  line-height: var(--slds-g-font-line-height-2, 1.25);
+}
+
+.ev__row {
+  display: flex;
+  align-items: center;
+  gap: var(--slds-g-spacing-1, 0.25rem);
+}
+
+.ev__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--slds-g-radius-border-circle, 50%);
+  flex: none;
+  background: var(--app-prog-none-line);
+}
+
+.ev__meta {
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  line-height: var(--slds-g-font-line-height-2, 1.25);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------- day view
+   A single column of seven cells is just a list with extra lines, so the day is
+   a list with the time as its spine. */
+.daylist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--slds-g-spacing-1, 0.25rem);
+  margin: 0;
+  padding: var(--slds-g-spacing-3, 0.75rem) var(--slds-g-spacing-4, 1rem);
+  list-style: none;
+  border-top: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+}
+
+.daylist .ev {
+  display: flex;
+  align-items: baseline;
+  gap: var(--slds-g-spacing-3, 0.75rem);
+  padding: var(--slds-g-spacing-2, 0.5rem) var(--slds-g-spacing-3, 0.75rem);
+}
+
+.ev__time {
+  flex: none;
+  width: 9rem;
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  font-variant-numeric: tabular-nums;
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+.ev__body {
+  min-width: 0;
+}
+
+.daylist .ev__title {
+  -webkit-line-clamp: 2;
+  font-size: var(--slds-g-font-scale-base, 0.8125rem);
+}
+
+/* ------------------------------------------------- programme colour coding
+   Values live in c/schedulingTokens. Colour is reinforcement only: every chip
+   also names its programme in text beside the dot. */
+.ev_tcm {
+  background: var(--app-prog-tcm-tint);
+}
+.ev_ccm {
+  background: var(--app-prog-ccm-tint);
+}
+.ev_bhi {
+  background: var(--app-prog-bhi-tint);
+}
+.ev_cocm {
+  background: var(--app-prog-cocm-tint);
+}
+.ev_telepsych {
+  background: var(--app-prog-telepsych-tint);
+}
+.ev_ahth {
+  background: var(--app-prog-ahth-tint);
+}
+.ev_community {
+  background: var(--app-prog-community-tint);
+}
+.ev_ipv {
+  background: var(--app-prog-ipv-tint);
+}
+.ev_none {
+  background: var(--app-prog-none-tint);
+}
+
+.ev__dot_tcm {
+  background: var(--app-prog-tcm-line);
+}
+.ev__dot_ccm {
+  background: var(--app-prog-ccm-line);
+}
+.ev__dot_bhi {
+  background: var(--app-prog-bhi-line);
+}
+.ev__dot_cocm {
+  background: var(--app-prog-cocm-line);
+}
+.ev__dot_telepsych {
+  background: var(--app-prog-telepsych-line);
+}
+.ev__dot_ahth {
+  background: var(--app-prog-ahth-line);
+}
+.ev__dot_community {
+  background: var(--app-prog-community-line);
+}
+.ev__dot_ipv {
+  background: var(--app-prog-ipv-line);
+}
+.ev__dot_none {
+  background: var(--app-prog-none-line);
+}
+
+/* Cancelled wins over the programme colour. Declared last so it overrides the
+   programme rules at equal specificity. */
+.ev_cancelled {
+  background: var(--app-prog-cancelled-tint);
+}
+
+.ev_cancelled .ev__dot {
+  background: var(--app-prog-cancelled-line);
+}
+
+.ev_cancelled .ev__title {
+  text-decoration: line-through;
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+/* ------------------------------------------------- legend
+   One line of dots, no bordered box. */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--slds-g-spacing-1, 0.25rem) var(--slds-g-spacing-4, 1rem);
+  padding: var(--slds-g-spacing-2, 0.5rem) var(--slds-g-spacing-4, 1rem);
+  border-top: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  color: var(--slds-g-color-on-surface-3, #181818);
+}
+
+.legend__title {
+  font-weight: var(--slds-g-font-weight-7, 700);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+.legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--slds-g-spacing-1, 0.25rem);
+}
+
+.legend__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: none;
+  border-radius: var(--slds-g-radius-border-circle, 50%);
+  background: var(--app-prog-none-line);
+}
+
+.legend__dot_tcm {
+  background: var(--app-prog-tcm-line);
+}
+.legend__dot_ccm {
+  background: var(--app-prog-ccm-line);
+}
+.legend__dot_bhi {
+  background: var(--app-prog-bhi-line);
+}
+.legend__dot_cocm {
+  background: var(--app-prog-cocm-line);
+}
+.legend__dot_telepsych {
+  background: var(--app-prog-telepsych-line);
+}
+.legend__dot_ahth {
+  background: var(--app-prog-ahth-line);
+}
+.legend__dot_community {
+  background: var(--app-prog-community-line);
+}
+.legend__dot_ipv {
+  background: var(--app-prog-ipv-line);
+}
+.legend__dot_cancelled {
+  background: var(--app-prog-cancelled-line);
+}
+
+/* ------------------------------------------------- narrow
+   Seven columns cannot survive a phone, so the week stacks into day rows. */
+@media (max-width: 48em) {
+  .card__head {
+    flex-wrap: wrap;
+  }
+
+  .card__titles {
+    flex: 1 1 0;
+  }
+
+  .card__actions {
+    width: 100%;
+  }
+
+  .filters__search,
+  .filters__field {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+
+  .cal {
+    grid-template-columns: 1fr;
+  }
+
+  /* No hover on a touch screen, so the per-day add stays visible. */
+  .cal__add {
+    opacity: 1;
+  }
+}
+
+/* ============================================================ v2 structure
+   The nine column datatable is gone. These rules carry the summary strip and
+   the designed rows that replaced it. */
+
+/* The strip is what the eye lands on first. v1 had nothing to land on: the
+   count was 12px grey text between the filters and the grid. */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+}
+
+.stat {
+  all: unset;
+  box-sizing: border-box;
+  display: block;
+  cursor: pointer;
+  padding: var(--slds-g-spacing-3, 0.75rem) var(--slds-g-spacing-4, 1rem);
+  border-left: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+}
+
+.stat:first-child {
+  border-left: 0;
+}
+
+.stat:hover {
+  background: var(--slds-g-color-surface-container-1, #fafaf9);
+}
+
+.stat:focus-visible {
+  outline: none;
+  box-shadow: var(--slds-g-shadow-inset-focus-1, inset 0 0 0 2px #0b5cab);
+}
+
+.stat[aria-pressed="true"] {
+  background: var(--slds-g-color-palette-blue-95, #eef4ff);
+}
+
+/* The last tile reads rather than filters, so it must not look pressable. */
+.stat[disabled] {
+  cursor: default;
+}
+
+.stat[disabled]:hover {
+  background: transparent;
+}
+
+.stat__label {
+  display: block;
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+.stat__value {
+  display: flex;
+  align-items: baseline;
+  gap: var(--slds-g-spacing-1, 0.25rem);
+  margin-top: 0.125rem;
+}
+
+.stat__n {
+  font-size: var(--slds-g-font-scale-5, 1.5rem);
+  font-weight: var(--slds-g-font-weight-7, 700);
+  color: var(--slds-g-color-on-surface-3, #181818);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat__n_warn {
+  color: var(--slds-g-color-palette-yellow-30, #6f3400);
+}
+
+.stat__sub {
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+.stat__bar {
+  display: block;
+  height: 3px;
+  margin-top: var(--slds-g-spacing-2, 0.5rem);
+  border-radius: var(--slds-g-radius-border-1, 0.125rem);
+  background: var(--slds-g-color-surface-container-2, #f3f3f3);
+  overflow: hidden;
+}
+
+.stat__bar i {
+  display: block;
+  height: 100%;
+  background: var(--slds-g-color-accent-container-1, #0176d3);
+}
+
+.stat__bar_warn i {
+  background: var(--slds-g-color-palette-yellow-50, #dd7a01);
+}
+
+/* ------------------------------------------------- designed rows */
+.rows {
+  display: block;
+}
+
+.row {
+  display: grid;
+  grid-template-columns:
+    minmax(14rem, 2.2fr) minmax(11rem, 1.4fr)
+    7rem 10rem 2.5rem;
+  align-items: center;
+  gap: var(--slds-g-spacing-4, 1rem);
+  padding: var(--slds-g-spacing-3, 0.75rem) var(--slds-g-spacing-4, 1rem);
+  border-top: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+}
+
+.row:hover {
+  background: var(--slds-g-color-surface-container-1, #fafaf9);
+}
+
+.who {
+  min-width: 0;
+}
+
+.who__name {
+  display: inline-block;
+  padding-block: 0.125rem;
+  font-size: var(--slds-g-font-scale-1, 0.875rem);
+  font-weight: var(--slds-g-font-weight-6, 600);
+  color: var(--slds-g-color-on-surface-3, #181818);
+  text-decoration: none;
+}
+
+.who__name:hover {
+  text-decoration: underline;
+  color: var(--slds-g-color-palette-blue-30, #014486);
+}
+
+.who__name:focus-visible {
+  outline: none;
+  box-shadow: var(
+    --slds-g-shadow-outset-focus-1,
+    0 0 0 2px #ffffff,
+    0 0 0 4px #0b5cab
+  );
+  border-radius: var(--slds-g-radius-border-1, 0.125rem);
+}
+
+.who__sub {
+  display: flex;
+  align-items: center;
+  gap: var(--slds-g-spacing-1, 0.25rem);
+  margin: 0.125rem 0 0;
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+.dotsep {
+  width: 2px;
+  height: 2px;
+  border-radius: var(--slds-g-radius-border-circle, 50%);
+  background: var(--slds-g-color-on-surface-2, #2e2e2e);
+  flex: none;
+}
+
+/* ------------------------------------------------- patient progress */
+.prog {
+  min-width: 0;
+}
+
+.prog__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--slds-g-spacing-2, 0.5rem);
+  margin: 0;
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+.prog__n {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--slds-g-font-weight-6, 600);
+  color: var(--slds-g-color-on-surface-3, #181818);
+}
+
+.prog__track {
+  position: relative;
+  height: 6px;
+  margin-top: var(--slds-g-spacing-1, 0.25rem);
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+  background: var(--slds-g-color-surface-container-2, #f3f3f3);
+  overflow: hidden;
+}
+
+/* Seen sits behind consented, so the two read as stages of one journey rather
+   than as two unrelated bars. */
+.prog__seen {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--slds-g-color-palette-blue-80, #a8c7f0);
+}
+
+.prog__consent {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--slds-g-color-accent-container-1, #0176d3);
+}
+
+.prog__legend {
+  display: flex;
+  gap: var(--slds-g-spacing-3, 0.75rem);
+  margin: var(--slds-g-spacing-1, 0.25rem) 0 0;
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+.sw {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-right: var(--slds-g-spacing-1, 0.25rem);
+  border-radius: var(--slds-g-radius-border-1, 0.125rem);
+}
+
+.sw_seen {
+  background: var(--slds-g-color-palette-blue-80, #a8c7f0);
+}
+
+.sw_consent {
+  background: var(--slds-g-color-accent-container-1, #0176d3);
+}
+
+.prog__empty {
+  margin: 0;
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+/* ------------------------------------------------- rollout and booking */
+.when {
+  font-variant-numeric: tabular-nums;
+}
+
+.when__d {
+  display: block;
+  font-weight: var(--slds-g-font-weight-6, 600);
+  color: var(--slds-g-color-on-surface-3, #181818);
+}
+
+.when__sub {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+.booked {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--slds-g-spacing-1, 0.25rem);
+}
+
+.booked__next {
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  color: var(--slds-g-color-on-surface-2, #2e2e2e);
+}
+
+@media (max-width: 48em) {
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stat:nth-child(3) {
+    border-left: 0;
+  }
+
+  .row {
+    grid-template-columns: 1fr 2.5rem;
+    row-gap: var(--slds-g-spacing-2, 0.5rem);
+  }
+
+  .row .prog,
+  .row .when,
+  .row .booked {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ------------------------------------------------- viewport fitting
+   Header, summary and filters hold their height; the rows and the calendar take
+   what is left and scroll inside themselves. */
+.card__head,
+.stats,
+.filters,
+.calbar,
+.tablefoot,
+.legend {
+  flex: none;
+}
+
+.rows,
+.cal,
+.daylist {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* The calendar stacks its headings above its grid, so the week grid can be told to
+   take the height the month grid takes by being tall.
+
+   Positioned, because an absolutely positioned box is only clipped by an ancestor
+   that is also its containing block. Every day cell's add button carries an
+   absolutely positioned assistive-text span, and with nothing positioned between
+   them and the Lightning page wrapper the spans on the month grid's lower rows
+   resolved against that wrapper, slipped out of this scroller and handed the page
+   a scrollbar of its own. The rows list deliberately does not do this: its row
+   menus are supposed to escape. */
+.cal {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.cal__heads,
+.cal__grid_month {
+  flex: 0 0 auto;
+}
+
+.cal__grid_week {
+  flex: 1 1 auto;
+}
+
+/* The weekday headings stay put while the weeks scroll under them. */
+.cal__heads {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.skeleton {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+c-empty-state {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* "View on calendar" is spelled out, because a chip that happens to be clickable
+   is not an affordance. */
+.booked__link {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  padding: 0 0.125rem;
+  border-radius: var(--slds-g-radius-border-2, 0.25rem);
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  font-weight: var(--slds-g-font-weight-6, 600);
+  color: var(--slds-g-color-accent-2, #0176d3);
+}
+
+.booked__link:hover {
+  text-decoration: underline;
+}
+
+.booked__link:focus-visible {
+  outline: none;
+  box-shadow: var(
+    --slds-g-shadow-outset-focus-1,
+    0 0 0 2px #ffffff,
+    0 0 0 4px #0b5cab
+  );
+}
+
+/* The calendar is narrowed to one facility, stated plainly with a way out. */
+.focusbar {
+  display: flex;
+  align-items: center;
+  gap: var(--slds-g-spacing-3, 0.75rem);
+  flex-wrap: wrap;
+  padding: var(--slds-g-spacing-2, 0.5rem) var(--slds-g-spacing-4, 1rem);
+  border-top: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-base-1, #e5e5e5);
+  background: var(--slds-g-color-palette-blue-95, #eef4ff);
+  color: var(--slds-g-color-palette-blue-30, #014486);
+  font-size: var(--slds-g-font-scale-neg-1, 0.75rem);
+  font-weight: var(--slds-g-font-weight-6, 600);
+  flex: none;
+}
+
+/* The span control keeps its natural width. A leftover 9rem from when this was a
+   dropdown was squeezing the three-option segmented control and clipping "Day". */
+.calbar__mode {
+  flex: 0 0 auto;
+}
+
+.calbar > * {
+  min-width: 0;
+}
+
+/* Motion comes from c/uiTokens, which already collapses these under reduced motion.
+   Restated here so the rule holds when this file is read on its own. */
+@media (prefers-reduced-motion: reduce) {
+  :host {
+    --app-motion-fast: 0.01ms;
+    --app-motion-base: 0.01ms;
+    --app-motion-panel: 0.01ms;
+  }
+}

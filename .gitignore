@@ -46,3 +46,11 @@ $RECYCLE.BIN/
 **/__pycache__/
 **/.venv/
 **/venv/
+
+# Vendored video source: everything reinstallable stays out
+.docs/video/**/node_modules/
+.docs/video/**/out/
+.docs/video/**/bundle/
+.docs/video/**/.venv/
+.docs/video/**/voices-v1.0.bin
+*.onnx

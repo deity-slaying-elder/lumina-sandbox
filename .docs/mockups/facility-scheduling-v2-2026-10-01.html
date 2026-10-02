@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Facility Scheduling v2</title>
+<style>
+/* ============================================================
+   v2. The v1 pass polished a filter bar sitting on a nine column
+   datatable. This changes the structure instead:
+     - a summary strip, so the eye lands on the number that matters
+     - designed rows instead of a grid, with the patient counts drawn
+       rather than printed as three columns of zeroes
+     - a booking dialog in two columns, with the facility context pinned
+       on the left instead of scrolling away above the form
+   Classic SLDS values, measured live in lumDev. In the component every
+   value is a --slds-g-* hook with these as fallbacks.
+   ============================================================ */
+:root {
+  --surface-1: #ffffff;
+  --surface-2: #f3f3f3;
+  --surface-3: #fafaf9;
+  --border-1: #c9c9c9;
+  --border-soft: #e5e5e5;
+  --on-1: #757575;
+  --on-2: #2e2e2e;
+  --on-3: #181818;
+  --accent: #0176d3;
+  --accent-deep: #014486;
+  --radius: 0.25rem;
+  --radius-pill: 15rem;
+
+  --green-95: #ebf7e6; --green-50: #2e844a; --green-30: #194e31;
+  --yellow-95: #fbf3e0; --yellow-50: #dd7a01; --yellow-30: #6f3400;
+  --red-95: #fef1ee;   --red-30: #8e030f;
+  --blue-95: #eef4ff;  --blue-30: #014486;
+  --neutral-95: #f3f3f3; --neutral-30: #444444;
+
+  --p-tcm: #2b4bb8;       --p-tcm-t: #f2f4fc;
+  --p-ccm: #6b3fa0;       --p-ccm-t: #f6f2fb;
+  --p-bhi: #1a7a5a;       --p-bhi-t: #f0f8f5;
+  --p-cocm: #3f8f3f;      --p-cocm-t: #f2f9f2;
+  --p-telepsych: #b5453f; --p-telepsych-t: #fdf3f2;
+  --p-ahth: #8a6a35;      --p-ahth-t: #faf6ef;
+  --p-community: #a8478c; --p-community-t: #fcf3f9;
+  --p-ipv: #8a4a5c;       --p-ipv-t: #fbf3f5;
+  --p-none: #5a6b7c;      --p-none-t: #f4f6f8;
+  --p-cancelled: #939393; --p-cancelled-t: #f5f5f5;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Salesforce Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  font-size: 0.8125rem; color: var(--on-2); background: #b0c4de1f;
+}
+.page { padding: 1rem; max-width: 1400px; margin: 0 auto; }
+.note { margin: 0 0 1rem; padding: .5rem .75rem; font-size: .75rem;
+  background: var(--blue-95); color: var(--blue-30); border-radius: var(--radius); }
+h1.mock-h { font-size: .875rem; margin: 1.5rem 0 .5rem; color: var(--on-1); font-weight: 600; }
+
+.card { background: var(--surface-1); border: 1px solid var(--border-1);
+  border-radius: var(--radius); overflow: hidden; }
+.card__head { display: flex; align-items: flex-start; gap: .75rem; padding: .75rem 1rem; }
+.card__icon { flex: none; width: 1.75rem; height: 1.75rem; border-radius: var(--radius);
+  background: var(--accent); color: #fff; display: inline-flex; align-items: center; justify-content: center; }
+.card__icon svg { width: 1rem; height: 1rem; fill: currentColor; }
+.card__titles { flex: 1 1 60%; min-width: 0; }
+.card__title { margin: 0; font-size: 1rem; font-weight: 700; color: var(--on-3); line-height: 1.25; }
+.card__meta { margin: .125rem 0 0; font-size: .75rem; color: var(--on-1); }
+.card__actions { flex: none; display: flex; align-items: center; gap: .5rem; }
+
+.seg { display: inline-flex; border: 1px solid var(--border-1); border-radius: var(--radius); overflow: hidden; }
+.seg button { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center;
+  gap: .25rem; height: 1.875rem; padding: 0 .625rem; font-size: .75rem; font-weight: 600;
+  color: var(--on-2); background: var(--surface-1); }
+.seg button + button { border-left: 1px solid var(--border-1); }
+.seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--accent-deep); }
+.seg svg { width: .75rem; height: .75rem; fill: currentColor; }
+
+.btn { all: unset; box-sizing: border-box; cursor: pointer; white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center; gap: .25rem;
+  height: 1.875rem; padding: 0 .75rem; border-radius: var(--radius);
+  font-size: .75rem; font-weight: 600; border: 1px solid var(--border-1);
+  background: var(--surface-1); color: var(--on-2); }
+.btn:hover { background: var(--surface-2); }
+.btn:focus-visible { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent); }
+.btn_brand { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn_brand:hover { background: var(--accent-deep); }
+.btn_icon { width: 1.875rem; padding: 0; }
+.btn_bare { border-color: transparent; background: transparent; color: var(--accent); }
+.btn svg { width: .875rem; height: .875rem; fill: currentColor; }
+
+/* ============================================================ summary strip
+   The thing you look at first. v1 had nothing to look at first: the count
+   was 12px grey text between the filters and the grid. */
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--border-soft); }
+.stat { all: unset; box-sizing: border-box; cursor: pointer; display: block;
+  padding: .75rem 1rem; border-left: 1px solid var(--border-soft); }
+.stat:first-child { border-left: 0; }
+.stat:hover { background: var(--surface-3); }
+.stat:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
+.stat[aria-pressed="true"] { background: var(--blue-95); }
+.stat__label { display: block; font-size: .75rem; color: var(--on-1); }
+.stat__value { display: flex; align-items: baseline; gap: .375rem; margin-top: .125rem; }
+.stat__n { font-size: 1.5rem; font-weight: 700; color: var(--on-3); line-height: 1.1;
+  font-variant-numeric: tabular-nums; }
+.stat__n_warn { color: var(--yellow-30); }
+.stat__sub { font-size: .75rem; color: var(--on-1); }
+.stat__bar { display: block; height: 3px; border-radius: 2px; background: var(--surface-2);
+  margin-top: .5rem; overflow: hidden; }
+.stat__bar i { display: block; height: 100%; background: var(--accent); }
+.stat__bar_warn i { background: var(--yellow-50); }
+
+/* ============================================================ filters */
+.filters { display: flex; align-items: flex-end; flex-wrap: wrap; gap: .75rem;
+  padding: .75rem 1rem; border-top: 1px solid var(--border-soft); background: var(--surface-3); }
+.f { display: flex; flex-direction: column; gap: .125rem; }
+.f label { font-size: .75rem; color: var(--on-2); }
+.f select, .f input { height: 1.875rem; padding: 0 .5rem; font: inherit; font-size: .8125rem;
+  border: 1px solid var(--border-1); border-radius: var(--radius);
+  background: var(--surface-1); color: var(--on-3); width: 9.5rem; }
+.f.search input { width: 15rem; }
+.f .hint { margin-top: .125rem; font-size: .75rem; color: var(--on-1); }
+.filters__right { margin-left: auto; display: flex; align-items: center; gap: .5rem; }
+
+/* ============================================================ designed rows
+   Replaces the nine column grid. One scan line per facility: who, how far
+   along, when, what is booked. */
+.rows { display: block; }
+.row { display: grid; grid-template-columns: minmax(14rem, 2.2fr) minmax(11rem, 1.4fr) 7rem 10rem 2.5rem;
+  align-items: center; gap: 1rem; padding: .75rem 1rem;
+  border-top: 1px solid var(--border-soft); }
+.row:hover { background: var(--surface-3); }
+
+.who { min-width: 0; }
+.who__name { display: inline-block; font-size: .875rem; font-weight: 600; color: var(--on-3);
+  text-decoration: none; padding-block: .125rem; }
+.who__name:hover { text-decoration: underline; color: var(--accent-deep); }
+.who__sub { display: flex; align-items: center; gap: .375rem; margin-top: .125rem;
+  font-size: .75rem; color: var(--on-1); }
+.dotsep { width: 2px; height: 2px; border-radius: 50%; background: var(--on-1); flex: none; }
+
+/* Counts drawn, not printed. Three columns of zeroes told you nothing. */
+.prog { min-width: 0; }
+.prog__top { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem;
+  font-size: .75rem; color: var(--on-2); }
+.prog__n { font-variant-numeric: tabular-nums; color: var(--on-3); font-weight: 600; }
+.prog__track { position: relative; height: 6px; border-radius: 3px;
+  background: var(--surface-2); margin-top: .25rem; overflow: hidden; }
+.prog__seen { position: absolute; inset: 0 auto 0 0; background: #a8c7f0; }
+.prog__consent { position: absolute; inset: 0 auto 0 0; background: var(--accent); }
+.prog__legend { display: flex; gap: .75rem; margin-top: .25rem; font-size: .6875rem; color: var(--on-1); }
+.prog__legend i { display: inline-block; width: .5rem; height: .5rem; border-radius: 2px; margin-right: .25rem; }
+.prog__empty { font-size: .75rem; color: var(--on-1); }
+
+.when { font-variant-numeric: tabular-nums; }
+.when__d { color: var(--on-3); font-weight: 600; }
+.when__sub { display: block; font-size: .75rem; color: var(--on-1); margin-top: .125rem; }
+
+.booked { display: flex; flex-direction: column; gap: .25rem; align-items: flex-start; }
+.booked__next { font-size: .75rem; color: var(--on-1); }
+
+.chip { display: inline-flex; align-items: center; gap: .25rem; max-width: 12.5rem;
+  padding: .125rem .5rem; border-radius: var(--radius-pill);
+  font-size: .75rem; font-weight: 600; line-height: 1.25; }
+.chip svg { width: .75rem; height: .75rem; fill: currentColor; flex: none; }
+.chip_info { background: var(--blue-95); color: var(--blue-30); }
+.chip_warning { background: var(--yellow-95); color: var(--yellow-30); }
+.chip_success { background: var(--green-95); color: var(--green-30); }
+.chip_neutral { background: var(--neutral-95); color: var(--neutral-30); box-shadow: inset 0 0 0 1px var(--border-1); }
+
+.rowmenu { all: unset; cursor: pointer; width: 1.5rem; height: 1.5rem; border-radius: var(--radius);
+  display: inline-flex; align-items: center; justify-content: center; color: var(--on-1);
+  border: 1px solid var(--border-1); background: var(--surface-1); }
+.rowmenu:hover { background: var(--surface-2); }
+.rowmenu svg { width: .75rem; height: .75rem; fill: currentColor; }
+
+.tablefoot { padding: .5rem 1rem; border-top: 1px solid var(--border-soft);
+  font-size: .75rem; color: var(--on-1); }
+
+/* ============================================================ booking dialog v2
+   Two columns. The facility, its numbers and the eligibility verdict stay
+   pinned on the left while you work the form on the right, instead of
+   scrolling off the top as they did in v1. */
+.modal { width: min(60rem, 100%); background: var(--surface-1);
+  border: 1px solid var(--border-1); border-radius: var(--radius);
+  box-shadow: 0 2px 3px 0 #00000027; overflow: hidden; }
+.modal__head { display: flex; align-items: center; gap: .75rem; padding: .75rem 1rem;
+  border-bottom: 1px solid var(--border-soft); }
+.modal__title { margin: 0; font-size: 1rem; font-weight: 700; color: var(--on-3); flex: 1 1 auto; }
+.modal__body { display: grid; grid-template-columns: 17rem 1fr; min-height: 22rem; }
+.modal__foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  flex-wrap: wrap; padding: .75rem 1rem; border-top: 1px solid var(--border-soft); background: var(--surface-3); }
+.modal__why { margin: 0; font-size: .75rem; color: var(--on-2); }
+.modal__acts { display: flex; gap: .5rem; margin-left: auto; }
+
+.rail { padding: 1rem; background: var(--surface-3); border-right: 1px solid var(--border-soft); }
+.rail__name { font-size: .9375rem; font-weight: 700; color: var(--on-3); }
+.rail__sub { margin-top: .125rem; font-size: .75rem; color: var(--on-1); }
+.rail__sec { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-soft); }
+.rail__label { font-size: .75rem; font-weight: 700; color: var(--on-2); }
+
+.counts { display: flex; gap: .375rem; margin: .5rem 0 0; }
+.counts__cell { flex: 1 1 0; min-width: 0; text-align: center; padding: .375rem .25rem;
+  border: 1px solid var(--border-soft); border-radius: var(--radius); background: var(--surface-1); }
+.counts__label { font-size: .6875rem; color: var(--on-1); }
+.counts__value { margin: 0; font-size: 1rem; font-weight: 700; color: var(--on-3); font-variant-numeric: tabular-nums; }
+
+.verdict { display: flex; align-items: center; gap: .375rem; margin-top: .5rem; }
+.checks { list-style: none; margin: .5rem 0 0; padding: 0; display: flex; flex-direction: column; gap: .25rem; }
+.check { display: flex; align-items: flex-start; gap: .375rem; font-size: .75rem; line-height: 1.3; }
+.check svg { width: .75rem; height: .75rem; fill: currentColor; flex: none; margin-top: .1875rem; }
+.check_ok { color: var(--green-30); }
+.check_warn { color: var(--yellow-30); }
+.check_blocked { color: var(--red-30); font-weight: 600; }
+
+.form { padding: 1rem; }
+.group { border: 0; padding: 0 0 1rem; margin: 0; }
+.group + .group { padding-top: 1rem; border-top: 1px solid var(--border-soft); }
+.group__legend { display: block; margin: 0 0 .5rem; padding: 0;
+  font-size: .75rem; font-weight: 700; color: var(--on-2); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .75rem; }
+
+.progs { display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: .25rem .75rem; list-style: none; margin: 0; padding: 0; }
+.progs li { min-width: 0; }
+.prg { display: flex; align-items: center; gap: .5rem; min-height: 1.75rem;
+  padding: 0 .375rem; border-radius: var(--radius); cursor: pointer; font-size: .8125rem; color: var(--on-3); }
+.prg:hover { background: var(--surface-2); }
+.prg input { width: 1rem; height: 1rem; margin: 0; accent-color: var(--accent); }
+.prg i.pdot { width: .5rem; height: .5rem; border-radius: 50%; flex: none; }
+.prg.off { color: var(--on-1); cursor: not-allowed; }
+.prg.off:hover { background: transparent; }
+.prg .why { margin-left: auto; font-size: .6875rem; color: var(--on-1); white-space: nowrap; }
+
+.field { display: flex; flex-direction: column; gap: .125rem; }
+.field label { font-size: .75rem; color: var(--on-2); }
+.field input, .field select { height: 1.875rem; padding: 0 .5rem; font: inherit; font-size: .8125rem;
+  border: 1px solid var(--border-1); border-radius: var(--radius);
+  background: var(--surface-1); color: var(--on-3); width: 100%; }
+.hint { margin: .25rem 0 0; font-size: .75rem; color: var(--on-2); }
+
+/* Providers as chips you add, not four always-on dropdowns three of which
+   are empty. */
+.people { display: flex; flex-wrap: wrap; gap: .375rem; margin-top: .5rem; }
+.person { display: inline-flex; align-items: center; gap: .375rem; height: 1.75rem;
+  padding: 0 .25rem 0 .5rem; border: 1px solid var(--border-1); border-radius: var(--radius-pill);
+  font-size: .75rem; background: var(--surface-1); }
+.person button { all: unset; cursor: pointer; width: 1.25rem; height: 1.25rem; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center; color: var(--on-1); }
+.person button:hover { background: var(--surface-2); }
+.person svg { width: .625rem; height: .625rem; fill: currentColor; }
+.addperson { height: 1.75rem; }
+
+@media (max-width: 60rem) {
+  .modal__body { grid-template-columns: 1fr; }
+  .rail { border-right: 0; border-bottom: 1px solid var(--border-soft); }
+}
+@media (max-width: 48rem) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .stat:nth-child(3) { border-left: 0; }
+  .row { grid-template-columns: 1fr 2.5rem; row-gap: .5rem; }
+  .row .prog, .row .when, .row .booked { grid-column: 1 / -1; }
+  .f select, .f input, .f { width: 100%; }
+  .f { flex: 1 1 100%; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<p class="note">
+  v2 mock. Synthetic data only, no real facility, provider or patient records. The structure has
+  changed, not just the paint: a summary strip, drawn patient counts instead of three columns of
+  numbers, and a two column booking dialog.
+</p>
+
+<!-- ===================================================== LIST -->
+<h1 class="mock-h">Worklist</h1>
+<div class="card">
+  <div class="card__head">
+    <span class="card__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V3a1 1 0 0 1 1-1zm12 7H5v10h14V9z"/></svg>
+    </span>
+    <div class="card__titles">
+      <h2 class="card__title">Onboarding worklist</h2>
+      <p class="card__meta">Facilities with status Onboarding or Opportunity</p>
+    </div>
+    <div class="card__actions">
+      <span class="seg" role="group" aria-label="View">
+        <button type="button" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M3 5h18v2H3zm0 6h18v2H3zm0 6h18v2H3z"/></svg>List</button>
+        <button type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 2v2h10V2h2v2h1a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V2h2zm13 8H4v9h16v-9z"/></svg>Calendar</button>
+      </span>
+      <button type="button" class="btn btn_icon" aria-label="Refresh"><svg viewBox="0 0 24 24"><path d="M12 5V2L8 6l4 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg></button>
+      <button type="button" class="btn btn_brand"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>Schedule event</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <button type="button" class="stat" aria-pressed="true">
+      <span class="stat__label">Awaiting onboarding</span>
+      <span class="stat__value"><span class="stat__n">18</span><span class="stat__sub">facilities</span></span>
+      <span class="stat__bar"><i style="width:100%"></i></span>
+    </button>
+    <button type="button" class="stat" aria-pressed="false">
+      <span class="stat__label">No event booked</span>
+      <span class="stat__value"><span class="stat__n stat__n_warn">5</span><span class="stat__sub">need scheduling</span></span>
+      <span class="stat__bar stat__bar_warn"><i style="width:28%"></i></span>
+    </button>
+    <button type="button" class="stat" aria-pressed="false">
+      <span class="stat__label">Booked this week</span>
+      <span class="stat__value"><span class="stat__n">6</span><span class="stat__sub">visits</span></span>
+      <span class="stat__bar"><i style="width:40%"></i></span>
+    </button>
+    <button type="button" class="stat" aria-pressed="false">
+      <span class="stat__label">Next rollout</span>
+      <span class="stat__value"><span class="stat__n">4</span><span class="stat__sub">Oct, Cedar Ridge</span></span>
+      <span class="stat__bar"><i style="width:12%"></i></span>
+    </button>
+  </div>
+
+  <div class="filters">
+    <div class="f search">
+      <label for="q">Search facilities</label>
+      <input id="q" type="search" placeholder="Facility or parent company" aria-describedby="qs">
+      <span id="qs" class="hint">Searches facilities awaiting onboarding</span>
+    </div>
+    <div class="f">
+      <label for="dr">Date range</label>
+      <select id="dr"><option>Next 30 days</option><option>All dates</option><option>Custom range</option></select>
+    </div>
+    <div class="f">
+      <label for="pg">Program</label>
+      <select id="pg"><option>All programs</option><option>TCM</option></select>
+    </div>
+    <div class="filters__right">
+      <button type="button" class="btn btn_bare">Clear filters</button>
+    </div>
+  </div>
+
+  <div class="rows">
+    <article class="row">
+      <div class="who">
+        <a class="who__name" href="#">ZZ TEST &ndash; Cedar Ridge SNF</a>
+        <div class="who__sub"><span>ZZ TEST Cedar Group</span><i class="dotsep"></i><span>PA</span></div>
+      </div>
+      <div class="prog">
+        <div class="prog__top"><span>Patients</span><span class="prog__n">128</span></div>
+        <div class="prog__track"><i class="prog__seen" style="width:50%"></i><i class="prog__consent" style="width:32%"></i></div>
+        <div class="prog__legend"><span><i style="background:#a8c7f0"></i>64 seen</span><span><i style="background:var(--accent)"></i>41 consented</span></div>
+      </div>
+      <div class="when"><span class="when__d">4 Oct</span><span class="when__sub">rollout</span></div>
+      <div class="booked">
+        <span class="chip chip_success"><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>2 events</span>
+        <span class="booked__next">next 2 Oct, TCM</span>
+      </div>
+      <button class="rowmenu" type="button" aria-label="Actions for Cedar Ridge SNF"><svg viewBox="0 0 24 24"><path d="M12 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg></button>
+    </article>
+
+    <article class="row">
+      <div class="who">
+        <a class="who__name" href="#">ZZ TEST &ndash; Quarry Lane Skilled Nursing</a>
+        <div class="who__sub"><span>ZZ TEST Quarry Partners</span><i class="dotsep"></i><span>OH</span></div>
+      </div>
+      <div class="prog">
+        <div class="prog__top"><span>Patients</span><span class="prog__n">73</span></div>
+        <div class="prog__track"><i class="prog__seen" style="width:42%"></i><i class="prog__consent" style="width:38%"></i></div>
+        <div class="prog__legend"><span><i style="background:#a8c7f0"></i>31 seen</span><span><i style="background:var(--accent)"></i>28 consented</span></div>
+      </div>
+      <div class="when"><span class="when__d">19 Oct</span><span class="when__sub">rollout</span></div>
+      <div class="booked">
+        <span class="chip chip_warning"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.6 3.5 2-1 1.7L11 13V6h2z"/></svg>None yet</span>
+        <span class="booked__next">18 days out</span>
+      </div>
+      <button class="rowmenu" type="button" aria-label="Actions for Quarry Lane"><svg viewBox="0 0 24 24"><path d="M12 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg></button>
+    </article>
+
+    <article class="row">
+      <div class="who">
+        <a class="who__name" href="#">ZZ TEST &ndash; Harbour Point Rehabilitation and Nursing Center</a>
+        <div class="who__sub"><span>ZZ TEST Harbour Holdings</span><i class="dotsep"></i><span>NJ</span></div>
+      </div>
+      <div class="prog">
+        <div class="prog__top"><span>Patients</span><span class="prog__n">96</span></div>
+        <div class="prog__track"><i class="prog__seen" style="width:13%"></i><i class="prog__consent" style="width:9%"></i></div>
+        <div class="prog__legend"><span><i style="background:#a8c7f0"></i>12 seen</span><span><i style="background:var(--accent)"></i>9 consented</span></div>
+      </div>
+      <div class="when"><span class="when__d">12 Oct</span><span class="when__sub">rollout</span></div>
+      <div class="booked">
+        <span class="chip chip_success"><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>1 event</span>
+        <span class="booked__next">next 13 Oct, BHI</span>
+      </div>
+      <button class="rowmenu" type="button" aria-label="Actions for Harbour Point"><svg viewBox="0 0 24 24"><path d="M12 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg></button>
+    </article>
+
+    <article class="row">
+      <div class="who">
+        <a class="who__name" href="#">ZZ TEST &ndash; Stateless Manor</a>
+        <div class="who__sub"><span>No parent company</span><i class="dotsep"></i><span>No state on address</span></div>
+      </div>
+      <div class="prog"><span class="prog__empty">No patients loaded yet</span></div>
+      <div class="when"><span class="when__d">8 Oct</span><span class="when__sub">rollout</span></div>
+      <div class="booked">
+        <span class="chip chip_warning"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.6 3.5 2-1 1.7L11 13V6h2z"/></svg>None yet</span>
+        <span class="booked__next">7 days out</span>
+      </div>
+      <button class="rowmenu" type="button" aria-label="Actions for Stateless Manor"><svg viewBox="0 0 24 24"><path d="M12 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg></button>
+    </article>
+  </div>
+
+  <p class="tablefoot" role="status">Showing 4 of 18 facilities. Sorted by rollout date.</p>
+</div>
+
+<!-- ===================================================== DIALOG -->
+<h1 class="mock-h">Booking dialog</h1>
+<div class="modal">
+  <div class="modal__head">
+    <h2 class="modal__title">Schedule facility onboarding</h2>
+    <button type="button" class="btn btn_icon" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 5.6 12 11.6l6-6L19.4 7l-6 6 6 6L18 20.4l-6-6-6 6L4.6 19l6-6-6-6z"/></svg></button>
+  </div>
+  <div class="modal__body">
+    <aside class="rail">
+      <div class="rail__name">ZZ TEST &ndash; Cedar Ridge SNF</div>
+      <div class="rail__sub">ZZ TEST Cedar Group &middot; Pennsylvania</div>
+      <div class="rail__sub">Rollout 4 Oct 2026</div>
+
+      <div class="rail__sec">
+        <span class="rail__label">Patients</span>
+        <dl class="counts">
+          <div class="counts__cell"><dt class="counts__label">Census</dt><dd class="counts__value">128</dd></div>
+          <div class="counts__cell"><dt class="counts__label">Seen</dt><dd class="counts__value">64</dd></div>
+          <div class="counts__cell"><dt class="counts__label">Consent</dt><dd class="counts__value">41</dd></div>
+        </dl>
+      </div>
+
+      <div class="rail__sec">
+        <span class="rail__label">Eligibility</span>
+        <div class="verdict"><span class="chip chip_warning"><svg viewBox="0 0 24 24"><path d="M12 2 1 21h22zm1 15h-2v-2h2zm0-4h-2V9h2z"/></svg>1 warning</span></div>
+        <ul class="checks">
+          <li class="check check_ok"><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg><span>TCM approved in Pennsylvania</span></li>
+          <li class="check check_ok"><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg><span>BHI approved in Pennsylvania</span></li>
+          <li class="check check_ok"><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg><span>No scheduling conflict</span></li>
+          <li class="check check_warn"><svg viewBox="0 0 24 24"><path d="M12 2 1 21h22zm1 15h-2v-2h2zm0-4h-2V9h2z"/></svg><span>DEA not on record for A. Rowe</span></li>
+        </ul>
+      </div>
+    </aside>
+
+    <div class="form">
+      <fieldset class="group">
+        <legend class="group__legend">Programs on this visit</legend>
+        <ul class="progs">
+          <li><label class="prg"><input type="checkbox" checked><i class="pdot" style="background:var(--p-tcm)"></i>TCM</label></li>
+          <li><label class="prg"><input type="checkbox"><i class="pdot" style="background:var(--p-ccm)"></i>CCM</label></li>
+          <li><label class="prg"><input type="checkbox" checked><i class="pdot" style="background:var(--p-bhi)"></i>BHI</label></li>
+          <li><label class="prg off"><input type="checkbox" disabled><i class="pdot" style="background:var(--p-cocm)"></i>CoCM<span class="why">off here</span></label></li>
+          <li><label class="prg off"><input type="checkbox" disabled><i class="pdot" style="background:var(--p-telepsych)"></i>Telepsych<span class="why">off here</span></label></li>
+          <li><label class="prg"><input type="checkbox"><i class="pdot" style="background:var(--p-ahth)"></i>AHTH</label></li>
+          <li><label class="prg"><input type="checkbox"><i class="pdot" style="background:var(--p-community)"></i>Community FT</label></li>
+          <li><label class="prg"><input type="checkbox"><i class="pdot" style="background:var(--p-ipv)"></i>IPV</label></li>
+        </ul>
+        <p class="hint" role="status">TCM and BHI on this visit. Providers must be approved for both.</p>
+      </fieldset>
+
+      <fieldset class="group">
+        <legend class="group__legend">When</legend>
+        <div class="grid2">
+          <div class="field"><label for="sd">Starts</label><input id="sd" type="text" value="5 Oct 2026, 10:00"></div>
+          <div class="field"><label for="ed">Ends</label><input id="ed" type="text" value="5 Oct 2026, 12:00"></div>
+        </div>
+      </fieldset>
+
+      <fieldset class="group">
+        <legend class="group__legend">Who is going</legend>
+        <div class="grid2">
+          <div class="field"><label for="fa">Facilitator</label>
+            <select id="fa"><option>Fay Facilitator</option></select></div>
+          <div class="field"><label for="pp">Add a provider</label>
+            <select id="pp"><option>Select a provider</option><option>Cara Nkemdi</option></select></div>
+        </div>
+        <div class="people">
+          <span class="person">Ada Rowe<button type="button" aria-label="Remove Ada Rowe"><svg viewBox="0 0 24 24"><path d="M6 5.6 12 11.6l6-6L19.4 7l-6 6 6 6L18 20.4l-6-6-6 6L4.6 19l6-6-6-6z"/></svg></button></span>
+          <span class="person">Ben Ilo<button type="button" aria-label="Remove Ben Ilo"><svg viewBox="0 0 24 24"><path d="M6 5.6 12 11.6l6-6L19.4 7l-6 6 6 6L18 20.4l-6-6-6 6L4.6 19l6-6-6-6z"/></svg></button></span>
+        </div>
+        <p class="hint">2 of 4 slots used. Showing providers licensed in Pennsylvania and approved for TCM and BHI. 3 hidden: 2 not approved for every program, 1 already booked.</p>
+      </fieldset>
+    </div>
+  </div>
+  <div class="modal__foot">
+    <p class="modal__why" role="status">Ready to save.</p>
+    <div class="modal__acts">
+      <button type="button" class="btn">Cancel</button>
+      <button type="button" class="btn btn_brand">Schedule event</button>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

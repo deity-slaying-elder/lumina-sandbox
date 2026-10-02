@@ -1,0 +1,22 @@
+:host {
+  --app-motion-fast: 100ms;
+  --app-motion-base: 150ms;
+  --app-motion-panel: 250ms;
+  --app-ease-out: cubic-bezier(0.2, 0, 0.38, 0.9);
+  --app-ease-in: cubic-bezier(0.2, 0, 1, 0.9);
+}
+@media (prefers-reduced-motion: reduce) {
+  :host {
+    --app-motion-fast: 0.01ms;
+    --app-motion-base: 0.01ms;
+    --app-motion-panel: 0.01ms;
+  }
+}
+.app-focus-ring:focus-visible {
+  outline: none;
+  box-shadow: var(
+    --slds-g-shadow-outset-focus-1,
+    0 0 0 2px #ffffff,
+    0 0 0 4px #0b5cab
+  );
+}

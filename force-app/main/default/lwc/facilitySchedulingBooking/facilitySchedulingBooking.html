@@ -1,0 +1,238 @@
+<template>
+  <lightning-modal-header label={heading}></lightning-modal-header>
+
+  <lightning-modal-body>
+    <div class="booking slds-is-relative">
+      <lightning-spinner
+        lwc:if={busy}
+        alternative-text="Loading availability"
+        size="small"
+      ></lightning-spinner>
+
+      <div lwc:if={modalError} class="notice notice_error" role="alert">
+        <lightning-icon
+          icon-name="utility:error"
+          size="x-small"
+          class="notice__icon"
+          aria-hidden="true"
+        ></lightning-icon>
+        <div>
+          <p class="notice__title">The event didn't save.</p>
+          <p class="notice__body">{modalError}</p>
+        </div>
+      </div>
+
+      <!-- Step one. With no facility there is nothing to pin, so the choice gets
+                 the whole width. A rail holding only a search box read as a stray panel. -->
+      <div lwc:if={needsFacility} class="pick">
+        <h2 class="pick__title">Which facility is this visit for?</h2>
+        <lightning-input
+          type="search"
+          label="Facility"
+          variant="label-hidden"
+          required
+          value={facilitySearchTerm}
+          placeholder="Search by facility name"
+          onchange={handleFacilitySearch}
+        ></lightning-input>
+        <p class="hint" role="status">{facilitySearchHint}</p>
+        <ul
+          lwc:if={hasFacilityMatches}
+          class="results"
+          role="listbox"
+          aria-label="Matching facilities"
+        >
+          <template for:each={facilityMatches} for:item="m">
+            <li key={m.value} role="presentation">
+              <button
+                type="button"
+                class="results__item"
+                data-id={m.value}
+                onclick={handleFacilityPick}
+              >
+                {m.label}
+              </button>
+            </li>
+          </template>
+        </ul>
+      </div>
+
+      <!-- Step two. The facility, its numbers and the verdict stay pinned while
+                 the form is worked. -->
+      <div lwc:else class="layout">
+        <aside class="rail">
+          <p class="rail__name">{railFacilityName}</p>
+          <p class="rail__sub">{facilityContext}</p>
+          <lightning-button
+            variant="base"
+            label="Change facility"
+            class="rail__change"
+            onclick={handleClearFacility}
+          ></lightning-button>
+
+          <div lwc:if={hasSnapshot} class="rail__sec">
+            <span class="rail__label">Patients</span>
+            <dl class="counts">
+              <template for:each={counts} for:item="c">
+                <div key={c.key} class="counts__cell">
+                  <dt class="counts__label">{c.label}</dt>
+                  <dd class="counts__value">{c.value}</dd>
+                </div>
+              </template>
+            </dl>
+          </div>
+
+          <div lwc:if={hasChecks} class="rail__sec" data-eligibility>
+            <div class="rail__head">
+              <span class="rail__label">Eligibility</span>
+              <c-status-chip
+                label={checkSummary.label}
+                tone={checkSummary.tone}
+              ></c-status-chip>
+            </div>
+            <ul class="checks" aria-live="polite">
+              <template for:each={checks} for:item="c">
+                <li key={c.key} class={c.css}>
+                  <lightning-icon
+                    icon-name={c.icon}
+                    size="xx-small"
+                    class="check__icon"
+                    aria-hidden="true"
+                  ></lightning-icon>
+                  <span class="check__text">
+                    <strong>{c.label}</strong>
+                    <template lwc:if={c.detail}> {c.detail}</template>
+                  </span>
+                </li>
+              </template>
+            </ul>
+          </div>
+
+          <div lwc:else class="rail__sec">
+            <span class="rail__label">Eligibility</span>
+            <p class="hint">{eligibilityHint}</p>
+          </div>
+        </aside>
+
+        <div class="form">
+          <fieldset class="group">
+            <legend class="group__legend">Programs on this visit</legend>
+            <ul class="programs">
+              <template for:each={programItems} for:item="p">
+                <li key={p.key} class="programs__item">
+                  <lightning-input
+                    type="checkbox"
+                    label={p.label}
+                    checked={p.checked}
+                    disabled={p.disabled}
+                    data-program={p.value}
+                    onchange={handleProgramToggle}
+                  ></lightning-input>
+                  <span lwc:if={p.hasReason} class="programs__reason"
+                    >{p.reason}</span
+                  >
+                </li>
+              </template>
+            </ul>
+            <p class="hint" role="status">{programSummary}</p>
+          </fieldset>
+
+          <fieldset class="group">
+            <legend class="group__legend">When</legend>
+            <div class="grid2">
+              <lightning-input
+                type="datetime"
+                label="Starts"
+                required
+                value={modal.startTime}
+                onchange={handleStartChange}
+              ></lightning-input>
+              <lightning-input
+                type="datetime"
+                label="Ends"
+                required
+                value={modal.endTime}
+                onchange={handleEndChange}
+              ></lightning-input>
+            </div>
+            <div lwc:if={isEditing} class="grid2 slds-m-top_x-small">
+              <lightning-combobox
+                label="Event status"
+                options={statusPickerOptions}
+                value={modal.onboardingStatus}
+                onchange={handleEventStatusChange}
+              ></lightning-combobox>
+            </div>
+          </fieldset>
+
+          <fieldset class="group">
+            <legend class="group__legend">Who is going</legend>
+            <div class="grid2">
+              <lightning-combobox
+                label="Facilitator"
+                options={facilitatorOptions}
+                value={modal.facilitatorId}
+                placeholder="Select a facilitator"
+                onchange={handleFacilitatorChange}
+              ></lightning-combobox>
+              <lightning-combobox
+                label="Add a provider"
+                options={addableProviders}
+                value=""
+                placeholder={addProviderPlaceholder}
+                disabled={providerSlotsFull}
+                onchange={handleAddProvider}
+              ></lightning-combobox>
+            </div>
+
+            <ul lwc:if={hasProviders} class="people">
+              <template for:each={chosenProviders} for:item="p">
+                <li key={p.value} class="person">
+                  <span class="person__name">{p.label}</span>
+                  <lightning-button-icon
+                    icon-name="utility:close"
+                    variant="bare"
+                    size="small"
+                    alternative-text={p.removeLabel}
+                    title={p.removeLabel}
+                    data-id={p.value}
+                    onclick={handleRemoveProvider}
+                  ></lightning-button-icon>
+                </li>
+              </template>
+            </ul>
+
+            <p class="hint">{providerHelp}</p>
+            <p lwc:if={noFreeFacilitators} class="hint hint_error">
+              No facilitator is free in this window. Move the time, or leave
+              this empty and assign one later.
+            </p>
+            <p lwc:if={noEligibleProviders} class="hint hint_error">
+              No provider is both licensed in this state and approved for every
+              program on this visit.
+            </p>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </lightning-modal-body>
+
+  <lightning-modal-footer>
+    <div class="footer">
+      <p class="footer__why" role="status">{saveBlockedReason}</p>
+      <div class="footer__actions">
+        <lightning-button
+          label="Cancel"
+          onclick={handleCancel}
+          class="slds-m-right_x-small"
+        ></lightning-button>
+        <lightning-button
+          variant="brand"
+          label={saveLabel}
+          disabled={saveDisabled}
+          onclick={handleSave}
+        ></lightning-button>
+      </div>
+    </div>
+  </lightning-modal-footer>
+</template>

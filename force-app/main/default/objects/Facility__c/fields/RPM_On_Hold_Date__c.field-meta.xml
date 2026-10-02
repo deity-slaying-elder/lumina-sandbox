@@ -3,6 +3,7 @@
     <fullName>RPM_On_Hold_Date__c</fullName>
     <label>RPM On Hold Date</label>
     <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Date</type>

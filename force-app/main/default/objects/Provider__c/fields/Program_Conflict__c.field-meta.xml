@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Program_Conflict__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Set when Programs contains a conflicting combination (e.g. BHI and CoCM). Warning only - the block is applied at booking time, not on this record.</description>
+    <inlineHelpText>This provider has a conflicting program combination. Bookings for those programs are blocked.</inlineHelpText>
+    <label>Program Conflict</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

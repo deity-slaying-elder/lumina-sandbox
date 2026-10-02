@@ -1,0 +1,37 @@
+/* Scheduling family tokens, declared once and imported by every component in the
+   family, so no bundle carries its own copy of the palette.
+
+   The programme hues are raw hex on purpose. SLDS ships no eight-way categorical
+   palette, and these were chosen so the minimum CIE deltaE between any two line
+   colours is about 27, above the ~25 at which small patches start reading as the
+   same colour. Colour is never the only cue: every chip also carries the programme
+   name in text, so this is reinforcement. slds-allow-hex.
+
+   The tints were pulled back on 2026-09-30. The first set were saturated enough
+   that a full week of events read as noise; these sit close to the card surface so
+   the week reads calm, and the 8px dot carries the hue instead.
+
+   Dark mode: this org renders classic SLDS, which has no dark surface, so these are
+   single values rather than light-dark() pairs. Revisit if SLDS 2 is switched on. */
+:host {
+  --app-prog-tcm-line: #2b4bb8; /* slds-allow-hex */
+  --app-prog-tcm-tint: #f2f4fc; /* slds-allow-hex */
+  --app-prog-ccm-line: #6b3fa0; /* slds-allow-hex */
+  --app-prog-ccm-tint: #f6f2fb; /* slds-allow-hex */
+  --app-prog-bhi-line: #1a7a5a; /* slds-allow-hex */
+  --app-prog-bhi-tint: #f0f8f5; /* slds-allow-hex */
+  --app-prog-cocm-line: #3f8f3f; /* slds-allow-hex */
+  --app-prog-cocm-tint: #f2f9f2; /* slds-allow-hex */
+  --app-prog-telepsych-line: #b5453f; /* slds-allow-hex */
+  --app-prog-telepsych-tint: #fdf3f2; /* slds-allow-hex */
+  --app-prog-ahth-line: #8a6a35; /* slds-allow-hex */
+  --app-prog-ahth-tint: #faf6ef; /* slds-allow-hex */
+  --app-prog-community-line: #a8478c; /* slds-allow-hex */
+  --app-prog-community-tint: #fcf3f9; /* slds-allow-hex */
+  --app-prog-ipv-line: #8a4a5c; /* slds-allow-hex */
+  --app-prog-ipv-tint: #fbf3f5; /* slds-allow-hex */
+  --app-prog-none-line: #5a6b7c; /* slds-allow-hex */
+  --app-prog-none-tint: #f4f6f8; /* slds-allow-hex */
+  --app-prog-cancelled-line: #939393; /* slds-allow-hex */
+  --app-prog-cancelled-tint: #f5f5f5; /* slds-allow-hex */
+}

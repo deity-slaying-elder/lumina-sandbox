@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Census__c</fullName>
+    <description>Patients on hand at the facility - NOT the certified bed count, which is Beds. Derived from active Patient records.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Patients currently in the facility. Not the bed count.</inlineHelpText>
+    <label>Census</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

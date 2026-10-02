@@ -1,0 +1,426 @@
+<template>
+  <article class="card">
+    <header class="card__head">
+      <span class="card__icon" aria-hidden="true">
+        <lightning-icon
+          icon-name="standard:event"
+          size="small"
+          variant="inverse"
+        ></lightning-icon>
+      </span>
+      <div class="card__titles">
+        <h2 class="card__title">{cardTitle}</h2>
+        <p class="card__meta">{cardSubtitle}</p>
+      </div>
+      <div class="card__actions">
+        <lightning-button-group>
+          <lightning-button
+            label="List"
+            variant={listVariant}
+            icon-name="utility:list"
+            data-view="list"
+            onclick={handleViewChange}
+          ></lightning-button>
+          <lightning-button
+            label="Calendar"
+            variant={calendarVariant}
+            icon-name="utility:dayview"
+            data-view="calendar"
+            onclick={handleViewChange}
+          ></lightning-button>
+        </lightning-button-group>
+        <lightning-button-icon
+          icon-name="utility:refresh"
+          variant="border-filled"
+          alternative-text="Refresh"
+          title="Refresh"
+          onclick={handleRefresh}
+        ></lightning-button-icon>
+        <lightning-button
+          variant="brand"
+          label="Schedule event"
+          icon-name="utility:add"
+          onclick={handleNewEvent}
+        ></lightning-button>
+      </div>
+    </header>
+
+    <!-- ============================================ SUMMARY STRIP
+             Unfiltered on purpose: it states what is true of the whole queue and
+             stays still while the list underneath is narrowed. -->
+    <div class="stats" role="group" aria-label="Queue summary">
+      <template for:each={stats} for:item="s">
+        <button
+          key={s.key}
+          type="button"
+          class="stat"
+          data-stat={s.key}
+          aria-pressed={s.pressed}
+          disabled={s.inert}
+          onclick={handleStatClick}
+        >
+          <span class="stat__label">{s.label}</span>
+          <span class="stat__value">
+            <span class={s.numberClass}>{s.value}</span>
+            <span class="stat__sub">{s.sub}</span>
+          </span>
+          <span class={s.barClass}><i style={s.barStyle}></i></span>
+        </button>
+      </template>
+    </div>
+
+    <!-- ============================================ FILTERS -->
+    <div class="filters">
+      <lightning-input
+        class="filters__search"
+        type="search"
+        label={searchLabel}
+        value={searchTerm}
+        placeholder="Facility or parent company"
+        field-level-help="Only facilities awaiting onboarding are searched."
+        onchange={handleSearch}
+      ></lightning-input>
+      <lightning-combobox
+        lwc:if={showListFilters}
+        class="filters__field"
+        label="Date range"
+        options={rangeOptions}
+        value={rangePreset}
+        onchange={handleRangeChange}
+      ></lightning-combobox>
+      <lightning-combobox
+        class="filters__field"
+        label="Program"
+        options={programFilterOptions}
+        value={program}
+        onchange={handleProgramFilterChange}
+      ></lightning-combobox>
+      <lightning-combobox
+        lwc:if={showListFilters}
+        class="filters__field"
+        label="Sort by"
+        options={sortOptions}
+        value={sortKey}
+        onchange={handleSortChange}
+      ></lightning-combobox>
+      <template lwc:if={showCustomDates}>
+        <lightning-input
+          class="filters__field"
+          type="date"
+          label="From"
+          value={fromDate}
+          onchange={handleFromChange}
+        ></lightning-input>
+        <lightning-input
+          class="filters__field"
+          type="date"
+          label="To"
+          value={toDate}
+          onchange={handleToChange}
+        ></lightning-input>
+      </template>
+      <div class="filters__right">
+        <lightning-button
+          lwc:if={isNonDefault}
+          variant="base"
+          label="Clear filters"
+          onclick={handleClear}
+        ></lightning-button>
+      </div>
+    </div>
+
+    <c-empty-state
+      lwc:if={error}
+      variant="failed"
+      heading="The list didn't load"
+      body={error}
+      cta-label="Try again"
+      onprimaryaction={handleRetry}
+    ></c-empty-state>
+
+    <!-- ============================================ LIST -->
+    <template lwc:if={showList}>
+      <div lwc:if={showSkeleton} class="skeleton" aria-hidden="true">
+        <template for:each={skeletonRows} for:item="s">
+          <div key={s.key} class="skeleton__row"></div>
+        </template>
+      </div>
+
+      <div lwc:if={hasRows} class="rows" role="list">
+        <template for:each={rows} for:item="r">
+          <article key={r.facilityId} class="row" role="listitem">
+            <div class="who">
+              <a class="who__name" href={r.facilityUrl}>{r.name}</a>
+              <p class="who__sub">
+                <span>{r.parentCompanyLabel}</span>
+                <i class="dotsep" aria-hidden="true"></i>
+                <span>{r.stateLabel}</span>
+              </p>
+            </div>
+
+            <!-- Counts drawn, not printed. Three columns of zeroes told
+                             you nothing about how far along a facility was. -->
+            <div class="prog">
+              <template lwc:if={r.hasPatients}>
+                <p class="prog__top">
+                  <span>Patients</span>
+                  <span class="prog__n">{r.census}</span>
+                </p>
+                <div
+                  class="prog__track"
+                  role="img"
+                  aria-label={r.progressLabel}
+                >
+                  <i class="prog__seen" style={r.seenStyle}></i>
+                  <i class="prog__consent" style={r.consentStyle}></i>
+                </div>
+                <p class="prog__legend">
+                  <span><i class="sw sw_seen"></i>{r.seen} seen</span>
+                  <span
+                    ><i class="sw sw_consent"></i>{r.consented} consented</span
+                  >
+                </p>
+              </template>
+              <p lwc:else class="prog__empty">No patients loaded yet</p>
+            </div>
+
+            <div class="when">
+              <span class="when__d">{r.rolloutLabel}</span>
+              <span class="when__sub">rollout</span>
+            </div>
+
+            <div class="booked">
+              <c-status-chip
+                label={r.coverageLabel}
+                tone={r.coverageTone}
+                icon-name={r.coverageIcon}
+              ></c-status-chip>
+              <button
+                lwc:if={r.hasEvents}
+                type="button"
+                class="booked__link"
+                data-id={r.facilityId}
+                title={r.showOnCalendarLabel}
+                onclick={handleShowOnCalendar}
+              >
+                View on calendar
+              </button>
+              <span class="booked__next">{r.nextLabel}</span>
+            </div>
+
+            <lightning-button-menu
+              alternative-text={r.menuLabel}
+              icon-size="x-small"
+              menu-alignment="auto"
+              data-id={r.facilityId}
+              onselect={handleRowMenu}
+            >
+              <lightning-menu-item
+                value="schedule"
+                label="Schedule event"
+              ></lightning-menu-item>
+              <lightning-menu-item
+                value="open"
+                label="Open facility"
+              ></lightning-menu-item>
+            </lightning-button-menu>
+          </article>
+        </template>
+      </div>
+
+      <p lwc:if={hasRows} class="tablefoot" role="status">{capLabel}</p>
+
+      <c-empty-state
+        lwc:if={showEmpty}
+        variant={emptyVariant}
+        heading={emptyHeading}
+        body={emptyBody}
+        cta-label={emptyCta}
+        onprimaryaction={handleEmptyCta}
+      ></c-empty-state>
+    </template>
+
+    <!-- ============================================ CALENDAR -->
+    <template lwc:if={showCalendar}>
+      <div class="calbar">
+        <lightning-button-group>
+          <lightning-button
+            label="Previous"
+            icon-name="utility:chevronleft"
+            onclick={handlePrev}
+          ></lightning-button>
+          <lightning-button
+            label={todayLabel}
+            onclick={handleToday}
+          ></lightning-button>
+          <lightning-button
+            label="Next"
+            icon-name="utility:chevronright"
+            icon-position="right"
+            onclick={handleNext}
+          ></lightning-button>
+        </lightning-button-group>
+        <!-- A segmented switcher, not a dropdown. The dropdown was a bare combobox
+             floating at the far right with nothing to say what it switched. -->
+        <!-- A real segmented control, so the current span reads as a selection
+             rather than three buttons that happen to sit together. -->
+        <lightning-radio-group
+          class="calbar__mode"
+          name="calendarSpan"
+          label="Calendar span"
+          variant="label-hidden"
+          type="button"
+          options={calModeOptions}
+          value={calMode}
+          onchange={handleCalMode}
+        ></lightning-radio-group>
+      </div>
+
+      <div lwc:if={showSkeleton} class="skeleton" aria-hidden="true">
+        <template for:each={skeletonRows} for:item="s">
+          <div key={s.key} class="skeleton__row"></div>
+        </template>
+      </div>
+
+      <template lwc:if={calendarHasEvents}>
+        <!-- Month and week share one grid. Day is a list, because a single column
+             of seven cells is just a list with extra lines. -->
+        <!-- Focused on one facility: said in words, with a way back out. -->
+        <div lwc:if={hasFocusFacility} class="focusbar" role="status">
+          <span>{focusLabel}</span>
+          <lightning-button
+            variant="base"
+            label="Show all facilities"
+            onclick={handleClearFocus}
+          ></lightning-button>
+        </div>
+
+        <template lwc:if={showGrid}>
+          <div class="cal">
+            <div class="cal__heads" aria-hidden="true">
+              <template for:each={weekdayHeads} for:item="h">
+                <span key={h.key} class="cal__head">{h.label}</span>
+              </template>
+            </div>
+            <div class={gridClass}>
+              <template for:each={grid} for:item="cell">
+                <section key={cell.key} class={cell.cellClass}>
+                  <h3 class={cell.headClass}>
+                    <button
+                      type="button"
+                      class="cal__daynum"
+                      data-day={cell.key}
+                      title={cell.addLabel}
+                      onclick={handleOpenDay}
+                    >
+                      {cell.dayNumber}
+                    </button>
+                    <span lwc:if={cell.isToday} class="today-chip">Today</span>
+                    <button
+                      type="button"
+                      class="cal__add"
+                      data-day={cell.key}
+                      title={cell.addLabel}
+                      onclick={handleAddOnDay}
+                    >
+                      <lightning-icon
+                        icon-name="utility:add"
+                        size="xx-small"
+                        alternative-text={cell.addLabel}
+                      ></lightning-icon>
+                    </button>
+                  </h3>
+                  <template for:each={cell.events} for:item="ev">
+                    <button
+                      key={ev.key}
+                      type="button"
+                      class={ev.css}
+                      data-id={ev.eventId}
+                      title={ev.tooltip}
+                      onclick={handleEditEvent}
+                    >
+                      <span class="ev__title">{ev.facilityName}</span>
+                      <span class="ev__row">
+                        <span class="ev__meta">{ev.timeShort}</span>
+                        <c-status-chip
+                          label={ev.statusLabel}
+                          tone={ev.statusTone}
+                        ></c-status-chip>
+                      </span>
+                      <!-- Programmes on their own line under the time, so a visit
+                           covering three of them is still readable in a month cell. -->
+                      <span class="ev__row">
+                        <i class={ev.dotClass} aria-hidden="true"></i>
+                        <span class="ev__meta">{ev.programText}</span>
+                      </span>
+                    </button>
+                  </template>
+                  <button
+                    lwc:if={cell.hasOverflow}
+                    type="button"
+                    class="cal__more"
+                    data-day={cell.key}
+                    onclick={handleOpenDay}
+                  >
+                    {cell.overflowLabel}
+                  </button>
+                </section>
+              </template>
+            </div>
+          </div>
+        </template>
+
+        <!-- Day -->
+        <ul lwc:if={isDay} class="daylist">
+          <template for:each={dayEvents} for:item="ev">
+            <li key={ev.key}>
+              <button
+                type="button"
+                class={ev.css}
+                data-id={ev.eventId}
+                title={ev.tooltip}
+                onclick={handleEditEvent}
+              >
+                <span class="ev__time">{ev.timeLabel}</span>
+                <span class="ev__body">
+                  <span class="ev__title">{ev.facilityName}</span>
+                  <span class="ev__row">
+                    <c-status-chip
+                      label={ev.statusLabel}
+                      tone={ev.statusTone}
+                    ></c-status-chip>
+                    <span class="ev__meta"
+                      >{ev.providerName}{ev.providerExtraLabel}</span
+                    >
+                  </span>
+                  <span class="ev__row">
+                    <i class={ev.dotClass} aria-hidden="true"></i>
+                    <span class="ev__meta">{ev.programText}</span>
+                  </span>
+                </span>
+              </button>
+            </li>
+          </template>
+        </ul>
+
+        <div class="legend">
+          <span class="legend__title">Programs</span>
+          <template for:each={programLegend} for:item="k">
+            <span key={k.key} class="legend__item">
+              <i class={k.css} aria-hidden="true"></i>{k.label}
+            </span>
+          </template>
+        </div>
+      </template>
+
+      <c-empty-state
+        lwc:if={calendarIsEmpty}
+        variant="first-use"
+        heading={emptyCalendarHeading}
+        body="Pick a facility from the list, or use the plus on a day to book into it."
+        cta-label="Schedule event"
+        onprimaryaction={handleNewEvent}
+      ></c-empty-state>
+    </template>
+  </article>
+</template>

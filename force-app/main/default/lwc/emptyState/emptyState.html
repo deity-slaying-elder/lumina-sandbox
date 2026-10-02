@@ -1,0 +1,30 @@
+<template>
+  <div class={containerClass} role={roleValue}>
+    <div class="empty__icon">
+      <lightning-icon
+        icon-name={icon}
+        size="small"
+        aria-hidden="true"
+      ></lightning-icon>
+    </div>
+    <div class="empty__title">{heading}</div>
+    <div class="empty__body">{body}</div>
+    <div class="empty__actions">
+      <lightning-button
+        lwc:if={ctaLabel}
+        data-id="primary-action"
+        variant="neutral"
+        label={ctaLabel}
+        onclick={handlePrimaryAction}
+      ></lightning-button>
+      <lightning-button
+        lwc:if={secondaryLabel}
+        data-id="secondary-action"
+        variant="base"
+        label={secondaryLabel}
+        onclick={handleSecondaryAction}
+      ></lightning-button>
+    </div>
+    <div class="empty__ref" lwc:if={showReference}>Reference {reference}</div>
+  </div>
+</template>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>First_Welcome_Letter_Sent_Date__c</fullName>
+    <description>Stamped the first (and only) time the Lumina welcome letter is generated and sent to this facility. Leave blank to allow generation; populated value blocks re-sending.</description>
+    <inlineHelpText>Stamped the first (and only) time the Lumina welcome letter is generated and sent to this facility. Leave blank to allow generation; populated value blocks re-sending.</inlineHelpText>
+    <label>First Welcome Letter Sent Date</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

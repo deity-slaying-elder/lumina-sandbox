@@ -1,0 +1,9 @@
+<template>
+  <c-status-chip
+    lwc:if={tone}
+    label={label}
+    tone={tone}
+    icon-name={iconName}
+  ></c-status-chip>
+  <span lwc:if={detail} class="detail">{detail}</span>
+</template>

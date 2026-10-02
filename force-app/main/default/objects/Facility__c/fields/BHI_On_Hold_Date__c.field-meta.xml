@@ -3,6 +3,7 @@
     <fullName>BHI_On_Hold_Date__c</fullName>
     <label>BHI On Hold Date</label>
     <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Date</type>
